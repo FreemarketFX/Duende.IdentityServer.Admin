@@ -1,0 +1,17 @@
+version: 2
+registries:
+  nuget-github:
+    type: nuget-feed
+    url: https://nuget.pkg.github.com/FreemarketFX/index.json
+    username: PersonalAccessToken
+    password: ${{secrets.ADMIN_READ_NUGET_TOKEN}}
+updates:
+  - package-ecosystem: nuget
+    open-pull-requests-limit: 10
+    directory: /
+    schedule:
+      interval: weekly
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
