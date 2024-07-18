@@ -34,6 +34,10 @@ jobs:
           echo "Release version: $version"
           echo "RELEASE_VERSION=$version" >> $Env:GITHUB_ENV
 
+    - name: Restore dependencies
+      run: |
+          dotnet nuget add source  ${{ secrets.DUENDE_PRIVATE_FEED }}
+
     - name: Build
       run: |
           dotnet nuget add source https://nuget.pkg.github.com/FreemarketFX/index.json --name GitHub-FreemarketFX --username PersonalAccessToken --password ${{ secrets.ADMIN_READ_NUGET_TOKEN }} --store-password-in-clear-text
