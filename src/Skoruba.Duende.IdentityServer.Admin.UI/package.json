@@ -28,7 +28,7 @@
         "toastr": "2.1.4"
     },
     "devDependencies": {
-        "gulp": "4.0.2",
+        "gulp": "5.0.0",
         "gulp-concat": "2.6.1",
         "gulp-uglify": "3.0.2",
         "gulp-sass": "4.1.0",
