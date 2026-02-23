@@ -46,6 +46,7 @@ using Skoruba.Duende.IdentityServer.Admin.UI.Api.Helpers.Localization;
 using Skoruba.Duende.IdentityServer.Admin.UI.Api.Mappers;
 using Skoruba.Duende.IdentityServer.Admin.UI.Api.Resources;
 using Skoruba.Duende.IdentityServer.Shared.Configuration.Helpers;
+using Skoruba.Duende.IdentityServer.Shared.Configuration.Constants;
 
 namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Helpers
 {
@@ -211,8 +212,8 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Helpers
             services.AddIdentityCore<TUser>(options =>
                 {
                     configuration.GetSection(nameof(IdentityOptions)).Bind(options);
-                    options.Stores.SchemaVersion = IdentitySchemaVersions.Version3;
-                    options.Stores.MaxLengthForKeys = 450;
+                    options.Stores.SchemaVersion = IdentityStoreDefaults.SchemaVersion;
+                    options.Stores.MaxLengthForKeys = IdentityStoreDefaults.MaxLengthForKeys;
                 })
                 .AddRoles<TRole>()
                 .AddEntityFrameworkStores<TIdentityDbContext>()

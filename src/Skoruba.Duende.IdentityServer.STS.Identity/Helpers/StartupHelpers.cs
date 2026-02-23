@@ -26,6 +26,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web;
 using Microsoft.IdentityModel.Tokens;
+using Skoruba.Duende.IdentityServer.Shared.Configuration.Constants;
 using System.IO;
 using Skoruba.Duende.IdentityServer.Admin.EntityFramework.Configuration.Configuration;
 using Skoruba.Duende.IdentityServer.Admin.EntityFramework.Configuration.PostgreSQL;
@@ -331,8 +332,8 @@ namespace Skoruba.Duende.IdentityServer.STS.Identity.Helpers
                 .AddIdentity<TUserIdentity, TUserIdentityRole>(options =>
                 {
                     configuration.GetSection(nameof(IdentityOptions)).Bind(options);
-                    options.Stores.SchemaVersion = IdentitySchemaVersions.Version3;
-                    options.Stores.MaxLengthForKeys = 450;
+                    options.Stores.SchemaVersion = IdentityStoreDefaults.SchemaVersion;
+                    options.Stores.MaxLengthForKeys = IdentityStoreDefaults.MaxLengthForKeys;
                 })
                 .AddEntityFrameworkStores<TIdentityDbContext>()
                 .AddDefaultTokenProviders();

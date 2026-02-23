@@ -12,6 +12,7 @@ using Skoruba.Duende.IdentityServer.Admin.EntityFramework.Shared.DbContexts;
 using Skoruba.Duende.IdentityServer.Admin.EntityFramework.Shared.Entities.Identity;
 using Skoruba.Duende.IdentityServer.Admin.UI.Api.Helpers;
 using Skoruba.Duende.IdentityServer.Admin.UI.Api.Middlewares;
+using Skoruba.Duende.IdentityServer.Shared.Configuration.Constants;
 
 namespace Skoruba.Duende.IdentityServer.Admin.Api.Configuration.Test
 {
@@ -30,7 +31,12 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.Configuration.Test
         public override void RegisterAuthentication(IServiceCollection services)
         {
             services
-                .AddIdentity<UserIdentity, UserIdentityRole>(options => Configuration.GetSection(nameof(IdentityOptions)).Bind(options))
+                .AddIdentity<UserIdentity, UserIdentityRole>(options =>
+                {
+                    Configuration.GetSection(nameof(IdentityOptions)).Bind(options);
+                    options.Stores.SchemaVersion = IdentityStoreDefaults.SchemaVersion;
+                    options.Stores.MaxLengthForKeys = IdentityStoreDefaults.MaxLengthForKeys;
+                })
                 .AddEntityFrameworkStores<AdminIdentityDbContext>()
                 .AddDefaultTokenProviders();
 

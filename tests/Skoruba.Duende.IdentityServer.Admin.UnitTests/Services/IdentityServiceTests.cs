@@ -9,6 +9,7 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Skoruba.AuditLogging.Services;
 using Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Identity.Dtos.Identity;
@@ -21,6 +22,7 @@ using Skoruba.Duende.IdentityServer.Admin.EntityFramework.Identity.Repositories.
 using Skoruba.Duende.IdentityServer.Admin.EntityFramework.Shared.DbContexts;
 using Skoruba.Duende.IdentityServer.Admin.EntityFramework.Shared.Entities.Identity;
 using Skoruba.Duende.IdentityServer.Admin.UnitTests.Mocks;
+using Skoruba.Duende.IdentityServer.Shared.Configuration.Constants;
 using Xunit;
 
 namespace Skoruba.Duende.IdentityServer.Admin.UnitTests.Services
@@ -31,7 +33,17 @@ namespace Skoruba.Duende.IdentityServer.Admin.UnitTests.Services
         {
             var databaseName = Guid.NewGuid().ToString();
 
+            // Ensure Identity uses SchemaVersion=3 (passkeys) even in in-memory tests
+            var services = new ServiceCollection();
+            services.AddOptions<IdentityOptions>().Configure(o =>
+            {
+                o.Stores.SchemaVersion = IdentityStoreDefaults.SchemaVersion;
+                o.Stores.MaxLengthForKeys = IdentityStoreDefaults.MaxLengthForKeys;
+            });
+            var serviceProvider = services.BuildServiceProvider();
+
             _dbContextOptions = new DbContextOptionsBuilder<AdminIdentityDbContext>()
+                .UseApplicationServiceProvider(serviceProvider)
                 .UseInMemoryDatabase(databaseName)
                 .Options;
         }

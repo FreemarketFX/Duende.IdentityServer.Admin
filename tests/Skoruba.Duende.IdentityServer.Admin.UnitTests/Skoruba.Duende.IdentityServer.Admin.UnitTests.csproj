@@ -24,9 +24,10 @@
 		<PackageReference Include="Moq" Version="4.20.72" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <ProjectReference Include="..\..\src\Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Identity\Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Identity.csproj" />
-	  <ProjectReference Include="..\..\src\Skoruba.Duende.IdentityServer.Admin.BusinessLogic\Skoruba.Duende.IdentityServer.Admin.BusinessLogic.csproj" />
-	</ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Identity\Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Identity.csproj" />
+    <ProjectReference Include="..\..\src\Skoruba.Duende.IdentityServer.Admin.BusinessLogic\Skoruba.Duende.IdentityServer.Admin.BusinessLogic.csproj" />
+    <ProjectReference Include="..\..\src\Skoruba.Duende.IdentityServer.Shared.Configuration\Skoruba.Duende.IdentityServer.Shared.Configuration.csproj" />
+  </ItemGroup>
 
 </Project>
