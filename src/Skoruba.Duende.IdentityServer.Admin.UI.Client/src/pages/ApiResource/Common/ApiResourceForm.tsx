@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   createApiResource,
   updateApiResource,
@@ -62,29 +62,27 @@ const ApiResourceForm: React.FC<ApiResourceFormProps> = ({
 
   const { DialogCmp } = useConfirmUnsavedChanges(form.formState.isDirty);
 
-  const mutation = useMutation(
-    (data: ApiResourceFormData) =>
+  const mutation = useMutation({
+    mutationFn: (data: ApiResourceFormData) =>
       mode === ApiResourceFormMode.Create
         ? createApiResource(data)
         : updateApiResource(Number(resourceId), data),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(queryKeys.apiResource);
-        queryClient.invalidateQueries(queryKeys.apiResources);
-        // Invalidate configuration issues cache when API resource changes
-        queryClient.invalidateQueries(queryKeys.configurationIssues);
-        queryClient.invalidateQueries(queryKeys.configurationIssuesSummary);
-        toast({
-          title: <Hoorey />,
-          description:
-            mode === ApiResourceFormMode.Create
-              ? t("ApiResource.Actions.Created")
-              : t("ApiResource.Actions.Updated"),
-        });
-        navigateWithBlocker(ApiResourcesUrl);
-      },
-    }
-  );
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [queryKeys.apiResource] });
+      queryClient.invalidateQueries({ queryKey: [queryKeys.apiResources] });
+      // Invalidate configuration issues cache when API resource changes
+      queryClient.invalidateQueries({ queryKey: [queryKeys.configurationIssues] });
+      queryClient.invalidateQueries({ queryKey: [queryKeys.configurationIssuesSummary] });
+      toast({
+        title: <Hoorey />,
+        description:
+          mode === ApiResourceFormMode.Create
+            ? t("ApiResource.Actions.Created")
+            : t("ApiResource.Actions.Updated"),
+      });
+      navigateWithBlocker(ApiResourcesUrl);
+    },
+  });
 
   return (
     <>

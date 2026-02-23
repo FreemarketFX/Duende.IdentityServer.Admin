@@ -10,7 +10,7 @@ import {
   toggleConfigurationRule,
   deleteConfigurationRule,
 } from "@/services/ConfigurationRulesService";
-import { useMutation } from "react-query";
+import { useMutation } from "@tanstack/react-query";
 import { IssueTypeBadge } from "../ConfigurationIssues/IssueTypeBadge";
 import { toast } from "@/components/ui/use-toast";
 import type { ColumnDef } from "@tanstack/react-table";
@@ -28,37 +28,33 @@ const ConfigurationRulesTable: React.FC<ConfigurationRulesTableProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  const toggleMutation = useMutation(
-    (id: number) => toggleConfigurationRule(id),
-    {
-      onSuccess: () => {
-        onRefresh();
-      },
-      onError: () => {
-        toast({
-          variant: "destructive",
-          title: t("ConfigurationRules.ToggleFailed"),
-          description: t("ConfigurationRules.GenericError"),
-        });
-      },
-    }
-  );
+  const toggleMutation = useMutation({
+    mutationFn: (id: number) => toggleConfigurationRule(id),
+    onSuccess: () => {
+      onRefresh();
+    },
+    onError: () => {
+      toast({
+        variant: "destructive",
+        title: t("ConfigurationRules.ToggleFailed"),
+        description: t("ConfigurationRules.GenericError"),
+      });
+    },
+  });
 
-  const deleteMutation = useMutation(
-    (id: number) => deleteConfigurationRule(id),
-    {
-      onSuccess: () => {
-        onRefresh();
-      },
-      onError: () => {
-        toast({
-          variant: "destructive",
-          title: t("ConfigurationRules.DeleteFailed"),
-          description: t("ConfigurationRules.GenericError"),
-        });
-      },
-    }
-  );
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => deleteConfigurationRule(id),
+    onSuccess: () => {
+      onRefresh();
+    },
+    onError: () => {
+      toast({
+        variant: "destructive",
+        title: t("ConfigurationRules.DeleteFailed"),
+        description: t("ConfigurationRules.GenericError"),
+      });
+    },
+  });
 
   const handleToggle = async (rule: client.ConfigurationRuleDto) => {
     await toggleMutation.mutateAsync(rule.id);
@@ -154,7 +150,7 @@ const ConfigurationRulesTable: React.FC<ConfigurationRulesTableProps> = ({
           <Switch
             checked={row.original.isEnabled}
             onCheckedChange={() => handleToggle(row.original)}
-            disabled={toggleMutation.isLoading}
+            disabled={toggleMutation.isPending}
           />
         );
       },
@@ -176,7 +172,7 @@ const ConfigurationRulesTable: React.FC<ConfigurationRulesTableProps> = ({
               variant="ghost"
               size="sm"
               onClick={() => handleDelete(row.original.id)}
-              disabled={deleteMutation.isLoading}
+              disabled={deleteMutation.isPending}
             >
               <Trash2 className="h-4 w-4 text-destructive" />
             </Button>

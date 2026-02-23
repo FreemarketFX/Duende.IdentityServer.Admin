@@ -13,7 +13,7 @@ import {
   mapFormDataToApiResource,
 } from "@/pages/ApiResource/Common/ApiResourceSchema";
 import { client } from "@skoruba/duende.identityserver.admin.api.client";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { queryKeys } from "./QueryKeys";
 import { getNowForUnspecifiedDb } from "@/helpers/DateTimeHelper";
 
@@ -106,7 +106,10 @@ export const createApiResourceSecret = async (
 };
 
 export const useApiResource = (id: number) => {
-  return useQuery([queryKeys.apiResource, id], () => getApiResource(id));
+  return useQuery({
+    queryKey: [queryKeys.apiResource, id],
+    queryFn: () => getApiResource(id),
+  });
 };
 
 export const getApiResource = async (

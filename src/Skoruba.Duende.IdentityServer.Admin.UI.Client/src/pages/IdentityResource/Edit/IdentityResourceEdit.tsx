@@ -4,7 +4,7 @@ import Page from "@/components/Page/Page";
 import Loading from "@/components/Loading/Loading";
 import { Breadcrumbs } from "@/components/Breadcrumbs/Breadcrumbs";
 import { IdentityResourcesUrl } from "@/routing/Urls";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { getIdentityResource } from "@/services/IdentityResourceServices";
 import IdentityResourceForm, {
   IdentityResourceFormMode,
@@ -25,10 +25,10 @@ const IdentityResourceEdit = () => {
     (to: string) => void
   >(() => () => {});
 
-  const { data: identityResourceData, isLoading } = useQuery(
-    [queryKeys.identityResource, resourceId],
-    () => getIdentityResource(Number(resourceId))
-  );
+  const { data: identityResourceData, isLoading } = useQuery({
+    queryKey: [queryKeys.identityResource, resourceId],
+    queryFn: () => getIdentityResource(Number(resourceId)),
+  });
 
   const onIdentityResourceDelete = useCallback(() => {
     deleteModal.openModal();

@@ -4,7 +4,7 @@ import { Form } from "@/components/ui/form";
 import { RoleFormData, formSchema } from "../Common/RoleSchema";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createRole, updateRole } from "@/services/RoleService";
 import { useTranslation } from "react-i18next";
 import { RolesUrl } from "@/routing/Urls";
@@ -47,28 +47,26 @@ const RoleForm: React.FC<RoleFormProps> = ({ mode, roleId, defaultValues }) => {
   const navigate = useNavigateWithBlocker(form);
   const { DialogCmp } = useConfirmUnsavedChanges(form.formState.isDirty);
 
-  const mutation = useMutation(
-    (data: RoleFormData) =>
+  const mutation = useMutation({
+    mutationFn: (data: RoleFormData) =>
       mode === RoleFormMode.Create
         ? createRole(data)
         : updateRole(roleId!, data),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(queryKeys.roles);
-        queryClient.invalidateQueries(queryKeys.role);
-        queryClient.invalidateQueries(queryKeys.roleClaims);
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [queryKeys.roles] });
+      queryClient.invalidateQueries({ queryKey: [queryKeys.role] });
+      queryClient.invalidateQueries({ queryKey: [queryKeys.roleClaims] });
 
-        toast({
-          title: <Hoorey />,
-          description:
-            mode === RoleFormMode.Create
-              ? t("Role.Actions.Created")
-              : t("Role.Actions.Updated"),
-        });
-        navigate(RolesUrl);
-      },
-    }
-  );
+      toast({
+        title: <Hoorey />,
+        description:
+          mode === RoleFormMode.Create
+            ? t("Role.Actions.Created")
+            : t("Role.Actions.Updated"),
+      });
+      navigate(RolesUrl);
+    },
+  });
 
   const showDelete =
     mode === RoleFormMode.Edit && !!roleId && !!defaultValues.name;

@@ -1,7 +1,7 @@
 import React from "react";
 import { useParams } from "react-router-dom";
 import useSearch from "@/hooks/useSearch";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { getRole, getRoleUsers } from "@/services/RoleService";
 import Page from "@/components/Page/Page";
 import Loading from "@/components/Loading/Loading";
@@ -32,24 +32,24 @@ const RoleUsers: React.FC = () => {
     },
   });
 
-  const roleQuery = useQuery([queryKeys.role, roleId], () => getRole(roleId!), {
+  const roleQuery = useQuery({
+    queryKey: [queryKeys.role, roleId],
+    queryFn: () => getRole(roleId!),
     enabled: !!roleId,
   });
 
-  const users = useQuery(
-    [queryKeys.roleUsers, roleId, pagination, searchTerm],
-    () =>
+  const users = useQuery({
+    queryKey: [queryKeys.roleUsers, roleId, pagination, searchTerm],
+    queryFn: () =>
       getRoleUsers(
         roleId!,
         searchTerm,
         pagination.pageIndex,
         pagination.pageSize
       ),
-    {
-      enabled: !!roleId,
-      keepPreviousData: true,
-    }
-  );
+    enabled: !!roleId,
+    placeholderData: (previousData) => previousData,
+  });
 
   const headerActions = (
     <div className="flex flex-col space-y-3 md:flex-row md:items-center md:space-x-3 md:space-y-0">

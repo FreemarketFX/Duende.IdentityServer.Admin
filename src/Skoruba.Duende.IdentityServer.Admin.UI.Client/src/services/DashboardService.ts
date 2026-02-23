@@ -8,7 +8,7 @@ import {
   IdentityResourceEditUrl,
 } from "@/routing/Urls";
 import { client } from "@skoruba/duende.identityserver.admin.api.client";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { queryKeys, queryWithoutCache } from "./QueryKeys";
 import i18next from "@/i18n/config";
 
@@ -31,9 +31,9 @@ export const buildConfigurationIssueLink = (
 };
 
 export const useConfigurationIssues = () =>
-  useQuery(
-    [queryKeys.configurationIssues],
-    async () => {
+  useQuery({
+    queryKey: [queryKeys.configurationIssues],
+    queryFn: async () => {
       const configClient = new client.ConfigurationIssuesClient(
         ApiHelper.getApiBaseUrl()
       );
@@ -42,20 +42,20 @@ export const useConfigurationIssues = () =>
       const result = await configClient.get(null, null, null, 0, 50, true);
       return result.issues || [];
     },
-    queryWithoutCache
-  );
+    ...queryWithoutCache,
+  });
 
 export const useConfigurationIssuesSummary = () =>
-  useQuery(
-    queryKeys.configurationIssuesSummary,
-    async () => {
+  useQuery({
+    queryKey: [queryKeys.configurationIssuesSummary],
+    queryFn: async () => {
       const configClient = new client.ConfigurationIssuesClient(
         ApiHelper.getApiBaseUrl()
       );
       return await configClient.getSummary();
     },
-    queryWithoutCache
-  );
+    ...queryWithoutCache,
+  });
 
 export const useConfigurationIssuesForResource = (
   resourceId?: number,

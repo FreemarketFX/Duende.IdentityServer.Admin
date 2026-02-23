@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   createIdentityResource,
   updateIdentityResource,
@@ -61,29 +61,27 @@ const IdentityResourceForm: React.FC<Props> = ({
 
   const { DialogCmp } = useConfirmUnsavedChanges(form.formState.isDirty);
 
-  const mutation = useMutation(
-    (data: IdentityResourceFormData) =>
+  const mutation = useMutation({
+    mutationFn: (data: IdentityResourceFormData) =>
       mode === IdentityResourceFormMode.Create
         ? createIdentityResource(data)
         : updateIdentityResource(Number(resourceId), data),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(queryKeys.identityResource);
-        queryClient.invalidateQueries(queryKeys.identityResources);
-        // Invalidate configuration issues cache when identity resource changes
-        queryClient.invalidateQueries(queryKeys.configurationIssues);
-        queryClient.invalidateQueries(queryKeys.configurationIssuesSummary);
-        toast({
-          title: <Hoorey />,
-          description:
-            mode === IdentityResourceFormMode.Create
-              ? t("IdentityResource.Actions.Created")
-              : t("IdentityResource.Actions.Updated"),
-        });
-        navigateWithBlocker(IdentityResourcesUrl);
-      },
-    }
-  );
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [queryKeys.identityResource] });
+      queryClient.invalidateQueries({ queryKey: [queryKeys.identityResources] });
+      // Invalidate configuration issues cache when identity resource changes
+      queryClient.invalidateQueries({ queryKey: [queryKeys.configurationIssues] });
+      queryClient.invalidateQueries({ queryKey: [queryKeys.configurationIssuesSummary] });
+      toast({
+        title: <Hoorey />,
+        description:
+          mode === IdentityResourceFormMode.Create
+            ? t("IdentityResource.Actions.Created")
+            : t("IdentityResource.Actions.Updated"),
+      });
+      navigateWithBlocker(IdentityResourcesUrl);
+    },
+  });
 
   return (
     <>

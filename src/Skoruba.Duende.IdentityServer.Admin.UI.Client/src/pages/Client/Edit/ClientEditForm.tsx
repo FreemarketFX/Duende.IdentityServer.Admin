@@ -9,7 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { updateClient } from "@/services/ClientServices";
 import { Button } from "@/components/ui/button";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/components/ui/use-toast";
 import ClientEditTabs from "./ClientEditTabs";
 import useModal from "@/hooks/modalHooks";
@@ -40,18 +40,16 @@ const ClientEditForm = ({ clientId, client }: ClientEditFormType) => {
   const queryClient = useQueryClient();
   const deleteClientModal = useModal();
 
-  const updateClientMutation = useMutation(
-    (data: ClientEditFormData) =>
+  const updateClientMutation = useMutation({
+    mutationFn: (data: ClientEditFormData) =>
       updateClient(mapFormDataToEditClient(data, Number(clientId))),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(queryKeys.client);
-        queryClient.invalidateQueries(queryKeys.clients);
-        queryClient.invalidateQueries(queryKeys.configurationIssues);
-        queryClient.invalidateQueries(queryKeys.configurationIssuesSummary);
-      },
-    }
-  );
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [queryKeys.client] });
+      queryClient.invalidateQueries({ queryKey: [queryKeys.clients] });
+      queryClient.invalidateQueries({ queryKey: [queryKeys.configurationIssues] });
+      queryClient.invalidateQueries({ queryKey: [queryKeys.configurationIssuesSummary] });
+    },
+  });
 
   const onSubmit: SubmitHandler<ClientEditFormData> = (
     data: ClientEditFormData
@@ -85,7 +83,7 @@ const ClientEditForm = ({ clientId, client }: ClientEditFormType) => {
           />
 
           <div className="flex gap-4 justify-start mt-4">
-            <Button type="submit" disabled={updateClientMutation.isLoading}>
+            <Button type="submit" disabled={updateClientMutation.isPending}>
               {t("Actions.Save")}
             </Button>
           </div>

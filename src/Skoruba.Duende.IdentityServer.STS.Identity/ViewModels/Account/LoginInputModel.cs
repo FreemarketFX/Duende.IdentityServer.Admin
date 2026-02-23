@@ -16,5 +16,8 @@ namespace Skoruba.Duende.IdentityServer.STS.Identity.ViewModels.Account
         public string Password { get; set; }
         public bool RememberLogin { get; set; }
         public string ReturnUrl { get; set; }
+        
+        // Passkey authentication support
+        public PasskeyInputModel Passkey { get; set; }
     }
 }

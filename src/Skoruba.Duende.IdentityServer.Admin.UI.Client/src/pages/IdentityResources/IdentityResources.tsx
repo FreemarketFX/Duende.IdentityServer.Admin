@@ -1,6 +1,6 @@
 import React from "react";
 import useSearch from "@/hooks/useSearch";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { getIdentityResources } from "@/services/IdentityResourceServices";
 import { Button } from "@/components/ui/button";
 import Page from "@/components/Page/Page";
@@ -31,16 +31,16 @@ const IdentityResources: React.FC = () => {
     },
   });
 
-  const identityResources = useQuery(
-    [queryKeys.identityResources, pagination, searchTerm],
-    () =>
+  const identityResources = useQuery({
+    queryKey: [queryKeys.identityResources, pagination, searchTerm],
+    queryFn: () =>
       getIdentityResources(
         searchTerm,
         pagination.pageIndex,
         pagination.pageSize
       ),
-    { keepPreviousData: true }
-  );
+    placeholderData: (previousData) => previousData,
+  });
 
   const headerActions = (
     <div className="flex flex-col space-y-3 md:flex-row md:items-center md:space-x-3 md:space-y-0">

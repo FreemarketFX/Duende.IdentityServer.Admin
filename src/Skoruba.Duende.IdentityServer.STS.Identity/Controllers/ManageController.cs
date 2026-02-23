@@ -613,6 +613,200 @@ namespace Skoruba.Duende.IdentityServer.STS.Identity.Controllers
             return View(nameof(GenerateRecoveryCodes));
         }
 
+        #region Passkey Management
+
+        [HttpGet]
+        public async Task<IActionResult> Passkeys()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound(_localizer["UserNotFound", _userManager.GetUserId(User)]);
+            }
+
+            var passkeys = await _userManager.GetPasskeysAsync(user);
+            var model = new ViewModels.Manage.PasskeysViewModel
+            {
+                CurrentPasskeys = passkeys,
+                StatusMessage = StatusMessage
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdatePasskey(ViewModels.Manage.PasskeysInputModel input)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound(_localizer["UserNotFound", _userManager.GetUserId(User)]);
+            }
+
+            if (string.IsNullOrEmpty(input?.CredentialId))
+            {
+                StatusMessage = _localizer["PasskeyNotFound"];
+                return RedirectToAction(nameof(Passkeys));
+            }
+
+            byte[] credentialId;
+            try
+            {
+                credentialId = System.Buffers.Text.Base64Url.DecodeFromChars(input.CredentialId);
+            }
+            catch (FormatException)
+            {
+                StatusMessage = _localizer["PasskeyInvalidFormat"];
+                return RedirectToAction(nameof(Passkeys));
+            }
+
+            switch (input.Action)
+            {
+                case "rename":
+                    return RedirectToAction(nameof(RenamePasskey), new { id = input.CredentialId });
+                case "delete":
+                    var deleteResult = await _userManager.RemovePasskeyAsync(user, credentialId);
+                    if (deleteResult.Succeeded)
+                    {
+                        StatusMessage = _localizer["PasskeyDeleted"];
+                    }
+                    else
+                    {
+                        StatusMessage = _localizer["PasskeyDeleteFailed"];
+                    }
+                    break;
+            }
+
+            return RedirectToAction(nameof(Passkeys));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddPasskey(ViewModels.Manage.PasskeysInputModel input)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound(_localizer["UserNotFound", _userManager.GetUserId(User)]);
+            }
+
+            if (!string.IsNullOrEmpty(input?.Passkey?.Error))
+            {
+                StatusMessage = string.Format(_localizer["PasskeyAddError"], input.Passkey.Error);
+                return RedirectToAction(nameof(Passkeys));
+            }
+
+            if (string.IsNullOrEmpty(input?.Passkey?.CredentialJson))
+            {
+                StatusMessage = _localizer["PasskeyNotProvided"];
+                return RedirectToAction(nameof(Passkeys));
+            }
+
+            var attestationResult = await _signInManager.PerformPasskeyAttestationAsync(input.Passkey.CredentialJson);
+            if (!attestationResult.Succeeded)
+            {
+                StatusMessage = string.Format(_localizer["PasskeyAddError"], attestationResult.Failure.Message);
+                return RedirectToAction(nameof(Passkeys));
+            }
+
+            var setPasskeyResult = await _userManager.AddOrUpdatePasskeyAsync(user, attestationResult.Passkey);
+            if (!setPasskeyResult.Succeeded)
+            {
+                StatusMessage = _localizer["PasskeyAddFailed"];
+                return RedirectToAction(nameof(Passkeys));
+            }
+
+            StatusMessage = _localizer["PasskeyAdded"];
+            return RedirectToAction(nameof(RenamePasskey), new { id = System.Buffers.Text.Base64Url.EncodeToString(attestationResult.Passkey.CredentialId) });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> RenamePasskey(string id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound(_localizer["UserNotFound", _userManager.GetUserId(User)]);
+            }
+
+            byte[] credentialId;
+            try
+            {
+                credentialId = System.Buffers.Text.Base64Url.DecodeFromChars(id);
+            }
+            catch (FormatException)
+            {
+                StatusMessage = _localizer["PasskeyInvalidFormat"];
+                return RedirectToAction(nameof(Passkeys));
+            }
+
+            var passkey = await _userManager.GetPasskeyAsync(user, credentialId);
+            if (passkey == null)
+            {
+                StatusMessage = _localizer["PasskeyNotFound"];
+                return RedirectToAction(nameof(Passkeys));
+            }
+
+            var model = new ViewModels.Manage.RenamePasskeyViewModel
+            {
+                CredentialId = id,
+                Name = passkey.Name,
+                StatusMessage = StatusMessage
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RenamePasskey(ViewModels.Manage.RenamePasskeyViewModel model)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound(_localizer["UserNotFound", _userManager.GetUserId(User)]);
+            }
+
+            if (string.IsNullOrEmpty(model?.CredentialId))
+            {
+                StatusMessage = _localizer["PasskeyNotFound"];
+                return RedirectToAction(nameof(Passkeys));
+            }
+
+            byte[] credentialId;
+            try
+            {
+                credentialId = System.Buffers.Text.Base64Url.DecodeFromChars(model.CredentialId);
+            }
+            catch (FormatException)
+            {
+                StatusMessage = _localizer["PasskeyInvalidFormat"];
+                return RedirectToAction(nameof(Passkeys));
+            }
+
+            var passkey = await _userManager.GetPasskeyAsync(user, credentialId);
+            if (passkey == null)
+            {
+                StatusMessage = _localizer["PasskeyNotFound"];
+                return RedirectToAction(nameof(Passkeys));
+            }
+
+            // Update the passkey name and save
+            passkey.Name = model.Name;
+            var result = await _userManager.AddOrUpdatePasskeyAsync(user, passkey);
+            if (!result.Succeeded)
+            {
+                StatusMessage = _localizer["PasskeyRenameFailed"];
+                return View(model);
+            }
+
+            StatusMessage = _localizer["PasskeyRenamed"];
+            return RedirectToAction(nameof(Passkeys));
+        }
+
+        #endregion
+
         private async Task LoadSharedKeyAndQrCodeUriAsync(TUser user, EnableAuthenticatorViewModel model)
         {
             var unformattedKey = await _userManager.GetAuthenticatorKeyAsync(user);

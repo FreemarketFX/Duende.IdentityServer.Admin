@@ -105,7 +105,7 @@ namespace Skoruba.Duende.IdentityServer.STS.Identity.Controllers
         }
 
         /// <summary>
-        /// Handle postback from username/password login
+        /// Handle postback from username/password login or passkey login
         /// </summary>
         [HttpPost]
         [AllowAnonymous]
@@ -115,8 +115,8 @@ namespace Skoruba.Duende.IdentityServer.STS.Identity.Controllers
             // check if we are in the context of an authorization request
             var context = await _interaction.GetAuthorizationContextAsync(model.ReturnUrl);
 
-            // the user clicked the "cancel" button
-            if (button != "login")
+            // the user clicked the "cancel" button (but not the passkey submit button)
+            if (button != "login" && button != "__passkeySubmit" && button != null)
             {
                 if (context != null)
                 {
@@ -140,57 +140,74 @@ namespace Skoruba.Duende.IdentityServer.STS.Identity.Controllers
                 return Redirect("~/");
             }
 
-            if (ModelState.IsValid)
+            Microsoft.AspNetCore.Identity.SignInResult result = null;
+            TUser user = null;
+
+            // Try passkey authentication first
+            if (!string.IsNullOrEmpty(model.Passkey?.CredentialJson))
             {
-                var user = await _userResolver.GetUserAsync(model.Username);
+                // Clear model state when using passkey (no username/password required)
+                ModelState.Clear();
+
+                result = await _signInManager.PasskeySignInAsync(model.Passkey.CredentialJson);
+                if (result.Succeeded)
+                {
+                    user = await _userManager.GetUserAsync(User);
+                }
+            }
+            else if (ModelState.IsValid)
+            {
+                user = await _userResolver.GetUserAsync(model.Username);
                 if (user != default(TUser))
                 {
-                    var result = await _signInManager.PasswordSignInAsync(user.UserName, model.Password, model.RememberLogin, lockoutOnFailure: true);
-                    if (result.Succeeded)
-                    {
-                        await _events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id.ToString(), user.UserName));
-
-                        if (context != null)
-                        {
-                            if (context.IsNativeClient())
-                            {
-                                // The client is native, so this change in how to
-                                // return the response is for better UX for the end user.
-                                return this.LoadingPage("Redirect", model.ReturnUrl);
-                            }
-
-                            // we can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null
-                            return Redirect(model.ReturnUrl);
-                        }
-
-                        // request for a local page
-                        if (Url.IsLocalUrl(model.ReturnUrl))
-                        {
-                            return Redirect(model.ReturnUrl);
-                        }
-
-                        if (string.IsNullOrEmpty(model.ReturnUrl))
-                        {
-                            return Redirect("~/");
-                        }
-
-                        // user might have clicked on a malicious link - should be logged
-                        throw new Exception("invalid return URL");
-                    }
-
-                    if (result.RequiresTwoFactor)
-                    {
-                        return RedirectToAction(nameof(LoginWith2fa), new { model.ReturnUrl, RememberMe = model.RememberLogin });
-                    }
-
-                    if (result.IsLockedOut)
-                    {
-                        return View("Lockout");
-                    }
+                    result = await _signInManager.PasswordSignInAsync(user.UserName, model.Password, model.RememberLogin, lockoutOnFailure: true);
                 }
-                await _events.RaiseAsync(new UserLoginFailureEvent(model.Username, "invalid credentials", clientId: context?.Client.ClientId));
-                ModelState.AddModelError(string.Empty, AccountOptions.InvalidCredentialsErrorMessage);
             }
+
+            if (result?.Succeeded == true && user != null)
+            {
+                await _events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id.ToString(), user.UserName));
+
+                if (context != null)
+                {
+                    if (context.IsNativeClient())
+                    {
+                        // The client is native, so this change in how to
+                        // return the response is for better UX for the end user.
+                        return this.LoadingPage("Redirect", model.ReturnUrl);
+                    }
+
+                    // we can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null
+                    return Redirect(model.ReturnUrl);
+                }
+
+                // request for a local page
+                if (Url.IsLocalUrl(model.ReturnUrl))
+                {
+                    return Redirect(model.ReturnUrl);
+                }
+
+                if (string.IsNullOrEmpty(model.ReturnUrl))
+                {
+                    return Redirect("~/");
+                }
+
+                // user might have clicked on a malicious link - should be logged
+                throw new Exception("invalid return URL");
+            }
+
+            if (result?.RequiresTwoFactor == true)
+            {
+                return RedirectToAction(nameof(LoginWith2fa), new { model.ReturnUrl, RememberMe = model.RememberLogin });
+            }
+
+            if (result?.IsLockedOut == true)
+            {
+                return View("Lockout");
+            }
+
+            await _events.RaiseAsync(new UserLoginFailureEvent(model.Username, "invalid credentials", clientId: context?.Client.ClientId));
+            ModelState.AddModelError(string.Empty, AccountOptions.InvalidCredentialsErrorMessage);
 
             // something went wrong, show form with error
             var vm = await BuildLoginViewModelAsync(model);
@@ -699,6 +716,7 @@ namespace Skoruba.Duende.IdentityServer.STS.Identity.Controllers
                 ModelState.AddModelError(string.Empty, error.Description);
             }
         }
+
 
         private async Task<LoginViewModel> BuildLoginViewModelAsync(string returnUrl)
         {

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Page from "@/components/Page/Page";
@@ -33,12 +33,12 @@ const AuditLogs: React.FC = () => {
     created: date ?? undefined,
   };
 
-  const { data, isLoading } = useQuery(
-    [queryKeys.auditLogs, pagination, filtersToSend],
-    () =>
+  const { data, isLoading } = useQuery({
+    queryKey: [queryKeys.auditLogs, pagination, filtersToSend],
+    queryFn: () =>
       getAuditLogs(filtersToSend, pagination.pageIndex, pagination.pageSize),
-    { keepPreviousData: true }
-  );
+    placeholderData: (previousData) => previousData,
+  });
 
   const handleChange = (key: keyof AuditLogData, value: string | undefined) => {
     setFilters((prev) => ({ ...prev, [key]: value }));

@@ -4,7 +4,7 @@ import Page from "@/components/Page/Page";
 import Loading from "@/components/Loading/Loading";
 import { Breadcrumbs } from "@/components/Breadcrumbs/Breadcrumbs";
 import { UsersUrl } from "@/routing/Urls";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { getUser } from "@/services/UserServices";
 import UserForm, { UserFormMode } from "../Common/UserForm";
 import { queryKeys } from "@/services/QueryKeys";
@@ -14,9 +14,10 @@ const UserEdit = () => {
   const { userId } = useParams<{ userId: string }>();
   const { t } = useTranslation();
 
-  const { data, isLoading } = useQuery([queryKeys.user, userId], () =>
-    getUser(userId!)
-  );
+  const { data, isLoading } = useQuery({
+    queryKey: [queryKeys.user, userId],
+    queryFn: () => getUser(userId!),
+  });
 
   if (isLoading || !data) {
     return <Loading fullscreen />;

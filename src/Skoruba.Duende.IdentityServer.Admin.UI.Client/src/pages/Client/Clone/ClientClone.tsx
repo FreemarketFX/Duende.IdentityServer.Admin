@@ -12,7 +12,7 @@ import { ClientsUrl } from "@/routing/Urls";
 import { useNavigate, useParams } from "react-router-dom";
 import { cloneClient, useClient } from "@/services/ClientServices";
 import Loading from "@/components/Loading/Loading";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/components/ui/use-toast";
 import { queryKeys } from "@/services/QueryKeys";
 import Hoorey from "@/components/Hoorey/Hoorey";
@@ -71,8 +71,8 @@ export const CloneClient = () => {
     mode: "onChange",
   });
 
-  const updateClientMutation = useMutation(
-    (data: CloneClientFormData) =>
+  const updateClientMutation = useMutation({
+    mutationFn: (data: CloneClientFormData) =>
       cloneClient({
         id: Number(clientId),
         clientId: data.clientId,
@@ -86,17 +86,15 @@ export const CloneClient = () => {
         cloneClientIdPRestrictions: data.clientIdPRestrictions!,
         cloneClientProperties: data.clientProperties!,
       }),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(queryKeys.clients);
-        navigate(ClientsUrl);
-        toast({
-          title: <Hoorey />,
-          description: t("Client.Clone.Actions.Cloned"),
-        });
-      },
-    }
-  );
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [queryKeys.clients] });
+      navigate(ClientsUrl);
+      toast({
+        title: <Hoorey />,
+        description: t("Client.Clone.Actions.Cloned"),
+      });
+    },
+  });
 
   const onSubmit: SubmitHandler<CloneClientFormData> = (data) => {
     updateClientMutation.mutate(data);

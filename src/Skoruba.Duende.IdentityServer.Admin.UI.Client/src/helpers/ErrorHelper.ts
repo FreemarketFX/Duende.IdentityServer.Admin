@@ -5,7 +5,7 @@ import {
   DefaultOptions,
   MutationCache,
   QueryCache,
-} from "react-query";
+} from "@tanstack/react-query";
 import { isProblemDetails, isSwaggerError } from "@/lib/type-guards";
 import i18next from "@/i18n/config";
 
@@ -169,7 +169,7 @@ const defaultOptions: DefaultOptions = {
       }
       return failureCount < DEFAULT_RETRY_COUNT;
     },
-    cacheTime: DEFAULT_CACHE_TIME_MS,
+    gcTime: DEFAULT_CACHE_TIME_MS,
     staleTime: DEFAULT_STALE_TIME_MS,
   },
 };

@@ -208,7 +208,12 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Helpers
         {
             var adminApiConfiguration = configuration.GetSection(nameof(AdminApiConfiguration)).Get<AdminApiConfiguration>();
 
-            services.AddIdentityCore<TUser>(options => configuration.GetSection(nameof(IdentityOptions)).Bind(options))
+            services.AddIdentityCore<TUser>(options =>
+                {
+                    configuration.GetSection(nameof(IdentityOptions)).Bind(options);
+                    options.Stores.SchemaVersion = IdentitySchemaVersions.Version3;
+                    options.Stores.MaxLengthForKeys = 450;
+                })
                 .AddRoles<TRole>()
                 .AddEntityFrameworkStores<TIdentityDbContext>()
                 .AddDefaultTokenProviders();

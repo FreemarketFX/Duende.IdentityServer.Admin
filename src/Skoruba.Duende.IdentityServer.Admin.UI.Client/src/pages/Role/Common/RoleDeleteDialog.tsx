@@ -1,6 +1,6 @@
 import { Trans, useTranslation } from "react-i18next";
 import DeleteDialog from "@/components/DeleteDialog/DeleteDialog";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteRole } from "@/services/RoleService";
 import { queryKeys } from "@/services/QueryKeys";
 import { toast } from "@/components/ui/use-toast";
@@ -24,9 +24,10 @@ const RoleDeleteDialog: React.FC<RoleDeleteDialogProps> = ({
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
-  const mutation = useMutation(() => deleteRole(roleId), {
+  const mutation = useMutation({
+    mutationFn: () => deleteRole(roleId),
     onSuccess: () => {
-      queryClient.invalidateQueries(queryKeys.roles);
+      queryClient.invalidateQueries({ queryKey: [queryKeys.roles] });
       toast({
         title: <Hoorey />,
         description: t("Role.Actions.Deleted"),

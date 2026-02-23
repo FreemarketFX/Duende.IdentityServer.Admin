@@ -50,7 +50,7 @@ export enum View {
 const ClientSummaryStep = () => {
   const { formData, onHandleBack, resetForm } =
     useFormState<ClientWizardFormSummaryData>();
-  const { mutate: createClientAction, isLoading } = useCreateClient();
+  const { mutate: createClientAction, isPending: isLoading } = useCreateClient();
   const [view, setView] = useState<View>(View.Tree);
   const { t } = useTranslation();
 

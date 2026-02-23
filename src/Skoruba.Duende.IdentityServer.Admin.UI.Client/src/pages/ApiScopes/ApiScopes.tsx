@@ -1,6 +1,6 @@
 import React from "react";
 import useSearch from "@/hooks/useSearch";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { getApiScopes } from "@/services/ApiScopeServices";
 import { Button } from "@/components/ui/button";
 import Page from "@/components/Page/Page";
@@ -31,11 +31,11 @@ const ApiScopes: React.FC = () => {
     },
   });
 
-  const apiScopes = useQuery(
-    [queryKeys.apiScopes, pagination, searchTerm],
-    () => getApiScopes(searchTerm, pagination.pageIndex, pagination.pageSize),
-    { keepPreviousData: true }
-  );
+  const apiScopes = useQuery({
+    queryKey: [queryKeys.apiScopes, pagination, searchTerm],
+    queryFn: () => getApiScopes(searchTerm, pagination.pageIndex, pagination.pageSize),
+    placeholderData: (previousData) => previousData,
+  });
 
   const headerActions = (
     <div className="flex flex-col space-y-3 md:flex-row md:items-center md:space-x-3 md:space-y-0">

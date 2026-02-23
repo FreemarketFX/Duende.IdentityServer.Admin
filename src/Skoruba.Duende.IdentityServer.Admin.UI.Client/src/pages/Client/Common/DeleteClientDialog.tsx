@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import DeleteDialog from "../../../components/DeleteDialog/DeleteDialog";
 import { deleteClient } from "@/services/ClientServices";
 import { Trans, useTranslation } from "react-i18next";
@@ -24,11 +24,12 @@ const DeleteClientDialog = ({
 
   const queryClient = useQueryClient();
 
-  const removeClient = useMutation(() => deleteClient(Number(clientId)), {
+  const removeClient = useMutation({
+    mutationFn: () => deleteClient(Number(clientId)),
     onSuccess: () => {
-      queryClient.invalidateQueries(queryKeys.clients);
-      queryClient.invalidateQueries(queryKeys.configurationIssues);
-      queryClient.invalidateQueries(queryKeys.configurationIssuesSummary);
+      queryClient.invalidateQueries({ queryKey: [queryKeys.clients] });
+      queryClient.invalidateQueries({ queryKey: [queryKeys.configurationIssues] });
+      queryClient.invalidateQueries({ queryKey: [queryKeys.configurationIssuesSummary] });
     },
   });
 

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/DataTable/DataTable";
-import { useQuery, useMutation, useQueryClient } from "react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { usePaginationTable } from "@/components/DataTable/usePaginationTable";
 import { Button } from "@/components/ui/button";
 import Loading from "@/components/Loading/Loading";
@@ -59,25 +59,24 @@ const SecretsTable: React.FC<SecretsTableProps> = ({
 
   const queryClient = useQueryClient();
 
-  const secretsQuery = useQuery(
-    [...queryKey, pagination],
-    () => getSecrets(resourceId, pagination.pageIndex, pagination.pageSize),
-    { keepPreviousData: true }
-  );
+  const secretsQuery = useQuery({
+    queryKey: [...queryKey, pagination],
+    queryFn: () => getSecrets(resourceId, pagination.pageIndex, pagination.pageSize),
+    placeholderData: (previousData) => previousData,
+  });
 
-  const addMutation = useMutation(
-    (data: SecretsFormData) => addSecret(resourceId, data),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(queryKey);
-        setDialogOpen(false);
-      },
-    }
-  );
-
-  const deleteMutation = useMutation((id: number) => deleteSecret(id), {
+  const addMutation = useMutation({
+    mutationFn: (data: SecretsFormData) => addSecret(resourceId, data),
     onSuccess: () => {
-      queryClient.invalidateQueries(queryKey);
+      queryClient.invalidateQueries({ queryKey: queryKey });
+      setDialogOpen(false);
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => deleteSecret(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKey });
     },
   });
 
@@ -171,7 +170,7 @@ const SecretsTable: React.FC<SecretsTableProps> = ({
           <AddSecretForm
             onSubmit={handleAddSecret}
             onCancel={() => setDialogOpen(false)}
-            isSubmitting={addMutation.isLoading}
+            isSubmitting={addMutation.isPending}
           />
         </DialogContent>
       </Dialog>

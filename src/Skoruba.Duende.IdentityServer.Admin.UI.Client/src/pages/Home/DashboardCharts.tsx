@@ -7,7 +7,7 @@ import {
 } from "@/components/Card/Card";
 import AuditLogs from "./AuditLogs";
 import { getDashboardIdentityServerData } from "@/services/DashboardService";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import ConfigurationIssuesSummary from "./ConfigurationIssuesSummary";
 import { OverviewLeft } from "./OverviewLeft";
@@ -17,11 +17,11 @@ import { queryKeys, queryWithoutCache } from "@/services/QueryKeys";
 const DashboardCharts = () => {
   const { t } = useTranslation();
 
-  const dashboardIdentityServer = useQuery(
-    [queryKeys.dashboard],
-    () => getDashboardIdentityServerData(30),
-    queryWithoutCache
-  );
+  const dashboardIdentityServer = useQuery({
+    queryKey: [queryKeys.dashboard],
+    queryFn: () => getDashboardIdentityServerData(30),
+    ...queryWithoutCache,
+  });
 
   return (
     <div>

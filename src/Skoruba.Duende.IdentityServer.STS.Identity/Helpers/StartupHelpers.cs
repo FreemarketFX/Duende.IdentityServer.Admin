@@ -328,7 +328,12 @@ namespace Skoruba.Duende.IdentityServer.STS.Identity.Helpers
                 .AddSingleton(identityOptions)
                 .AddScoped<ApplicationSignInManager<TUserIdentity>>()
                 .AddScoped<UserResolver<TUserIdentity>>()
-                .AddIdentity<TUserIdentity, TUserIdentityRole>(options => configuration.GetSection(nameof(IdentityOptions)).Bind(options))
+                .AddIdentity<TUserIdentity, TUserIdentityRole>(options =>
+                {
+                    configuration.GetSection(nameof(IdentityOptions)).Bind(options);
+                    options.Stores.SchemaVersion = IdentitySchemaVersions.Version3;
+                    options.Stores.MaxLengthForKeys = 450;
+                })
                 .AddEntityFrameworkStores<TIdentityDbContext>()
                 .AddDefaultTokenProviders();
 
