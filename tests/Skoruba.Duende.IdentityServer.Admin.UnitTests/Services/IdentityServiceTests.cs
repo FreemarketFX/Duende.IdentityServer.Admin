@@ -59,7 +59,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UnitTests.Services
         {
             return new IdentityRepository<AdminIdentityDbContext, UserIdentity, UserIdentityRole, string,
                 UserIdentityUserClaim, UserIdentityUserRole, UserIdentityUserLogin, UserIdentityRoleClaim,
-                UserIdentityUserToken>(dbContext, userManager, roleManager, mapper);
+                UserIdentityUserToken, UserIdentityPasskey>(dbContext, userManager, roleManager, mapper);
         }
 
         private IIdentityService<UserDto<string>, RoleDto<string>, UserIdentity,

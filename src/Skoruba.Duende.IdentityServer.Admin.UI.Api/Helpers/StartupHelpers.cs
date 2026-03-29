@@ -417,11 +417,11 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Helpers
             }
         }
 
-        public static void AddIdentityServerAdminApi<TIdentityDbContext, TIdentityServerConfigurationDbContext, TPersistedGrantDbContext, TIdentityServerDataProtectionDbContext, TAdminLogDbContext, TAdminAuditLogDbContext, TAdminConfigurationDbContext, TAuditLog, TUserDto, TRoleDto, TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken,
+        public static void AddIdentityServerAdminApi<TIdentityDbContext, TIdentityServerConfigurationDbContext, TPersistedGrantDbContext, TIdentityServerDataProtectionDbContext, TAdminLogDbContext, TAdminAuditLogDbContext, TAdminConfigurationDbContext, TAuditLog, TUserDto, TRoleDto, TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken, TUserPasskey,
             TUsersDto, TRolesDto, TUserRolesDto, TUserClaimsDto,
             TUserProviderDto, TUserProvidersDto, TUserChangePasswordDto, TRoleClaimsDto, TUserClaimDto, TRoleClaimDto>(this IServiceCollection services, IConfiguration configuration, AdminApiConfiguration adminApiConfiguration)
             where TPersistedGrantDbContext : DbContext, IAdminPersistedGrantDbContext
-            where TIdentityDbContext : IdentityDbContext<TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken>
+            where TIdentityDbContext : IdentityDbContext<TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken, TUserPasskey>
             where TUserDto : UserDto<TKey>, new()
             where TRoleDto : RoleDto<TKey>, new()
             where TUser : IdentityUser<TKey>
@@ -432,6 +432,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Helpers
             where TUserLogin : IdentityUserLogin<TKey>
             where TRoleClaim : IdentityRoleClaim<TKey>
             where TUserToken : IdentityUserToken<TKey>
+            where TUserPasskey : IdentityUserPasskey<TKey>
             where TUsersDto : UsersDto<TUserDto, TKey>
             where TRolesDto : RolesDto<TRoleDto, TKey>
             where TUserRolesDto : UserRolesDto<TRoleDto, TKey>
@@ -468,7 +469,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Helpers
             services.AddConfigureAdminAspNetIdentitySchema(configuration);
 
             services.AddAdminAspNetIdentityServices<TIdentityDbContext, TPersistedGrantDbContext,
-                TUserDto, TRoleDto, TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken,
+                TUserDto, TRoleDto, TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken, TUserPasskey,
                 TUsersDto, TRolesDto, TUserRolesDto, TUserClaimsDto,
                 TUserProviderDto, TUserProvidersDto, TUserChangePasswordDto, TRoleClaimsDto, TUserClaimDto, TRoleClaimDto>(profileTypes);
 
