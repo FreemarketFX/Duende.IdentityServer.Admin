@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Skoruba.Duende.IdentityServer.STS.Identity.Helpers;
 
 namespace Skoruba.Duende.IdentityServer.STS.Identity.Passkeys
 {
@@ -51,14 +52,14 @@ namespace Skoruba.Duende.IdentityServer.STS.Identity.Passkeys
 
             accountGroup.MapPost("/PasskeyRequestOptions", async (
                 HttpContext context,
-                [FromServices] UserManager<TUser> userManager,
+                [FromServices] UserResolver<TUser> userResolver,
                 [FromServices] SignInManager<TUser> signInManager,
                 [FromServices] IAntiforgery antiforgery,
                 [FromQuery] string username) =>
             {
                 await antiforgery.ValidateRequestAsync(context);
 
-                var user = string.IsNullOrEmpty(username) ? null : await userManager.FindByNameAsync(username);
+                var user = string.IsNullOrWhiteSpace(username) ? null : await userResolver.GetUserAsync(username);
                 var optionsJson = await signInManager.MakePasskeyRequestOptionsAsync(user);
                 return TypedResults.Content(optionsJson, contentType: "application/json");
             });

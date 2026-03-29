@@ -10,8 +10,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Skoruba.Duende.IdentityServer.Admin.EntityFramework.Shared.DbContexts;
+using Skoruba.Duende.IdentityServer.Admin.EntityFramework.Shared.Entities.Identity;
 using Skoruba.Duende.IdentityServer.STS.Identity.Helpers;
 using Skoruba.Duende.IdentityServer.STS.Identity.Helpers.Localization;
 using Skoruba.Duende.IdentityServer.STS.Identity.ViewModels.Manage;
@@ -29,6 +32,7 @@ namespace Skoruba.Duende.IdentityServer.STS.Identity.Controllers
         private readonly ILogger<ManageController<TUser, TKey>> _logger;
         private readonly IGenericControllerLocalizer<ManageController<TUser, TKey>> _localizer;
         private readonly UrlEncoder _urlEncoder;
+        private readonly AdminIdentityDbContext _identityDbContext;
 
         private const string RecoveryCodesKey = nameof(RecoveryCodesKey);
         private const string AuthenticatorUriFormat = "otpauth://totp/{0}:{1}?secret={2}&issuer={0}&digits=6";
@@ -36,7 +40,7 @@ namespace Skoruba.Duende.IdentityServer.STS.Identity.Controllers
         [TempData]
         public string StatusMessage { get; set; }
 
-        public ManageController(UserManager<TUser> userManager, SignInManager<TUser> signInManager, IEmailSender emailSender, ILogger<ManageController<TUser, TKey>> logger, IGenericControllerLocalizer<ManageController<TUser, TKey>> localizer, UrlEncoder urlEncoder)
+        public ManageController(UserManager<TUser> userManager, SignInManager<TUser> signInManager, IEmailSender emailSender, ILogger<ManageController<TUser, TKey>> logger, IGenericControllerLocalizer<ManageController<TUser, TKey>> localizer, UrlEncoder urlEncoder, AdminIdentityDbContext identityDbContext)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -44,6 +48,7 @@ namespace Skoruba.Duende.IdentityServer.STS.Identity.Controllers
             _logger = logger;
             _localizer = localizer;
             _urlEncoder = urlEncoder;
+            _identityDbContext = identityDbContext;
         }
 
         [HttpGet]
@@ -799,6 +804,16 @@ namespace Skoruba.Duende.IdentityServer.STS.Identity.Controllers
             {
                 StatusMessage = _localizer["PasskeyRenameFailed"];
                 return View(model);
+            }
+
+            // Identity passkey name updates are not persisted by all stores yet.
+            // Persist the name directly so rename is reliable across providers.
+            var passkeyEntity = await _identityDbContext.Set<UserIdentityPasskey>()
+                .SingleOrDefaultAsync(userPasskey => userPasskey.CredentialId.SequenceEqual(credentialId));
+            if (passkeyEntity?.Data != null)
+            {
+                passkeyEntity.Data.Name = model.Name;
+                await _identityDbContext.SaveChangesAsync();
             }
 
             StatusMessage = _localizer["PasskeyRenamed"];

@@ -22,7 +22,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.EntityFramework.PostgreSQL.Migrati
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserPasskey<string>", b =>
+            modelBuilder.Entity("Skoruba.Duende.IdentityServer.Admin.EntityFramework.Shared.Entities.Identity.UserIdentityPasskey", b =>
                 {
                     b.Property<byte[]>("CredentialId")
                         .HasMaxLength(1024)
@@ -240,7 +240,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.EntityFramework.PostgreSQL.Migrati
                     b.ToTable("UserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserPasskey<string>", b =>
+            modelBuilder.Entity("Skoruba.Duende.IdentityServer.Admin.EntityFramework.Shared.Entities.Identity.UserIdentityPasskey", b =>
                 {
                     b.HasOne("Skoruba.Duende.IdentityServer.Admin.EntityFramework.Shared.Entities.Identity.UserIdentity", null)
                         .WithMany()
@@ -250,7 +250,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.EntityFramework.PostgreSQL.Migrati
 
                     b.OwnsOne("Microsoft.AspNetCore.Identity.IdentityPasskeyData", "Data", b1 =>
                         {
-                            b1.Property<byte[]>("IdentityUserPasskeyCredentialId");
+                            b1.Property<byte[]>("UserIdentityPasskeyCredentialId");
 
                             b1.Property<byte[]>("AttestationObject")
                                 .IsRequired();
@@ -275,7 +275,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.EntityFramework.PostgreSQL.Migrati
 
                             b1.PrimitiveCollection<string>("Transports");
 
-                            b1.HasKey("IdentityUserPasskeyCredentialId");
+                            b1.HasKey("UserIdentityPasskeyCredentialId");
 
                             b1.ToTable("UserPasskeys");
 
@@ -284,7 +284,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.EntityFramework.PostgreSQL.Migrati
                                 .HasColumnType("jsonb");
 
                             b1.WithOwner()
-                                .HasForeignKey("IdentityUserPasskeyCredentialId");
+                                .HasForeignKey("UserIdentityPasskeyCredentialId");
                         });
 
                     b.Navigation("Data")

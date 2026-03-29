@@ -9,7 +9,7 @@ using Skoruba.Duende.IdentityServer.Admin.EntityFramework.Shared.Entities.Identi
 
 namespace Skoruba.Duende.IdentityServer.Admin.EntityFramework.Shared.DbContexts
 {
-    public class AdminIdentityDbContext : IdentityDbContext<UserIdentity, UserIdentityRole, string, UserIdentityUserClaim, UserIdentityUserRole, UserIdentityUserLogin, UserIdentityRoleClaim, UserIdentityUserToken>
+    public class AdminIdentityDbContext : IdentityDbContext<UserIdentity, UserIdentityRole, string, UserIdentityUserClaim, UserIdentityUserRole, UserIdentityUserLogin, UserIdentityRoleClaim, UserIdentityUserToken, UserIdentityPasskey>
     {
         private readonly IdentityTableConfiguration _schemaConfiguration;
 
@@ -35,7 +35,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.EntityFramework.Shared.DbContexts
             builder.Entity<UserIdentityUserLogin>().ToTable(_schemaConfiguration.IdentityUserLogins);
             builder.Entity<UserIdentityUserClaim>().ToTable(_schemaConfiguration.IdentityUserClaims);
             builder.Entity<UserIdentityUserToken>().ToTable(_schemaConfiguration.IdentityUserTokens);
-            builder.Entity<IdentityUserPasskey<string>>().ToTable(_schemaConfiguration.IdentityUserPasskeys);
+            builder.Entity<UserIdentityPasskey>().ToTable(_schemaConfiguration.IdentityUserPasskeys);
         }
     }
 }

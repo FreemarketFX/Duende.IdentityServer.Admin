@@ -114,6 +114,13 @@ namespace Skoruba.Duende.IdentityServer.STS.Identity.Controllers
         {
             // check if we are in the context of an authorization request
             var context = await _interaction.GetAuthorizationContextAsync(model.ReturnUrl);
+            var isPasskeySubmit = button == "__passkeySubmit";
+            var hasPasskeyPayload = !string.IsNullOrEmpty(model.Passkey?.CredentialJson) || !string.IsNullOrEmpty(model.Passkey?.Error);
+            if (!isPasskeySubmit && HttpContext.Request.HasFormContentType)
+            {
+                isPasskeySubmit = HttpContext.Request.Form.ContainsKey("__passkeySubmit");
+            }
+            isPasskeySubmit = isPasskeySubmit || hasPasskeyPayload;
 
             // the user clicked the "cancel" button (but not the passkey submit button)
             if (button != "login" && button != "__passkeySubmit" && button != null)
@@ -143,13 +150,34 @@ namespace Skoruba.Duende.IdentityServer.STS.Identity.Controllers
             Microsoft.AspNetCore.Identity.SignInResult result = null;
             TUser user = null;
 
-            // Try passkey authentication first
-            if (!string.IsNullOrEmpty(model.Passkey?.CredentialJson))
+            // Passkey submit: bypass username/password required validation
+            if (isPasskeySubmit)
             {
-                // Clear model state when using passkey (no username/password required)
                 ModelState.Clear();
 
-                result = await _signInManager.PasskeySignInAsync(model.Passkey.CredentialJson);
+                // Browser returned a passkey flow error (including user cancel) - keep the login page without credential validation errors
+                if (!string.IsNullOrEmpty(model.Passkey?.Error))
+                {
+                    var passkeyErrorVm = await BuildLoginViewModelAsync(model);
+                    return View(passkeyErrorVm);
+                }
+
+                // User canceled the passkey picker - keep the login page without validation errors
+                if (string.IsNullOrEmpty(model.Passkey?.CredentialJson))
+                {
+                    var passkeyVm = await BuildLoginViewModelAsync(model);
+                    return View(passkeyVm);
+                }
+
+                try
+                {
+                    result = await _signInManager.PasskeySignInAsync(model.Passkey.CredentialJson);
+                }
+                catch (InvalidOperationException ex)
+                {
+                    _logger.LogWarning(ex, "Passkey sign-in failed because no passkey assertion was active or payload was invalid.");
+                    result = Microsoft.AspNetCore.Identity.SignInResult.Failed;
+                }
                 if (result.Succeeded)
                 {
                     user = await _userManager.GetUserAsync(User);
@@ -160,7 +188,8 @@ namespace Skoruba.Duende.IdentityServer.STS.Identity.Controllers
                 user = await _userResolver.GetUserAsync(model.Username);
                 if (user != default(TUser))
                 {
-                    result = await _signInManager.PasswordSignInAsync(user.UserName, model.Password, model.RememberLogin, lockoutOnFailure: true);
+                    var rememberLogin = AccountOptions.AllowRememberLogin && model.RememberLogin;
+                    result = await _signInManager.PasswordSignInAsync(user.UserName, model.Password, rememberLogin, lockoutOnFailure: true);
                 }
             }
 
@@ -206,8 +235,10 @@ namespace Skoruba.Duende.IdentityServer.STS.Identity.Controllers
                 return View("Lockout");
             }
 
-            await _events.RaiseAsync(new UserLoginFailureEvent(model.Username, "invalid credentials", clientId: context?.Client.ClientId));
-            ModelState.AddModelError(string.Empty, AccountOptions.InvalidCredentialsErrorMessage);
+            var loginFailureReason = isPasskeySubmit ? "invalid passkey" : "invalid credentials";
+            var loginFailureMessage = isPasskeySubmit ? AccountOptions.InvalidPasskeyErrorMessage : AccountOptions.InvalidCredentialsErrorMessage;
+            await _events.RaiseAsync(new UserLoginFailureEvent(model.Username, loginFailureReason, clientId: context?.Client.ClientId));
+            ModelState.AddModelError(string.Empty, loginFailureMessage);
 
             // something went wrong, show form with error
             var vm = await BuildLoginViewModelAsync(model);

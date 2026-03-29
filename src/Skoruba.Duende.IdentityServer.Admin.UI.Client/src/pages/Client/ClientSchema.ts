@@ -15,17 +15,17 @@ const DualListTypeSchema = z.object({
 });
 
 export const formSchema = z.object({
-  clientId: z
-    .string()
-    .min(
-      1,
-      t("Validation.FieldRequired", { field: t("Client.Label.ClientId_Label") })
-    ),
+  clientId: z.string().min(
+    1,
+    t("Validation.FieldRequired", {
+      field: t("Client.Label.ClientId_Label"),
+    }),
+  ),
   clientName: z.string().min(
     1,
     t("Validation.FieldRequired", {
       field: t("Client.Label.ClientName_Label"),
-    })
+    }),
   ),
   description: z.string().optional(),
   enabled: z.boolean().optional(),
@@ -108,7 +108,7 @@ export const clientDefaultValues: ClientEditFormData = {
   allowedGrantTypes: [],
   enableLocalLogin: true,
   identityProviderRestrictions: [],
-  useSsoLifetime: 0,
+  useSsoLifetime: undefined,
   coordinateLifetimeWithUserSession: false,
   identityTokenLifetime: 300,
   allowedIdentityTokenSigningAlgorithms: [],
@@ -121,8 +121,8 @@ export const clientDefaultValues: ClientEditFormData = {
   allowPlainTextPkce: false,
   absoluteRefreshTokenLifetime: 2592000,
   slidingRefreshTokenLifetime: 1296000,
-  cibaLifetime: 0,
-  pollingInterval: 0,
+  cibaLifetime: undefined,
+  pollingInterval: undefined,
   refreshTokenUsage: 1,
   refreshTokenExpiration: 0,
   updateAccessTokenClaimsOnRefresh: false,
@@ -135,7 +135,7 @@ export const clientDefaultValues: ClientEditFormData = {
   dPoPClockSkew: "00:05:00",
   dPoPValidationMode: DPoPMode.Iat.toString(),
   requirePushedAuthorization: false,
-  pushedAuthorizationLifetime: 0,
+  pushedAuthorizationLifetime: undefined,
   initiateLoginUri: undefined,
   requireConsent: true,
   allowRememberConsent: true,
@@ -152,7 +152,7 @@ export const clientDefaultValues: ClientEditFormData = {
 
 export const mapEditClientToFormData = (
   client: ClientApiDto,
-  grantTypes: GrantType[]
+  grantTypes: GrantType[],
 ): ClientEditFormData => {
   return {
     clientId: client.clientId ?? clientDefaultValues.clientId,
@@ -289,7 +289,7 @@ export const mapEditClientToFormData = (
 
 export const mapFormDataToCreateClient = (
   formData: Partial<ClientWizardFormSummaryData>,
-  grantTypes: string[]
+  grantTypes: string[],
 ): IClientApiDto => {
   return {
     id: 0,
@@ -374,7 +374,7 @@ export const mapFormDataToCreateClient = (
             id: claim.id,
             value: claim.value,
             type: claim.key,
-          })
+          }),
       ) ?? [],
     properties:
       formData.clientProperties?.map(
@@ -383,7 +383,7 @@ export const mapFormDataToCreateClient = (
             id: 0,
             key: property.key,
             value: property.value,
-          })
+          }),
       ) ?? [],
     updated: undefined,
     lastAccessed: undefined,
@@ -393,7 +393,7 @@ export const mapFormDataToCreateClient = (
 
 export const mapFormDataToEditClient = (
   formData: ClientEditFormData,
-  id: number
+  id: number,
 ): IClientApiDto => {
   return {
     absoluteRefreshTokenLifetime: formData.absoluteRefreshTokenLifetime!,
@@ -466,7 +466,7 @@ export const mapFormDataToEditClient = (
       formData.coordinateLifetimeWithUserSession!,
     requireDPoP: formData.requireDPoP!,
     dPoPValidationMode: Number(
-      formData.dPoPValidationMode ?? clientDefaultValues.dPoPValidationMode!
+      formData.dPoPValidationMode ?? clientDefaultValues.dPoPValidationMode!,
     ),
     dPoPClockSkew: formData.dPoPClockSkew ?? clientDefaultValues.dPoPClockSkew!,
     pushedAuthorizationLifetime:
@@ -485,7 +485,7 @@ export const mapFormDataToEditClient = (
             id: claim.id,
             value: claim.value,
             type: claim.key,
-          })
+          }),
       ) ?? [],
     properties:
       formData.properties?.map(
@@ -494,7 +494,7 @@ export const mapFormDataToEditClient = (
             id: property.id,
             key: property.key,
             value: property.value,
-          })
+          }),
       ) ?? [],
     updated: undefined,
     lastAccessed: undefined,

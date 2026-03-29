@@ -30,13 +30,13 @@
     <title>@RootConfiguration.AdminConfiguration.PageTitle</title>
     <link rel="icon" type="image/x-icon" href="@UrlHelper.Content(RootConfiguration.AdminConfiguration.FaviconUri)" />
     <link rel="shortcut icon" type="image/x-icon"
-        href="@UrlHelper.Content(@RootConfiguration.AdminConfiguration.FaviconUri)" />
+          href="@UrlHelper.Content(@RootConfiguration.AdminConfiguration.FaviconUri)" />
     <script src="~/js/theme-init.js" asp-append-version="true"></script>
     <link href="~/css/app.css" asp-append-version="true" rel="stylesheet" />
     @if (!string.IsNullOrEmpty(RootConfiguration.AdminConfiguration.CustomThemeCss))
     {
         <link href="@UrlHelper.Content(RootConfiguration.AdminConfiguration.CustomThemeCss)" asp-append-version="true"
-            rel="stylesheet" />
+              rel="stylesheet" />
     }
     @await RenderSectionAsync("styles", required: false)
 </head>
@@ -46,7 +46,7 @@
         class="sticky top-0 z-50 border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <nav class="container flex h-16 items-center">
             <a class="text-lg font-semibold tracking-tight hover:opacity-90" asp-area="" asp-controller="Home"
-                asp-action="Index">
+                   asp-action="Index">
                 @RootConfiguration.AdminConfiguration.PageTitle
             </a>
             <div class="ml-auto hidden items-center gap-4 md:flex">
@@ -64,14 +64,14 @@
                         <div class="card absolute right-0 mt-2 w-64 overflow-hidden">
                             <div class="p-1">
                                 <a class="block rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
-                                    asp-controller="Manage" asp-action="Index">
+                                       asp-controller="Manage" asp-action="Index">
                                     <span class="inline-flex items-center gap-2">
                                         <lucideicon name="user" class="h-4 w-4" />
                                         @Localizer["ManageProfile"]
                                     </span>
                                 </a>
                                 <a class="block rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
-                                    asp-controller="Manage" asp-action="PersonalData">
+                                       asp-controller="Manage" asp-action="PersonalData">
                                     <span class="inline-flex items-center gap-2">
                                         <lucideicon name="id-card" class="h-4 w-4" />
                                         @Localizer["ManagePersonalData"]
@@ -80,7 +80,7 @@
                                 @if (hasExternalLogins)
                                 {
                                     <a class="block rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
-                                        asp-controller="Manage" asp-action="ExternalLogins">
+                                           asp-controller="Manage" asp-action="ExternalLogins">
                                         <span class="inline-flex items-center gap-2">
                                             <lucideicon name="link-2" class="h-4 w-4" />
                                             @Localizer["ExternalLogins"]
@@ -88,28 +88,28 @@
                                     </a>
                                 }
                                 <a class="block rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
-                                    asp-controller="Manage" asp-action="TwoFactorAuthentication">
+                                       asp-controller="Manage" asp-action="TwoFactorAuthentication">
                                     <span class="inline-flex items-center gap-2">
                                         <lucideicon name="shield-check" class="h-4 w-4" />
                                         @Localizer["2FA"]
                                     </span>
                                 </a>
                                 <a class="block rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
-                                    asp-controller="Manage" asp-action="Passkeys">
+                                       asp-controller="Manage" asp-action="Passkeys">
                                     <span class="inline-flex items-center gap-2">
                                         <lucideicon name="fingerprint" class="h-4 w-4" />
                                         @Localizer["Passkeys"]
                                     </span>
                                 </a>
                                 <a class="block rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
-                                    asp-controller="Manage" asp-action="ChangePassword">
+                                       asp-controller="Manage" asp-action="ChangePassword">
                                     <span class="inline-flex items-center gap-2">
                                         <lucideicon name="key-round" class="h-4 w-4" />
                                         @Localizer["ChangePassword"]
                                     </span>
                                 </a>
                                 <a class="block rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
-                                    asp-controller="Grants" asp-action="Index">
+                                       asp-controller="Grants" asp-action="Index">
                                     <span class="inline-flex items-center gap-2">
                                         <lucideicon name="badge-check" class="h-4 w-4" />
                                         @Localizer["Grants"]
@@ -118,7 +118,7 @@
                                 @if (ServerSideSessionsOptions.Value.Enabled)
                                 {
                                     <a class="block rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
-                                       asp-controller="ServerSideSessions" asp-action="Index">
+                                           asp-controller="ServerSideSessions" asp-action="Index">
                                         <span class="inline-flex items-center gap-2">
                                             <lucideicon name="box" class="h-4 w-4" />
                                             @Localizer["ServerSessionsMenu"]
@@ -127,7 +127,7 @@
                                 }
                                 <div class="my-1 h-px bg-border"></div>
                                 <a class="block rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
-                                    asp-action="Logout" asp-controller="Account">
+                                       asp-action="Logout" asp-controller="Account">
                                     <span class="inline-flex items-center gap-2">
                                         <lucideicon name="log-out" class="h-4 w-4" />
                                         @Localizer["Signout"]
@@ -166,27 +166,29 @@
                     {
                         <vc:identity-server-admin-link></vc:identity-server-admin-link>
                         <a class="block rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
-                            asp-controller="Manage" asp-action="Index">@Localizer["ManageProfile"]</a>
+                           asp-controller="Manage" asp-action="Index">@Localizer["ManageProfile"]</a>
                         <a class="block rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
-                            asp-controller="Manage" asp-action="PersonalData">@Localizer["ManagePersonalData"]</a>
+                           asp-controller="Manage" asp-action="PersonalData">@Localizer["ManagePersonalData"]</a>
                         @if (hasExternalLogins)
                         {
                             <a class="block rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
-                                asp-controller="Manage" asp-action="ExternalLogins">@Localizer["ExternalLogins"]</a>
+                               asp-controller="Manage" asp-action="ExternalLogins">@Localizer["ExternalLogins"]</a>
                         }
                         <a class="block rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
-                            asp-controller="Manage" asp-action="TwoFactorAuthentication">@Localizer["2FA"]</a>
+                           asp-controller="Manage" asp-action="TwoFactorAuthentication">@Localizer["2FA"]</a>
                         <a class="block rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
-                            asp-controller="Manage" asp-action="ChangePassword">@Localizer["ChangePassword"]</a>
+                           asp-controller="Manage" asp-action="Passkeys">@Localizer["Passkeys"]</a>
                         <a class="block rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
-                            asp-controller="Grants" asp-action="Index">@Localizer["Grants"]</a>
+                           asp-controller="Manage" asp-action="ChangePassword">@Localizer["ChangePassword"]</a>
+                        <a class="block rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
+                           asp-controller="Grants" asp-action="Index">@Localizer["Grants"]</a>
                         @if (ServerSideSessionsOptions.Value.Enabled)
                         {
                             <a class="block rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
-                                asp-controller="ServerSideSessions" asp-action="Index">@Localizer["ServerSessionsMenu"]</a>
+                               asp-controller="ServerSideSessions" asp-action="Index">@Localizer["ServerSessionsMenu"]</a>
                         }
                         <a class="block rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
-                            asp-action="Logout" asp-controller="Account">@Localizer["Signout"]</a>
+                           asp-action="Logout" asp-controller="Account">@Localizer["Signout"]</a>
                     }
                     else
                     {
@@ -219,19 +221,19 @@
             <div class="grid gap-6 md:grid-cols-3 md:items-center">
                 <div class="space-y-1">
                     <div class="font-semibold">@RootConfiguration.AdminConfiguration.PageTitle</div>
-                    <small class="text-muted-foreground">@Localizer["FooterCopyright"] @DateTime.Now.Year - @await Html.PartialAsync("Common/ApplicationVersion")</small>
-                </div>
-                <div></div>
-                <div class="flex justify-center md:justify-end">
-                    @await Html.PartialAsync("Common/SelectLanguage")
+                    <small class="text-muted-foreground">@Localizer["FooterCopyright"] @DateTime.Now.Year - @(await Html.PartialAsync("Common/ApplicationVersion"))</small>
+                    </div>
+                    <div></div>
+                    <div class="flex justify-center md:justify-end">
+                        @await Html.PartialAsync("Common/SelectLanguage")
+                    </div>
                 </div>
             </div>
-        </div>
-    </footer>
+        </footer>
 
-    <script src="~/js/layout.js" asp-append-version="true"></script>
-    <script src="~/js/language.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("scripts", required: false)
-</body>
+        <script src="~/js/layout.js" asp-append-version="true"></script>
+        <script src="~/js/language.js" asp-append-version="true"></script>
+        @await RenderSectionAsync("scripts", required: false)
+    </body>
 
 </html>

@@ -67,6 +67,9 @@ public class PasskeySubmitTagHelper : TagHelper
             htmlWriter.Write($"email-name=\"{EmailName ?? ""}\" ");
             htmlWriter.Write($"request-token-name=\"{tokens?.HeaderName ?? ""}\" ");
             htmlWriter.Write($"request-token-value=\"{tokens?.RequestToken ?? ""}\" ");
+            var pathBase = _httpContextAccessor.HttpContext?.Request.PathBase.Value ?? string.Empty;
+            htmlWriter.Write($"creation-options-url=\"{pathBase}/Identity/Account/PasskeyCreationOptions\" ");
+            htmlWriter.Write($"request-options-url=\"{pathBase}/Identity/Account/PasskeyRequestOptions\" ");
             htmlWriter.Write(">");
             htmlWriter.Write("</passkey-submit>");
             
