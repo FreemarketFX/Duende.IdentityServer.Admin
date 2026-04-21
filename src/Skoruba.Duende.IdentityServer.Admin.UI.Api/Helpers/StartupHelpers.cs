@@ -461,17 +461,12 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Helpers
             services.AddScoped<ControllerExceptionFilterAttribute>();
             services.AddScoped<IApiErrorResources, ApiErrorResources>();
 
-            var profileTypes = new HashSet<Type>
-            {
-                typeof(IdentityMapperProfile<TRoleDto, TUserRolesDto, TKey, TUserClaimsDto, TUserClaimDto, TUserProviderDto, TUserProvidersDto, TUserChangePasswordDto, TRoleClaimDto, TRoleClaimsDto>)
-            };
-
             services.AddConfigureAdminAspNetIdentitySchema(configuration);
 
             services.AddAdminAspNetIdentityServices<TIdentityDbContext, TPersistedGrantDbContext,
                 TUserDto, TRoleDto, TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken, TUserPasskey,
                 TUsersDto, TRolesDto, TUserRolesDto, TUserClaimsDto,
-                TUserProviderDto, TUserProvidersDto, TUserChangePasswordDto, TRoleClaimsDto, TUserClaimDto, TRoleClaimDto>(profileTypes);
+                TUserProviderDto, TUserProvidersDto, TUserChangePasswordDto, TRoleClaimsDto, TUserClaimDto, TRoleClaimDto>();
 
             services.AddAdminServices<TIdentityServerConfigurationDbContext, TPersistedGrantDbContext, TAdminLogDbContext, TAdminConfigurationDbContext>();
 

@@ -1,32 +1,37 @@
 ﻿// Copyright (c) Jan Škoruba. All Rights Reserved.
 // Licensed under the Apache License, Version 2.0.
 
-using AutoMapper;
+using System.Linq;
 using Duende.IdentityServer.EntityFramework.Entities;
-using Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Dtos.Grant;
+using Riok.Mapperly.Abstractions;
 using Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Dtos.Key;
 using Skoruba.Duende.IdentityServer.Admin.EntityFramework.Extensions.Common;
 
 namespace Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Mappers
 {
+    [Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Target)]
+    internal static partial class KeyMapper
+    {
+        public static partial KeyDto ToKeyDto(Key source);
+    }
+
     public static class KeyMappers
     {
-        internal static IMapper Mapper { get; }
-
-        static KeyMappers()
-        {
-            Mapper = new MapperConfiguration(cfg => cfg.AddProfile<KeyMapperProfile>())
-                .CreateMapper();
-        }
-
         public static KeyDto ToModel(this Key key)
         {
-            return key == null ? null : Mapper.Map<KeyDto>(key);
+            return key == null ? null : KeyMapper.ToKeyDto(key);
         }
 
         public static KeysDto ToModel(this PagedList<Key> grant)
         {
-            return grant == null ? null : Mapper.Map<KeysDto>(grant);
+            if (grant == null) return null;
+
+            return new KeysDto
+            {
+                TotalCount = grant.TotalCount,
+                PageSize = grant.PageSize,
+                Keys = grant.Data.Select(KeyMapper.ToKeyDto).ToList()
+            };
         }
     }
 }

@@ -16,7 +16,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.UnitTests.Mappers
         {
             var IdentityProviderApiDto = IdentityProviderApiDtoMock.GenerateRandomIdentityProvider(1);
 
-            var IdentityProviderDto = IdentityProviderApiDto.ToIdentityProviderApiModel<IdentityProviderDto>();
+            var IdentityProviderDto = IdentityProviderApiDto.ToIdentityProviderDto();
 
             IdentityProviderDto.Should().NotBeNull();
 
@@ -33,7 +33,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.UnitTests.Mappers
         {
             var IdentityProviderDto = IdentityProviderDtoMock.GenerateRandomIdentityProvider(1);
 
-            var IdentityProviderApiDto = IdentityProviderDto.ToIdentityProviderApiModel<IdentityProviderApiDto>();
+            var IdentityProviderApiDto = IdentityProviderDto.ToIdentityProviderApiDto();
 
             IdentityProviderApiDto.Should().BeEquivalentTo(IdentityProviderDto, options => options
                 .Excluding(x => x.Properties));

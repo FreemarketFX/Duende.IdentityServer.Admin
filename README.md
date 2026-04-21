@@ -595,6 +595,42 @@ Enable or disable user registration:
 
 ---
 
+## 🧩 Identity Mapping Customization
+
+Identity DTO/entity mapping in `Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Identity` is handled by `IdentityDataMapper`.
+
+By default:
+
+- Standard ASP.NET Core Identity fields are mapped explicitly.
+- Additional custom fields are mapped automatically when DTO and entity use the same property name and compatible type.
+- Internal Identity fields (`PasswordHash`, `SecurityStamp`, `ConcurrencyStamp`, `NormalizedUserName`, `NormalizedEmail`) are protected during DTO -> entity updates.
+
+### 1. Same-name custom properties
+
+If your custom `UserDto` / `RoleDto` and `IdentityUser` / `IdentityRole` share the same custom property name, no extra configuration is needed.
+
+### 2. Different property names (customizers)
+
+When names differ, implement customizers and register them in DI:
+
+```csharp
+services
+    .AddAdminAspNetIdentityServices<...>()
+    .AddIdentityUserMappingCustomizer<ApplicationUserDto, ApplicationUser, ApplicationUserMappingCustomizer>()
+    .AddIdentityRoleMappingCustomizer<ApplicationRoleDto, ApplicationRole, ApplicationRoleMappingCustomizer>();
+```
+
+Customizers implement:
+
+- `IIdentityUserMappingCustomizer<TUserDto, TUser>`
+- `IIdentityRoleMappingCustomizer<TRoleDto, TRole>`
+
+### 3. Full mapper override
+
+If you need full control, replace the default `IIdentityDataMapper<...>` registration in DI with your own implementation after calling `AddAdminAspNetIdentityServices`.
+
+---
+
 ## 📚 Solution Overview
 
 The solution contains **unit and integration tests** for all major components.

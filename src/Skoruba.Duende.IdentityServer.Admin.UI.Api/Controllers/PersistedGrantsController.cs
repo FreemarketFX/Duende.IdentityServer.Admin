@@ -31,7 +31,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
         public async Task<ActionResult<PersistedGrantSubjectsApiDto>> Get(string searchText, int page = 1, int pageSize = 10)
         {
             var persistedGrantsDto = await _persistedGrantsService.GetPersistedGrantsByUsersAsync(searchText, page, pageSize);
-            var persistedGrantSubjectsApiDto = persistedGrantsDto.ToPersistedGrantApiModel<PersistedGrantSubjectsApiDto>();
+            var persistedGrantSubjectsApiDto = persistedGrantsDto.ToPersistedGrantSubjectsApiDto();
 
             return Ok(persistedGrantSubjectsApiDto);
         }
@@ -40,7 +40,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
         public async Task<ActionResult<PersistedGrantApiDto>> Get(string id)
         {
             var persistedGrantDto = await _persistedGrantsService.GetPersistedGrantAsync(UrlHelpers.QueryStringUnSafeHash(id));
-            var persistedGrantApiDto = persistedGrantDto.ToPersistedGrantApiModel<PersistedGrantApiDto>();
+            var persistedGrantApiDto = persistedGrantDto.ToPersistedGrantApiDto();
 
             ParsePersistedGrantKey(persistedGrantApiDto);
 
@@ -51,7 +51,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
         public async Task<ActionResult<PersistedGrantsApiDto>> GetBySubject(string subjectId, int page = 1, int pageSize = 10)
         {
             var persistedGrantDto = await _persistedGrantsService.GetPersistedGrantsByUserAsync(subjectId, page, pageSize);
-            var persistedGrantApiDto = persistedGrantDto.ToPersistedGrantApiModel<PersistedGrantsApiDto>();
+            var persistedGrantApiDto = persistedGrantDto.ToPersistedGrantsApiDto();
 
             ParsePersistedGrantKeys(persistedGrantApiDto);
 

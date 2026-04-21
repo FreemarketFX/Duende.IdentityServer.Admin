@@ -15,7 +15,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.UnitTests.Mappers
         {
             var identityResourceApiDto = IdentityResourceApiDtoMock.GenerateRandomIdentityResource(1);
 
-            var identityResourceDto = identityResourceApiDto.ToIdentityResourceApiModel<IdentityResourceDto>();
+            var identityResourceDto = identityResourceApiDto.ToIdentityResourceDto();
 
             identityResourceDto.Should().NotBeNull();
 
@@ -27,7 +27,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.UnitTests.Mappers
         {
             var identityResourceDto = IdentityResourceDtoMock.GenerateRandomIdentityResource(1);
 
-            var identityResourceApiDto = identityResourceDto.ToIdentityResourceApiModel<IdentityResourceApiDto>();
+            var identityResourceApiDto = identityResourceDto.ToIdentityResourceApiDto();
 
             identityResourceApiDto.Should().BeEquivalentTo(identityResourceDto, options => options
                 .Excluding(x => x.UserClaimsItems));
@@ -38,7 +38,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.UnitTests.Mappers
         {
             var identityResourcePropertyApiDto = IdentityResourceApiDtoMock.GenerateRandomIdentityResourceProperty(1);
 
-            var identityResourcePropertiesDto = identityResourcePropertyApiDto.ToIdentityResourceApiModel<IdentityResourcePropertiesDto>();
+            var identityResourcePropertiesDto = identityResourcePropertyApiDto.ToIdentityResourcePropertiesDto();
 
             identityResourcePropertyApiDto.Id.Should().Be(identityResourcePropertiesDto.IdentityResourcePropertyId);
 
@@ -50,7 +50,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.UnitTests.Mappers
         {
             var identityResourcePropertyDto = IdentityResourceDtoMock.GenerateRandomIdentityResourceProperty(1, 1);
 
-            var identityResourcePropertyApiDto = identityResourcePropertyDto.ToIdentityResourceApiModel<IdentityResourcePropertyApiDto>();
+            var identityResourcePropertyApiDto = identityResourcePropertyDto.ToIdentityResourcePropertyApiDto();
 
             identityResourcePropertyDto.IdentityResourcePropertyId.Should().Be(identityResourcePropertyApiDto.Id);
 

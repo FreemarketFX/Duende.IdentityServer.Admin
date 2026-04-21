@@ -16,7 +16,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.UnitTests.Mappers
         {
             var keyDto = KeyDtoMock.GenerateRandomKey(Guid.NewGuid().ToString());
 
-            var keyApi = keyDto.ToKeyApiModel<KeyApiDto>();
+            var keyApi = keyDto.ToKeyApiDto();
 
             keyApi.Should().BeEquivalentTo(keyDto);
         }
@@ -26,7 +26,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.UnitTests.Mappers
         {
             var keyApiDto = KeyApiDtoMock.GenerateRandomKey(Guid.NewGuid().ToString());
 
-            var keyDto = keyApiDto.ToKeyApiModel<KeyDto>();
+            var keyDto = keyApiDto.ToKeyDto();
 
             keyDto.Should().BeEquivalentTo(keyApiDto);
         }

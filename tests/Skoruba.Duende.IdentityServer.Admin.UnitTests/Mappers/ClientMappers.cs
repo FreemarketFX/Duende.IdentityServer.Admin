@@ -2,9 +2,11 @@
 // Licensed under the Apache License, Version 2.0.
 
 using System.Linq;
+using Duende.IdentityServer.EntityFramework.Entities;
 using FluentAssertions;
 using Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Mappers;
 using Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Mappers.Converters;
+using Skoruba.Duende.IdentityServer.Admin.EntityFramework.Extensions.Common;
 using Skoruba.Duende.IdentityServer.Admin.UnitTests.Mocks;
 using Xunit;
 
@@ -173,6 +175,83 @@ namespace Skoruba.Duende.IdentityServer.Admin.UnitTests.Mappers
             clientPropertiesDto.Should().BeEquivalentTo(clientProperty, options =>
                 options.Excluding(o => o.Id)
                     .Excluding(o => o.Client));
+        }
+
+        [Fact]
+        public void CanMapPagedClientsToModel()
+        {
+            var clients = new PagedList<Client>
+            {
+                TotalCount = 10,
+                PageSize = 5
+            };
+            clients.Data.Add(ClientMock.GenerateRandomClient(1));
+            clients.Data.Add(ClientMock.GenerateRandomClient(2));
+
+            var clientsDto = clients.ToModel();
+
+            clientsDto.Should().NotBeNull();
+            clientsDto.TotalCount.Should().Be(clients.TotalCount);
+            clientsDto.PageSize.Should().Be(clients.PageSize);
+            clientsDto.Clients.Should().HaveCount(clients.Data.Count);
+            clientsDto.Clients.Select(x => x.ClientId).Should().BeEquivalentTo(clients.Data.Select(x => x.ClientId));
+        }
+
+        [Fact]
+        public void CanMapPagedClientSecretsToModel()
+        {
+            var secrets = new PagedList<ClientSecret>
+            {
+                TotalCount = 7,
+                PageSize = 3
+            };
+            secrets.Data.Add(ClientMock.GenerateRandomClientSecret(1));
+            secrets.Data.Add(ClientMock.GenerateRandomClientSecret(2));
+
+            var secretsDto = secrets.ToModel();
+
+            secretsDto.Should().NotBeNull();
+            secretsDto.TotalCount.Should().Be(secrets.TotalCount);
+            secretsDto.PageSize.Should().Be(secrets.PageSize);
+            secretsDto.ClientSecrets.Should().HaveCount(secrets.Data.Count);
+        }
+
+        [Fact]
+        public void CanMapPagedClientClaimsToModel()
+        {
+            var claims = new PagedList<ClientClaim>
+            {
+                TotalCount = 6,
+                PageSize = 2
+            };
+            claims.Data.Add(ClientMock.GenerateRandomClientClaim(1));
+            claims.Data.Add(ClientMock.GenerateRandomClientClaim(2));
+
+            var claimsDto = claims.ToModel();
+
+            claimsDto.Should().NotBeNull();
+            claimsDto.TotalCount.Should().Be(claims.TotalCount);
+            claimsDto.PageSize.Should().Be(claims.PageSize);
+            claimsDto.ClientClaims.Should().HaveCount(claims.Data.Count);
+        }
+
+        [Fact]
+        public void CanMapPagedClientPropertiesToModel()
+        {
+            var properties = new PagedList<ClientProperty>
+            {
+                TotalCount = 4,
+                PageSize = 2
+            };
+            properties.Data.Add(ClientMock.GenerateRandomClientProperty(1));
+            properties.Data.Add(ClientMock.GenerateRandomClientProperty(2));
+
+            var propertiesDto = properties.ToModel();
+
+            propertiesDto.Should().NotBeNull();
+            propertiesDto.TotalCount.Should().Be(properties.TotalCount);
+            propertiesDto.PageSize.Should().Be(properties.PageSize);
+            propertiesDto.ClientProperties.Should().HaveCount(properties.Data.Count);
         }
     }
 }

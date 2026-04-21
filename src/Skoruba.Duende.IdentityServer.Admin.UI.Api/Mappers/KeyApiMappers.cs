@@ -1,20 +1,28 @@
-﻿using AutoMapper;
+﻿// Copyright (c) Jan Škoruba. All Rights Reserved.
+// Licensed under the Apache License, Version 2.0.
+
+using Riok.Mapperly.Abstractions;
+using Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Dtos.Key;
+using Skoruba.Duende.IdentityServer.Admin.UI.Api.Dtos.Key;
 
 namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Mappers
 {
+    [Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Target)]
+    internal static partial class KeyApiMapper
+    {
+        public static partial KeyApiDto ToKeyApiDto(KeyDto source);
+        public static partial KeyDto ToKeyDto(KeyApiDto source);
+
+        public static partial KeysApiDto ToKeysApiDto(KeysDto source);
+        public static partial KeysDto ToKeysDto(KeysApiDto source);
+    }
+
     public static class KeyApiMappers
     {
-        static KeyApiMappers()
-        {
-            Mapper = new MapperConfiguration(cfg => cfg.AddProfile<KeyApiMapperProfile>())
-                .CreateMapper();
-        }
+        public static KeyApiDto ToKeyApiDto(this KeyDto source) => KeyApiMapper.ToKeyApiDto(source);
+        public static KeyDto ToKeyDto(this KeyApiDto source) => KeyApiMapper.ToKeyDto(source);
 
-        internal static IMapper Mapper { get; }
-
-        public static T ToKeyApiModel<T>(this object source)
-        {
-            return Mapper.Map<T>(source);
-        }
+        public static KeysApiDto ToKeysApiDto(this KeysDto source) => KeyApiMapper.ToKeysApiDto(source);
+        public static KeysDto ToKeysDto(this KeysApiDto source) => KeyApiMapper.ToKeysDto(source);
     }
 }

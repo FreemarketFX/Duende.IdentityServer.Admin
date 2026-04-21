@@ -1,23 +1,50 @@
 ﻿// Copyright (c) Jan Škoruba. All Rights Reserved.
 // Licensed under the Apache License, Version 2.0.
 
-using AutoMapper;
+using System.Collections.Generic;
+using System.Linq;
+using Riok.Mapperly.Abstractions;
+using Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Dtos.IdentityProvider;
+using Skoruba.Duende.IdentityServer.Admin.UI.Api.Dtos.IdentityProvider;
 
 namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Mappers
 {
+    [Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Target)]
+    internal static partial class IdentityProviderApiMapper
+    {
+        [MapProperty(nameof(IdentityProviderDto.Properties), nameof(IdentityProviderApiDto.IdentityProviderProperties))]
+        public static partial IdentityProviderApiDto ToIdentityProviderApiDto(IdentityProviderDto source);
+
+        [MapProperty(nameof(IdentityProviderApiDto.IdentityProviderProperties), nameof(IdentityProviderDto.Properties))]
+        public static partial IdentityProviderDto ToIdentityProviderDto(IdentityProviderApiDto source);
+
+        public static partial IdentityProvidersApiDto ToIdentityProvidersApiDto(IdentityProvidersDto source);
+        public static partial IdentityProvidersDto ToIdentityProvidersDto(IdentityProvidersApiDto source);
+
+        private static Dictionary<string, string> MapProperties(Dictionary<int, IdentityProviderPropertyDto> source)
+        {
+            return source?.ToDictionary(x => x.Value.Name, dto => dto.Value.Value) ?? new Dictionary<string, string>();
+        }
+
+        private static Dictionary<int, IdentityProviderPropertyDto> MapProperties(Dictionary<string, string> source)
+        {
+            if (source == null)
+            {
+                return new Dictionary<int, IdentityProviderPropertyDto>();
+            }
+
+            var index = 0;
+            var values = source.Select(item => new IdentityProviderPropertyDto { Name = item.Key, Value = item.Value });
+            return values.ToDictionary(_ => index++, item => item);
+        }
+    }
+
     public static class IdentityProviderApiMappers
     {
-        static IdentityProviderApiMappers()
-        {
-            Mapper = new MapperConfiguration(cfg => cfg.AddProfile<IdentityProviderApiMapperProfile>())
-                .CreateMapper();
-        }
+        public static IdentityProviderApiDto ToIdentityProviderApiDto(this IdentityProviderDto source) => IdentityProviderApiMapper.ToIdentityProviderApiDto(source);
+        public static IdentityProviderDto ToIdentityProviderDto(this IdentityProviderApiDto source) => IdentityProviderApiMapper.ToIdentityProviderDto(source);
 
-        internal static IMapper Mapper { get; }
-        public static T ToIdentityProviderApiModel<T>(this object source)
-        {
-            return Mapper.Map<T>(source);
-        }
-
+        public static IdentityProvidersApiDto ToIdentityProvidersApiDto(this IdentityProvidersDto source) => IdentityProviderApiMapper.ToIdentityProvidersApiDto(source);
+        public static IdentityProvidersDto ToIdentityProvidersDto(this IdentityProvidersApiDto source) => IdentityProviderApiMapper.ToIdentityProvidersDto(source);
     }
 }
