@@ -141,13 +141,23 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Mappers
 
         private static T CreateInstance<T>()
         {
-            var instance = Activator.CreateInstance<T>();
-            if (instance == null)
+            try
             {
-                throw new InvalidOperationException($"Cannot create an instance of {typeof(T).FullName}.");
-            }
+                var instance = Activator.CreateInstance<T>();
+                if (instance == null)
+                {
+                    throw new InvalidOperationException($"Cannot create an instance of {typeof(T).FullName}.");
+                }
 
-            return instance;
+                return instance;
+            }
+            catch (Exception ex) when (ex is MissingMethodException or MemberAccessException)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot create an instance of {typeof(T).FullName}. " +
+                    "Ensure the type has a public parameterless constructor.",
+                    ex);
+            }
         }
     }
 }

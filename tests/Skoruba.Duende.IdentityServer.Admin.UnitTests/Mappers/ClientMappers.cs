@@ -101,7 +101,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UnitTests.Mappers
         }
 
         [Fact]
-        public void MapClientClaimToModel_IgnoresId()
+        public void MapClientClaimToModel_MapsId()
         {
             var client = ClientMock.GenerateRandomClient(1);
             client.Claims.Add(ClientMock.GenerateRandomClientClaim(42));
@@ -109,7 +109,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UnitTests.Mappers
             var clientDto = client.ToModel();
 
             clientDto.Claims.Should().HaveCount(1);
-            clientDto.Claims[0].Id.Should().Be(0);
+            clientDto.Claims[0].Id.Should().Be(42);
             clientDto.Claims[0].Type.Should().Be(client.Claims[0].Type);
             clientDto.Claims[0].Value.Should().Be(client.Claims[0].Value);
         }

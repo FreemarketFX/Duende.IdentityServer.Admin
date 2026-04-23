@@ -34,7 +34,6 @@ namespace Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Mappers
         [MapProperty(nameof(ClientClaimsDto.ClientClaimId), nameof(ClientClaim.Id))]
         public static partial ClientClaim ToClientClaim(ClientClaimsDto source);
 
-        [MapperIgnoreTarget(nameof(ClientClaimDto.Id))]
         public static partial ClientClaimDto ToClientClaimDto(ClientClaim source);
 
         [MapperIgnoreTarget(nameof(ClientClaim.Id))]

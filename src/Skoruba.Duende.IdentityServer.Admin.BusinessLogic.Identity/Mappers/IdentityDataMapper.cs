@@ -372,13 +372,23 @@ namespace Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Identity.Mappers
 
         private static TEntity CreateInstance<TEntity>() where TEntity : class
         {
-            var instance = Activator.CreateInstance<TEntity>();
-            if (instance == null)
+            try
             {
-                throw new InvalidOperationException($"Cannot create an instance of {typeof(TEntity).FullName}.");
-            }
+                var instance = Activator.CreateInstance<TEntity>();
+                if (instance == null)
+                {
+                    throw new InvalidOperationException($"Cannot create an instance of {typeof(TEntity).FullName}.");
+                }
 
-            return instance;
+                return instance;
+            }
+            catch (Exception ex) when (ex is MissingMethodException or MemberAccessException)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot create an instance of {typeof(TEntity).FullName}. " +
+                    "Ensure the type has a public parameterless constructor.",
+                    ex);
+            }
         }
 
         private static void CopyMatchingProperties<TSource, TDestination>(TSource source, TDestination destination, IReadOnlySet<string> excludedProperties)
