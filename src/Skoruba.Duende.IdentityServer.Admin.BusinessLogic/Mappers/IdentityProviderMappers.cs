@@ -21,7 +21,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Mappers
         {
             if (source == null || source.Count == 0)
             {
-                return string.Empty;
+                return "{}";
             }
 
             var dict = source

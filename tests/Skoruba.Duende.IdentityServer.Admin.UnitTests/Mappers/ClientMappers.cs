@@ -101,6 +101,20 @@ namespace Skoruba.Duende.IdentityServer.Admin.UnitTests.Mappers
         }
 
         [Fact]
+        public void MapClientClaimToModel_IgnoresId()
+        {
+            var client = ClientMock.GenerateRandomClient(1);
+            client.Claims.Add(ClientMock.GenerateRandomClientClaim(42));
+
+            var clientDto = client.ToModel();
+
+            clientDto.Claims.Should().HaveCount(1);
+            clientDto.Claims[0].Id.Should().Be(0);
+            clientDto.Claims[0].Type.Should().Be(client.Claims[0].Type);
+            clientDto.Claims[0].Value.Should().Be(client.Claims[0].Value);
+        }
+
+        [Fact]
         public void CanMapClientClaimToEntity()
         {
             var clientClaimDto = ClientDtoMock.GenerateRandomClientClaim(0, 0);
@@ -113,6 +127,26 @@ namespace Skoruba.Duende.IdentityServer.Admin.UnitTests.Mappers
             clientClaimDto.Should().BeEquivalentTo(clientClaim, options =>
                 options.Excluding(o => o.Id)
                     .Excluding(o => o.Client));
+        }
+
+        [Fact]
+        public void MapClientClaimToEntity_IgnoresId()
+        {
+            var clientDto = ClientDtoMock.GenerateRandomClient(1);
+            var claimDto = new Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Dtos.Configuration.ClientClaimDto
+            {
+                Id = 42,
+                Type = "sub",
+                Value = "value"
+            };
+            clientDto.Claims.Add(claimDto);
+
+            var client = clientDto.ToEntity();
+
+            client.Claims.Should().HaveCount(1);
+            client.Claims[0].Id.Should().Be(0);
+            client.Claims[0].Type.Should().Be(claimDto.Type);
+            client.Claims[0].Value.Should().Be(claimDto.Value);
         }
 
         [Fact]
