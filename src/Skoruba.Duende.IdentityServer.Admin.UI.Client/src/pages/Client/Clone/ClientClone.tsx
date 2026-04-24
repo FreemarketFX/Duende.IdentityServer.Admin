@@ -24,16 +24,16 @@ const formSchema = z.object({
     String(
       i18next.t("Validation.FieldRequired", {
         field: i18next.t("Client.Label.ClientId_Label"),
-      })
-    )
+      }),
+    ),
   ),
   clientName: z.string().min(
     1,
     String(
       i18next.t("Validation.FieldRequired", {
         field: i18next.t("Client.Label.ClientName_Label"),
-      })
-    )
+      }),
+    ),
   ),
   clientGrantTypes: z.boolean().optional(),
   clientRedirectUris: z.boolean().optional(),
@@ -186,7 +186,7 @@ export const CloneClient = () => {
             name="clientPostLogoutRedirectUris"
             label={t("Client.Clone.LabelCloneClientPostLogoutRedirectUris")}
             description={t(
-              "Client.Clone.LabelCloneClientPostLogoutRedirectUris"
+              "Client.Clone.LabelCloneClientPostLogoutRedirectUris",
             )}
             type="switch"
           />

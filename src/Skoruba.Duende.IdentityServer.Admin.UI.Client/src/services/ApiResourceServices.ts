@@ -20,16 +20,16 @@ import { getNowForUnspecifiedDb } from "@/helpers/DateTimeHelper";
 export const getApiResources = async (
   searchTerms: string,
   pageIndex: number,
-  pageSize: number
+  pageSize: number,
 ): Promise<ApiResourcesData> => {
   const apiResourceClient = new client.ApiResourcesClient(
-    ApiHelper.getApiBaseUrl()
+    ApiHelper.getApiBaseUrl(),
   );
 
   const apiResources = await apiResourceClient.get(
     searchTerms,
     pageIndex + 1,
-    pageSize
+    pageSize,
   );
 
   const items =
@@ -37,7 +37,7 @@ export const getApiResources = async (
       (apiResource): ApiResourceData => ({
         id: apiResource.id,
         apiResourceName: apiResource.name,
-      })
+      }),
     ) ?? [];
 
   return { items, totalCount: apiResources.totalCount };
@@ -45,7 +45,7 @@ export const getApiResources = async (
 
 export const deleteApiResource = async (id: number): Promise<void> => {
   const apiResourcesClient = new client.ApiResourcesClient(
-    ApiHelper.getApiBaseUrl()
+    ApiHelper.getApiBaseUrl(),
   );
   await apiResourcesClient.delete(id);
 };
@@ -53,16 +53,16 @@ export const deleteApiResource = async (id: number): Promise<void> => {
 export const getApiResourceSecrets = async (
   apiResourceId: number,
   pageIndex: number,
-  pageSize: number
+  pageSize: number,
 ): Promise<ApiResourceSecretsData> => {
   const apiResourcesClient = new client.ApiResourcesClient(
-    ApiHelper.getApiBaseUrl()
+    ApiHelper.getApiBaseUrl(),
   );
 
   const secrets = await apiResourcesClient.getSecrets(
     apiResourceId,
     pageIndex + 1,
-    pageSize
+    pageSize,
   );
 
   const secretsData: ApiResourceSecretData[] =
@@ -79,7 +79,7 @@ export const getApiResourceSecrets = async (
 
 export const addApiResourceSecret = async (
   apiResourceId: number,
-  secret: SecretsFormData
+  secret: SecretsFormData,
 ) => {
   await createApiResourceSecret(apiResourceId, {
     description: secret.secretDescription,
@@ -94,14 +94,14 @@ export const addApiResourceSecret = async (
 
 export const createApiResourceSecret = async (
   apiResourceId: number,
-  apiResourceSecret: client.IApiSecretApiDto
+  apiResourceSecret: client.IApiSecretApiDto,
 ): Promise<void> => {
   const apiResourcesClient = new client.ApiResourcesClient(
-    ApiHelper.getApiBaseUrl()
+    ApiHelper.getApiBaseUrl(),
   );
   await apiResourcesClient.postSecret(
     apiResourceId,
-    new client.ApiSecretApiDto(apiResourceSecret)
+    new client.ApiSecretApiDto(apiResourceSecret),
   );
 };
 
@@ -113,10 +113,10 @@ export const useApiResource = (id: number) => {
 };
 
 export const getApiResource = async (
-  id: number
+  id: number,
 ): Promise<ApiResourceFormData> => {
   const apiResourcesClient = new client.ApiResourcesClient(
-    ApiHelper.getApiBaseUrl()
+    ApiHelper.getApiBaseUrl(),
   );
 
   const apiResource = await apiResourcesClient.get2(id);
@@ -126,7 +126,7 @@ export const getApiResource = async (
 
 export const createApiResource = async (apiResource: ApiResourceFormData) => {
   const apiResourcesClient = new client.ApiResourcesClient(
-    ApiHelper.getApiBaseUrl()
+    ApiHelper.getApiBaseUrl(),
   );
 
   const apiResourceData = mapFormDataToApiResource(0, apiResource);
@@ -135,16 +135,16 @@ export const createApiResource = async (apiResource: ApiResourceFormData) => {
     new client.ApiResourceApiDto({
       ...apiResourceData,
       id: 0,
-    })
+    }),
   );
 };
 
 export const updateApiResource = async (
   id: number,
-  apiResource: ApiResourceFormData
+  apiResource: ApiResourceFormData,
 ) => {
   const apiResourcesClient = new client.ApiResourcesClient(
-    ApiHelper.getApiBaseUrl()
+    ApiHelper.getApiBaseUrl(),
   );
 
   const apiResourceData = mapFormDataToApiResource(id, apiResource);
@@ -153,13 +153,13 @@ export const updateApiResource = async (
     new client.ApiResourceApiDto({
       ...apiResourceData,
       id,
-    })
+    }),
   );
 };
 
 export const deleteApiResourceSecret = async (secretId: number) => {
   const apiResourcesClient = new client.ApiResourcesClient(
-    ApiHelper.getApiBaseUrl()
+    ApiHelper.getApiBaseUrl(),
   );
 
   await apiResourcesClient.deleteSecret(secretId);
@@ -168,16 +168,16 @@ export const deleteApiResourceSecret = async (secretId: number) => {
 export const getApiResourceProperties = async (
   resourceId: number,
   pageIndex: number,
-  pageSize: number
+  pageSize: number,
 ): Promise<PropertiesData> => {
   const apiResourcesClient = new client.ApiResourcesClient(
-    ApiHelper.getApiBaseUrl()
+    ApiHelper.getApiBaseUrl(),
   );
 
   const properties = await apiResourcesClient.getProperties(
     resourceId,
     pageIndex + 1,
-    pageSize
+    pageSize,
   );
 
   const propertiesData: PropertyData[] =
@@ -192,10 +192,10 @@ export const getApiResourceProperties = async (
 
 export const addApiResourceProperty = async (
   resourceId: number,
-  data: { key: string; value: string }
+  data: { key: string; value: string },
 ) => {
   const apiResourcesClient = new client.ApiResourcesClient(
-    ApiHelper.getApiBaseUrl()
+    ApiHelper.getApiBaseUrl(),
   );
 
   await apiResourcesClient.postProperty(
@@ -204,13 +204,13 @@ export const addApiResourceProperty = async (
       key: data.key,
       value: data.value,
       id: 0,
-    })
+    }),
   );
 };
 
 export const deleteApiResourceProperty = async (id: number) => {
   const apiResourcesClient = new client.ApiResourcesClient(
-    ApiHelper.getApiBaseUrl()
+    ApiHelper.getApiBaseUrl(),
   );
 
   await apiResourcesClient.deleteProperty(id);

@@ -28,8 +28,12 @@ const DeleteClientDialog = ({
     mutationFn: () => deleteClient(Number(clientId)),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [queryKeys.clients] });
-      queryClient.invalidateQueries({ queryKey: [queryKeys.configurationIssues] });
-      queryClient.invalidateQueries({ queryKey: [queryKeys.configurationIssuesSummary] });
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.configurationIssues],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.configurationIssuesSummary],
+      });
     },
   });
 

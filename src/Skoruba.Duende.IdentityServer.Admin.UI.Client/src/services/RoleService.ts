@@ -21,7 +21,7 @@ export const useRolesList = () => {
 export const getRoles = async (
   search: string,
   pageIndex: number,
-  pageSize: number
+  pageSize: number,
 ): Promise<RolesData> => {
   const rolesClient = new client.RolesClient(ApiHelper.getApiBaseUrl());
   const result = await rolesClient.get2(search, pageIndex + 1, pageSize);
@@ -47,13 +47,13 @@ export const getRole = async (id: string): Promise<RoleFormData> => {
 export const createRole = async (data: RoleFormData): Promise<void> => {
   const rolesClient = new client.RolesClient(ApiHelper.getApiBaseUrl());
   await rolesClient.post(
-    new client.IdentityRoleDto({ id: undefined, name: data.name })
+    new client.IdentityRoleDto({ id: undefined, name: data.name }),
   );
 };
 
 export const updateRole = async (
   id: string,
-  data: RoleFormData
+  data: RoleFormData,
 ): Promise<void> => {
   const rolesClient = new client.RolesClient(ApiHelper.getApiBaseUrl());
   await rolesClient.put(new client.IdentityRoleDto({ id, ...data }));
@@ -67,7 +67,7 @@ export const deleteRole = async (id: string): Promise<void> => {
 export const useRoleClaims = (
   roleId: string,
   pageIndex: number,
-  pageSize: number
+  pageSize: number,
 ) => {
   return useQuery({
     queryKey: [queryKeys.roleClaims, roleId, pageIndex, pageSize],
@@ -76,7 +76,7 @@ export const useRoleClaims = (
       const result = await rolesClient.getRoleClaims(
         roleId,
         pageIndex + 1,
-        pageSize
+        pageSize,
       );
 
       return {
@@ -98,11 +98,13 @@ export const useAddRoleClaim = (roleId: string) => {
           roleId,
           claimType: input.key,
           claimValue: input.value,
-        })
+        }),
       );
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [queryKeys.roleClaims, roleId] });
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.roleClaims, roleId],
+      });
     },
   });
 };
@@ -115,7 +117,9 @@ export const useDeleteRoleClaim = (roleId: string) => {
       await rolesClient.deleteRoleClaims(roleId, claimId);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [queryKeys.roleClaims, roleId] });
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.roleClaims, roleId],
+      });
     },
   });
 };
@@ -124,14 +128,14 @@ export const getRoleUsers = async (
   roleId: string,
   search: string,
   pageIndex: number,
-  pageSize: number
+  pageSize: number,
 ): Promise<UsersData> => {
   const rolesClient = new client.RolesClient(ApiHelper.getApiBaseUrl());
   const res = await rolesClient.getRoleUsers(
     roleId,
     search || null,
     pageIndex + 1,
-    pageSize
+    pageSize,
   );
   return {
     items:

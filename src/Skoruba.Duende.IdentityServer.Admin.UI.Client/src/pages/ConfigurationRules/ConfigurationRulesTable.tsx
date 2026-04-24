@@ -98,7 +98,7 @@ const ConfigurationRulesTable: React.FC<ConfigurationRulesTableProps> = ({
   };
 
   const getResourceTypeBadge = (
-    resourceType: client.ConfigurationResourceType
+    resourceType: client.ConfigurationResourceType,
   ) => {
     const variants: Record<client.ConfigurationResourceType, "outline"> = {
       [client.ConfigurationResourceType.Client]: "outline",

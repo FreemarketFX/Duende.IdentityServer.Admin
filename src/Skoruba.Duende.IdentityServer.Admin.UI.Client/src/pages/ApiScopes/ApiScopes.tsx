@@ -33,7 +33,8 @@ const ApiScopes: React.FC = () => {
 
   const apiScopes = useQuery({
     queryKey: [queryKeys.apiScopes, pagination, searchTerm],
-    queryFn: () => getApiScopes(searchTerm, pagination.pageIndex, pagination.pageSize),
+    queryFn: () =>
+      getApiScopes(searchTerm, pagination.pageIndex, pagination.pageSize),
     placeholderData: (previousData) => previousData,
   });
 

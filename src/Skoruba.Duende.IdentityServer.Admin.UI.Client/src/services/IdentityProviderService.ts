@@ -14,7 +14,7 @@ const getClient = () =>
 export const useIdentityProviders = (
   searchTerm: string = "",
   page: number = 0,
-  pageSize: number = 10
+  pageSize: number = 10,
 ) => {
   return useQuery({
     queryKey: [queryKeys.identityProviders, searchTerm, page, pageSize],
@@ -50,14 +50,16 @@ export const useCreateIdentityProvider = () => {
           ...data,
           type: data.type,
           identityProviderProperties: Object.fromEntries(
-            data.properties.map((prop) => [prop.key, prop.value])
+            data.properties.map((prop) => [prop.key, prop.value]),
           ),
           displayName: data.displayName,
-        })
+        }),
       );
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [queryKeys.identityProviders] });
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.identityProviders],
+      });
       queryClient.invalidateQueries({ queryKey: [queryKeys.identityProvider] });
     },
   });
@@ -74,14 +76,16 @@ export const useUpdateIdentityProvider = () => {
           ...data,
           type: data.type,
           identityProviderProperties: Object.fromEntries(
-            data.properties.map((prop) => [prop.key, prop.value])
+            data.properties.map((prop) => [prop.key, prop.value]),
           ),
           displayName: data.displayName,
-        })
+        }),
       );
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [queryKeys.identityProviders] });
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.identityProviders],
+      });
       queryClient.invalidateQueries({ queryKey: [queryKeys.identityProvider] });
     },
   });
@@ -96,7 +100,9 @@ export const useDeleteIdentityProvider = () => {
       return await identityProvidersClient.delete(id);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [queryKeys.identityProviders] });
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.identityProviders],
+      });
     },
   });
 };
@@ -109,7 +115,7 @@ export const useIdentityProviderById = (id: number) => {
       const result = await client.get2(id);
 
       const properties = Object.entries(
-        result.identityProviderProperties ?? {}
+        result.identityProviderProperties ?? {},
       ).map(([key, value], index) => ({
         id: index,
         key,

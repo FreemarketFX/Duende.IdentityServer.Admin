@@ -40,8 +40,12 @@ const DeleteApiScopeDialog = ({
       });
       queryClient.invalidateQueries({ queryKey: [queryKeys.apiScopes] });
       // Invalidate configuration issues cache when API scope is deleted
-      queryClient.invalidateQueries({ queryKey: [queryKeys.configurationIssues] });
-      queryClient.invalidateQueries({ queryKey: [queryKeys.configurationIssuesSummary] });
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.configurationIssues],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.configurationIssuesSummary],
+      });
       modal.closeModal();
       onApiScopeDeleted?.();
     },

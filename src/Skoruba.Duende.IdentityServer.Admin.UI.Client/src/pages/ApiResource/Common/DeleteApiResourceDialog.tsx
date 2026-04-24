@@ -29,8 +29,12 @@ const DeleteApiResourceDialog = ({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [queryKeys.apiResources] });
       // Invalidate configuration issues cache when API resource is deleted
-      queryClient.invalidateQueries({ queryKey: [queryKeys.configurationIssues] });
-      queryClient.invalidateQueries({ queryKey: [queryKeys.configurationIssuesSummary] });
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.configurationIssues],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.configurationIssuesSummary],
+      });
     },
   });
 

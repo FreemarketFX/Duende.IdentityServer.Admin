@@ -14,7 +14,7 @@ import i18next from "@/i18n/config";
 
 export const buildConfigurationIssueLink = (
   resourceId: string,
-  resourceType: client.ConfigurationResourceType
+  resourceType: client.ConfigurationResourceType,
 ): string => {
   switch (resourceType) {
     case client.ConfigurationResourceType.Client:
@@ -35,7 +35,7 @@ export const useConfigurationIssues = () =>
     queryKey: [queryKeys.configurationIssues],
     queryFn: async () => {
       const configClient = new client.ConfigurationIssuesClient(
-        ApiHelper.getApiBaseUrl()
+        ApiHelper.getApiBaseUrl(),
       );
 
       // Use new API with filter parameters - skip pagination to get all results
@@ -50,7 +50,7 @@ export const useConfigurationIssuesSummary = () =>
     queryKey: [queryKeys.configurationIssuesSummary],
     queryFn: async () => {
       const configClient = new client.ConfigurationIssuesClient(
-        ApiHelper.getApiBaseUrl()
+        ApiHelper.getApiBaseUrl(),
       );
       return await configClient.getSummary();
     },
@@ -59,7 +59,7 @@ export const useConfigurationIssuesSummary = () =>
 
 export const useConfigurationIssuesForResource = (
   resourceId?: number,
-  resourceType?: client.ConfigurationResourceType
+  resourceType?: client.ConfigurationResourceType,
 ) => {
   const result = useConfigurationIssues();
 
@@ -75,7 +75,7 @@ export const useConfigurationIssuesForResource = (
 
     return (result.data || []).filter(
       (issue) =>
-        issue.resourceType === resourceType && issue.resourceId === resourceId
+        issue.resourceType === resourceType && issue.resourceId === resourceId,
     );
   }, [result.data, resourceId, resourceType]);
 
@@ -86,12 +86,12 @@ export const useConfigurationIssuesForResource = (
 };
 
 export const getDashboardIdentityServerData = async (
-  auditLogsLastNumberOfDays: number
+  auditLogsLastNumberOfDays: number,
 ): Promise<DashboardIdentityServerResult> => {
   const dashboardClient = new client.DashboardClient(ApiHelper.getApiBaseUrl());
 
   const dashboard = await dashboardClient.getDashboardIdentityServer(
-    auditLogsLastNumberOfDays
+    auditLogsLastNumberOfDays,
   );
 
   const identityServerData = {
@@ -108,7 +108,10 @@ export const getDashboardIdentityServerData = async (
       name: String(i18next.t("Home.ApiResources")),
       total: dashboard.apiResourcesTotal,
     },
-    { name: String(i18next.t("Home.ApiScopes")), total: dashboard.apiScopesTotal },
+    {
+      name: String(i18next.t("Home.ApiScopes")),
+      total: dashboard.apiScopesTotal,
+    },
     {
       name: String(i18next.t("Home.IdentityResources")),
       total: dashboard.identityResourcesTotal,

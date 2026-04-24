@@ -37,7 +37,7 @@ type SecretsTableProps = {
   getSecrets: (
     resourceId: number,
     pageIndex: number,
-    pageSize: number
+    pageSize: number,
   ) => Promise<SecretsData>;
   addSecret: (resourceId: number, data: SecretsFormData) => Promise<void>;
   deleteSecret: (secretId: number) => Promise<void>;
@@ -54,14 +54,15 @@ const SecretsTable: React.FC<SecretsTableProps> = ({
   const { pagination, setPagination } = usePaginationTable(0, 5);
   const [isDialogOpen, setDialogOpen] = React.useState(false);
   const [secretToDelete, setSecretToDelete] = React.useState<SecretData | null>(
-    null
+    null,
   );
 
   const queryClient = useQueryClient();
 
   const secretsQuery = useQuery({
     queryKey: [...queryKey, pagination],
-    queryFn: () => getSecrets(resourceId, pagination.pageIndex, pagination.pageSize),
+    queryFn: () =>
+      getSecrets(resourceId, pagination.pageIndex, pagination.pageSize),
     placeholderData: (previousData) => previousData,
   });
 
@@ -83,7 +84,7 @@ const SecretsTable: React.FC<SecretsTableProps> = ({
   const handleAddSecret = (data: SecretsFormData) => {
     const combinedExpiration = combineDateTimeForUnspecifiedDb(
       data.expiration,
-      data.expirationTime
+      data.expirationTime,
     );
 
     addMutation.mutate({

@@ -28,11 +28,11 @@ type PropertiesTabProps = {
   getProperties: (
     resourceId: number,
     pageIndex: number,
-    pageSize: number
+    pageSize: number,
   ) => Promise<PropertiesData>;
   addProperty: (
     resourceId: number,
-    data: { key: string; value: string }
+    data: { key: string; value: string },
   ) => Promise<void>;
   deleteProperty: (id: number) => Promise<void>;
 };
@@ -55,12 +55,14 @@ const PropertiesApi: React.FC<PropertiesTabProps> = ({
 
   const propertiesQuery = useQuery({
     queryKey: [...queryKey, pagination],
-    queryFn: () => getProperties(resourceId, pagination.pageIndex, pagination.pageSize),
+    queryFn: () =>
+      getProperties(resourceId, pagination.pageIndex, pagination.pageSize),
     placeholderData: (previousData) => previousData,
   });
 
   const addMutation = useMutation({
-    mutationFn: (data: { key: string; value: string }) => addProperty(resourceId, data),
+    mutationFn: (data: { key: string; value: string }) =>
+      addProperty(resourceId, data),
     onSuccess: () => {
       toast({
         title: t("Actions.Hooray"),

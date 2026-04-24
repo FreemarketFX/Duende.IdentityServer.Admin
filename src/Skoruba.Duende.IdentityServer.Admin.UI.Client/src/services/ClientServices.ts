@@ -18,7 +18,7 @@ import { getNowForUnspecifiedDb } from "@/helpers/DateTimeHelper";
 export const getClients = async (
   searchTerms: string,
   pageIndex: number,
-  pageSize: number
+  pageSize: number,
 ): Promise<ClientsData> => {
   const clientsClient = new client.ClientsClient(ApiHelper.getApiBaseUrl());
 
@@ -34,7 +34,7 @@ export const getClients = async (
           key: property.key!,
           value: property.value!,
         })),
-      })
+      }),
     ) ?? [];
 
   return { items, totalCount: clients.totalCount };
@@ -43,14 +43,14 @@ export const getClients = async (
 export const getClientSecrets = async (
   clientId: number,
   pageIndex: number,
-  pageSize: number
+  pageSize: number,
 ): Promise<ClientSecretsData> => {
   const clientClient = new client.ClientsClient(ApiHelper.getApiBaseUrl());
 
   const secrets = await clientClient.getSecrets(
     clientId,
     pageIndex + 1,
-    pageSize
+    pageSize,
   );
 
   const secretsData: ClientSecretData[] =
@@ -73,7 +73,7 @@ export const deleteClientSecret = async (secretId: number) => {
 
 export const getClientScopes = async (
   excludeIdentityResources: boolean,
-  excludeApiScopes: boolean
+  excludeApiScopes: boolean,
 ): Promise<ClientScope[]> => {
   const clientClient = new client.ClientsClient(ApiHelper.getApiBaseUrl());
 
@@ -81,7 +81,7 @@ export const getClientScopes = async (
     undefined,
     undefined,
     excludeIdentityResources,
-    excludeApiScopes
+    excludeApiScopes,
   );
 
   const items = scopes.map((scope) => ({ id: scope, label: scope }));
@@ -120,7 +120,7 @@ export const useClient = (clientId: number) => {
 };
 
 export const getClient = async (
-  clientId: number
+  clientId: number,
 ): Promise<client.ClientApiDto> => {
   const clientClient = new client.ClientsClient(ApiHelper.getApiBaseUrl());
 
@@ -134,7 +134,7 @@ export const getStandardClaims = async (): Promise<string[]> => {
 };
 
 export const updateClient = async (
-  clientToUpdate: client.IClientApiDto
+  clientToUpdate: client.IClientApiDto,
 ): Promise<void> => {
   const clientClient = new client.ClientsClient(ApiHelper.getApiBaseUrl());
 
@@ -142,12 +142,12 @@ export const updateClient = async (
 };
 
 export const cloneClient = async (
-  clientToClone: client.IClientCloneApiDto
+  clientToClone: client.IClientCloneApiDto,
 ): Promise<void> => {
   const clientClient = new client.ClientsClient(ApiHelper.getApiBaseUrl());
 
   await clientClient.postClientClone(
-    new client.ClientCloneApiDto(clientToClone)
+    new client.ClientCloneApiDto(clientToClone),
   );
 };
 
@@ -189,10 +189,14 @@ const fetchSecretTypes = async (): Promise<SelectItem[]> => {
 
 export const useClientScopes = (
   excludeIdentityResources: boolean,
-  excludeApiScopes: boolean
+  excludeApiScopes: boolean,
 ) => {
   return useQuery({
-    queryKey: [queryKeys.clientScopes, excludeIdentityResources, excludeApiScopes],
+    queryKey: [
+      queryKeys.clientScopes,
+      excludeIdentityResources,
+      excludeApiScopes,
+    ],
     queryFn: () => getClientScopes(excludeIdentityResources, excludeApiScopes),
     ...queryWithoutCache,
   });
@@ -248,7 +252,7 @@ export const useSecretTypes = () => {
 };
 
 export const createClient = async (
-  clientToAdd: client.IClientApiDto
+  clientToAdd: client.IClientApiDto,
 ): Promise<client.ClientApiDto> => {
   const clientClient = new client.ClientsClient(ApiHelper.getApiBaseUrl());
   return await clientClient.post(new client.ClientApiDto(clientToAdd));
@@ -256,7 +260,7 @@ export const createClient = async (
 
 export const addClientSecret = async (
   clientId: number,
-  secret: SecretsFormData
+  secret: SecretsFormData,
 ) => {
   await createClientSecret(clientId, {
     description: secret.secretDescription,
@@ -271,12 +275,12 @@ export const addClientSecret = async (
 
 export const createClientSecret = async (
   clientId: number,
-  clientSecret: client.IClientSecretApiDto
+  clientSecret: client.IClientSecretApiDto,
 ): Promise<void> => {
   const clientClient = new client.ClientsClient(ApiHelper.getApiBaseUrl());
   await clientClient.postSecret(
     clientId,
-    new client.ClientSecretApiDto(clientSecret)
+    new client.ClientSecretApiDto(clientSecret),
   );
 };
 
@@ -301,8 +305,12 @@ export const useCreateClient = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [queryKeys.clients] });
-      queryClient.invalidateQueries({ queryKey: [queryKeys.configurationIssues] });
-      queryClient.invalidateQueries({ queryKey: [queryKeys.configurationIssuesSummary] });
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.configurationIssues],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.configurationIssuesSummary],
+      });
     },
   });
 };

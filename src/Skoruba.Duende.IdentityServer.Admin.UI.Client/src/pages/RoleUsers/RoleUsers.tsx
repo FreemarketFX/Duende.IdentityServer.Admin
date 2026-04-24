@@ -45,7 +45,7 @@ const RoleUsers: React.FC = () => {
         roleId!,
         searchTerm,
         pagination.pageIndex,
-        pagination.pageSize
+        pagination.pageSize,
       ),
     enabled: !!roleId,
     placeholderData: (previousData) => previousData,

@@ -62,8 +62,12 @@ const ApiScopeForm: React.FC<ApiScopeFormProps> = ({
       queryClient.invalidateQueries({ queryKey: [queryKeys.apiScope] });
       queryClient.invalidateQueries({ queryKey: [queryKeys.apiScopes] });
       // Invalidate configuration issues cache when API scope changes
-      queryClient.invalidateQueries({ queryKey: [queryKeys.configurationIssues] });
-      queryClient.invalidateQueries({ queryKey: [queryKeys.configurationIssuesSummary] });
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.configurationIssues],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.configurationIssuesSummary],
+      });
       toast({
         title: <Hoorey />,
         description:

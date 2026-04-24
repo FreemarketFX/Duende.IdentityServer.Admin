@@ -71,8 +71,12 @@ const ApiResourceForm: React.FC<ApiResourceFormProps> = ({
       queryClient.invalidateQueries({ queryKey: [queryKeys.apiResource] });
       queryClient.invalidateQueries({ queryKey: [queryKeys.apiResources] });
       // Invalidate configuration issues cache when API resource changes
-      queryClient.invalidateQueries({ queryKey: [queryKeys.configurationIssues] });
-      queryClient.invalidateQueries({ queryKey: [queryKeys.configurationIssuesSummary] });
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.configurationIssues],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.configurationIssuesSummary],
+      });
       toast({
         title: <Hoorey />,
         description:

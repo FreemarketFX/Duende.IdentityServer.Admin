@@ -33,7 +33,8 @@ const Roles: React.FC = () => {
 
   const roles = useQuery({
     queryKey: [queryKeys.roles, pagination, searchTerm],
-    queryFn: () => getRoles(searchTerm, pagination.pageIndex, pagination.pageSize),
+    queryFn: () =>
+      getRoles(searchTerm, pagination.pageIndex, pagination.pageSize),
     placeholderData: (previousData) => previousData,
   });
 

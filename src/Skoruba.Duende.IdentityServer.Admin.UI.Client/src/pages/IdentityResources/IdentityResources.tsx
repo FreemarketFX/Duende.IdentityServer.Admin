@@ -37,7 +37,7 @@ const IdentityResources: React.FC = () => {
       getIdentityResources(
         searchTerm,
         pagination.pageIndex,
-        pagination.pageSize
+        pagination.pageSize,
       ),
     placeholderData: (previousData) => previousData,
   });

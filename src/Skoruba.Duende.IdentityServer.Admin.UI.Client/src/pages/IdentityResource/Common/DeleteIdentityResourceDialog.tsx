@@ -34,10 +34,16 @@ const DeleteIdentityResourceDialog = ({
   const mutation = useMutation({
     mutationFn: () => deleteIdentityResource(identityResourceId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [queryKeys.identityResources] });
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.identityResources],
+      });
       // Invalidate configuration issues cache when identity resource is deleted
-      queryClient.invalidateQueries({ queryKey: [queryKeys.configurationIssues] });
-      queryClient.invalidateQueries({ queryKey: [queryKeys.configurationIssuesSummary] });
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.configurationIssues],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.configurationIssuesSummary],
+      });
       toast({
         title: <Hoorey />,
         description: t("IdentityResource.Actions.Deleted"),

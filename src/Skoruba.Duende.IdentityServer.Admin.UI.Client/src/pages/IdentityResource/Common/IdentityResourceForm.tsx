@@ -68,10 +68,16 @@ const IdentityResourceForm: React.FC<Props> = ({
         : updateIdentityResource(Number(resourceId), data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [queryKeys.identityResource] });
-      queryClient.invalidateQueries({ queryKey: [queryKeys.identityResources] });
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.identityResources],
+      });
       // Invalidate configuration issues cache when identity resource changes
-      queryClient.invalidateQueries({ queryKey: [queryKeys.configurationIssues] });
-      queryClient.invalidateQueries({ queryKey: [queryKeys.configurationIssuesSummary] });
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.configurationIssues],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.configurationIssuesSummary],
+      });
       toast({
         title: <Hoorey />,
         description:

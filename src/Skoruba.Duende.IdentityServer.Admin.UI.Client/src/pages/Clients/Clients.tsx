@@ -33,7 +33,8 @@ const Clients: React.FC = () => {
 
   const clients = useQuery({
     queryKey: [queryKeys.clients, pagination, searchTerm],
-    queryFn: () => getClients(searchTerm, pagination.pageIndex, pagination.pageSize),
+    queryFn: () =>
+      getClients(searchTerm, pagination.pageIndex, pagination.pageSize),
     placeholderData: (previousData) => previousData,
   });
 

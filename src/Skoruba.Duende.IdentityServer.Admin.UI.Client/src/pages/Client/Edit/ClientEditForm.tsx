@@ -46,13 +46,17 @@ const ClientEditForm = ({ clientId, client }: ClientEditFormType) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [queryKeys.client] });
       queryClient.invalidateQueries({ queryKey: [queryKeys.clients] });
-      queryClient.invalidateQueries({ queryKey: [queryKeys.configurationIssues] });
-      queryClient.invalidateQueries({ queryKey: [queryKeys.configurationIssuesSummary] });
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.configurationIssues],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.configurationIssuesSummary],
+      });
     },
   });
 
   const onSubmit: SubmitHandler<ClientEditFormData> = (
-    data: ClientEditFormData
+    data: ClientEditFormData,
   ) => {
     updateClientMutation.mutate(data, {
       onSuccess: () => {
