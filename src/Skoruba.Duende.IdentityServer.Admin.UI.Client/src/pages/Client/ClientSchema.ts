@@ -14,6 +14,12 @@ const DualListTypeSchema = z.object({
   label: z.string(),
 });
 
+const nullableOptionalNumberField = z
+  .number()
+  .nullable()
+  .optional()
+  .transform((value) => value ?? undefined);
+
 export const formSchema = z.object({
   clientId: z.string().min(
     1,
@@ -42,7 +48,7 @@ export const formSchema = z.object({
   allowedGrantTypes: z.array(DualListTypeSchema).optional(),
   enableLocalLogin: z.boolean().optional(),
   identityProviderRestrictions: z.array(z.string()).optional(),
-  useSsoLifetime: z.number().optional(),
+  useSsoLifetime: nullableOptionalNumberField,
   coordinateLifetimeWithUserSession: z.boolean().optional(),
   identityTokenLifetime: z.number().optional(),
   allowedIdentityTokenSigningAlgorithms: z.array(z.string()).optional(),
@@ -55,8 +61,8 @@ export const formSchema = z.object({
   allowPlainTextPkce: z.boolean().optional(),
   absoluteRefreshTokenLifetime: z.number().optional(),
   slidingRefreshTokenLifetime: z.number().optional(),
-  cibaLifetime: z.number().optional(),
-  pollingInterval: z.number().optional(),
+  cibaLifetime: nullableOptionalNumberField,
+  pollingInterval: nullableOptionalNumberField,
   refreshTokenUsage: z.number().optional(),
   refreshTokenExpiration: z.number().optional(),
   updateAccessTokenClaimsOnRefresh: z.boolean().optional(),
@@ -69,7 +75,7 @@ export const formSchema = z.object({
   dPoPClockSkew: z.string().optional(),
   dPoPValidationMode: z.string().optional(),
   requirePushedAuthorization: z.boolean().optional(),
-  pushedAuthorizationLifetime: z.number().optional(),
+  pushedAuthorizationLifetime: nullableOptionalNumberField,
   initiateLoginUri: z.string().optional(),
   requireConsent: z.boolean().optional(),
   allowRememberConsent: z.boolean().optional(),
@@ -77,9 +83,9 @@ export const formSchema = z.object({
   logoUri: z.string().optional(),
   userCodeType: z.string().optional(),
   deviceCodeLifetime: z.number().optional(),
-  consentLifetime: z.number().optional(),
+  consentLifetime: nullableOptionalNumberField,
   protocolType: z.string().optional(),
-  userSsoLifetime: z.number().optional(),
+  userSsoLifetime: nullableOptionalNumberField,
   properties: z
     .array(z.object({ id: z.number(), key: z.string(), value: z.string() }))
     .optional(),
@@ -319,7 +325,7 @@ export const mapFormDataToCreateClient = (
     absoluteRefreshTokenLifetime:
       clientDefaultValues.absoluteRefreshTokenLifetime!,
     accessTokenLifetime: clientDefaultValues.accessTokenLifetime!,
-    consentLifetime: clientDefaultValues.consentLifetime!,
+    consentLifetime: clientDefaultValues.consentLifetime,
     accessTokenType: clientDefaultValues.accessTokenType!,
     allowAccessTokensViaBrowser:
       clientDefaultValues.allowAccessTokenViaBrowser!,
@@ -398,7 +404,7 @@ export const mapFormDataToEditClient = (
   return {
     absoluteRefreshTokenLifetime: formData.absoluteRefreshTokenLifetime!,
     accessTokenLifetime: formData.accessTokenLifetime!,
-    consentLifetime: formData.consentLifetime!,
+    consentLifetime: formData.consentLifetime,
     accessTokenType: formData.accessTokenType!,
     allowAccessTokensViaBrowser: formData.allowAccessTokenViaBrowser!,
     allowOfflineAccess: formData.allowOfflineAccess!,

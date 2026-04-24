@@ -1,5 +1,20 @@
 # Changelog
 
+## [3.0.0-preview.24]
+
+### Changed
+
+- Updated solution/template/frontend package version references to `3.0.0-preview.24`
+
+### Fixed
+
+- Prevented invalid configuration where `ApiScope` and `IdentityResource` share the same name by extending repository `CanInsert` validation across both entity types
+- Added repository unit tests for cross-entity name collision checks between API scopes and identity resources
+- Improved optional numeric field handling in Admin UI Client (`FormRow` number mode) so clearing a value keeps it nullable instead of immediately restoring the previous number
+- Updated client and configuration-rule form schemas to correctly accept nullable optional numeric values for advanced settings and rule parameters
+
+---
+
 ## [3.0.0-preview.23]
 
 ### Added

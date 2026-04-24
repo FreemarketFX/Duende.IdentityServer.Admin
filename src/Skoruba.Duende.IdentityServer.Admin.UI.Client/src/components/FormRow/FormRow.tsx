@@ -120,6 +120,7 @@ type NumberFieldProps = {
   field: FieldAdapter;
   placeholder?: string;
   showFormattedTime?: boolean;
+  nullable?: boolean;
 };
 
 type InputWithTableFieldProps = {
@@ -381,6 +382,7 @@ const NumberField: React.FC<NumberFieldProps> = ({
   field,
   placeholder,
   showFormattedTime = true,
+  nullable = true,
 }) => (
   <>
     <FormControl>
@@ -393,7 +395,9 @@ const NumberField: React.FC<NumberFieldProps> = ({
         }
         onChange={(e) => {
           const value = e.target.value;
-          field.onChange(value === "" ? undefined : Number(value));
+          field.onChange(
+            value === "" ? (nullable ? null : undefined) : Number(value),
+          );
         }}
         onBlur={field.onBlur}
         ref={field.ref}
@@ -481,6 +485,7 @@ type FormRowProps<T extends FieldValues> = {
   includeSeparator?: boolean;
   numberSettings?: {
     showFormattedTime?: boolean;
+    nullable?: boolean;
   };
   maxLength?: number;
   inputType?: "text" | "password";
@@ -507,7 +512,7 @@ export const FormRow = <T extends FieldValues>({
     search: false,
     searchDataSource: [],
   },
-  numberSettings: { showFormattedTime = true } = {},
+  numberSettings: { showFormattedTime = true, nullable = true } = {},
   maxLength,
   inputType = "text",
 }: FormRowProps<T>) => {
@@ -573,6 +578,7 @@ export const FormRow = <T extends FieldValues>({
                     field={field}
                     placeholder={placeholder}
                     showFormattedTime={showFormattedTime}
+                    nullable={nullable}
                   />
                 )}
                 {type === "inputWithTable" && (

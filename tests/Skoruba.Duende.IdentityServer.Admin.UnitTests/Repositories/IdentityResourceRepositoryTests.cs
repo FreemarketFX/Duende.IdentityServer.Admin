@@ -153,6 +153,26 @@ namespace Skoruba.Duende.IdentityServer.Admin.UnitTests.Repositories
             }
         }
 
+        [Fact]
+        public async Task CanInsertIdentityResourceAsync_ReturnsFalse_WhenApiScopeWithSameNameExists()
+        {
+            using (var context = GetDbContext())
+            {
+                var identityResourceRepository = GetIdentityResourceRepository(context);
+
+                var apiScope = ApiScopeMock.GenerateRandomApiScope(0);
+                await context.ApiScopes.AddAsync(apiScope);
+                await context.SaveChangesAsync();
+
+                var identityResource = IdentityResourceMock.GenerateRandomIdentityResource(0);
+                identityResource.Name = apiScope.Name;
+
+                var canInsert = await identityResourceRepository.CanInsertIdentityResourceAsync(identityResource);
+
+                canInsert.Should().BeFalse();
+            }
+        }
+
 		[Fact]
 		public async Task AddIdentityResourcePropertyAsync()
 		{

@@ -95,7 +95,10 @@ const ConfigurationRuleForm: React.FC<ConfigurationRuleFormProps> = ({
             }
             parameterFields[paramName] = param.required
               ? numberSchema
-              : numberSchema.optional();
+              : numberSchema
+                  .nullable()
+                  .optional()
+                  .transform((value) => value ?? undefined);
           }
           break;
 
