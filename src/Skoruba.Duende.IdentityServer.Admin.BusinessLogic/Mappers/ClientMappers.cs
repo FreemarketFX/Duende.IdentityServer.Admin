@@ -31,11 +31,17 @@ namespace Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Mappers
         [MapProperty(nameof(ClientClaim.Id), nameof(ClientClaimsDto.ClientClaimId))]
         public static partial ClientClaimsDto ToClientClaimsDto(ClientClaim source);
 
+        /// <summary>
+        /// Maps a single claim row DTO used by claim CRUD endpoints and preserves the original claim identifier.
+        /// </summary>
         [MapProperty(nameof(ClientClaimsDto.ClientClaimId), nameof(ClientClaim.Id))]
         public static partial ClientClaim ToClientClaim(ClientClaimsDto source);
 
         public static partial ClientClaimDto ToClientClaimDto(ClientClaim source);
 
+        /// <summary>
+        /// Maps claims from the full client graph update payload and intentionally ignores identifier to avoid EF tracking conflicts.
+        /// </summary>
         [MapperIgnoreTarget(nameof(ClientClaim.Id))]
         public static partial ClientClaim ToClientClaim(ClientClaimDto source);
 

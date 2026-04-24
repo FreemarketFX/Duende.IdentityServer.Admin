@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
 using Microsoft.AspNetCore.Identity;
@@ -36,7 +37,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Identity.Mappers
         where TUserClaimDto : UserClaimDto<TKey>
         where TRoleClaimDto : RoleClaimDto<TKey>
     {
-        private static readonly HashSet<string> UserMappedPropertyNames = new(StringComparer.Ordinal)
+        private static readonly HashSet<string> UserCustomCopyExcludedPropertyNames = new(StringComparer.Ordinal)
         {
             nameof(IdentityUser<TKey>.Id),
             nameof(IdentityUser<TKey>.UserName),
@@ -55,7 +56,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Identity.Mappers
             nameof(IdentityUser<TKey>.ConcurrencyStamp)
         };
 
-        private static readonly HashSet<string> RoleMappedPropertyNames = new(StringComparer.Ordinal)
+        private static readonly HashSet<string> RoleCustomCopyExcludedPropertyNames = new(StringComparer.Ordinal)
         {
             nameof(IdentityRole<TKey>.Id),
             nameof(IdentityRole<TKey>.Name),
@@ -63,7 +64,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Identity.Mappers
             nameof(IdentityRole<TKey>.ConcurrencyStamp)
         };
 
-        private static readonly HashSet<string> UserClaimMappedPropertyNames = new(StringComparer.Ordinal)
+        private static readonly HashSet<string> UserClaimCustomCopyExcludedPropertyNames = new(StringComparer.Ordinal)
         {
             nameof(IdentityUserClaim<TKey>.Id),
             nameof(IdentityUserClaim<TKey>.UserId),
@@ -71,7 +72,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Identity.Mappers
             nameof(IdentityUserClaim<TKey>.ClaimValue)
         };
 
-        private static readonly HashSet<string> RoleClaimMappedPropertyNames = new(StringComparer.Ordinal)
+        private static readonly HashSet<string> RoleClaimCustomCopyExcludedPropertyNames = new(StringComparer.Ordinal)
         {
             nameof(IdentityRoleClaim<TKey>.Id),
             nameof(IdentityRoleClaim<TKey>.RoleId),
@@ -79,7 +80,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Identity.Mappers
             nameof(IdentityRoleClaim<TKey>.ClaimValue)
         };
 
-        private static readonly HashSet<string> UserProviderMappedPropertyNames = new(StringComparer.Ordinal)
+        private static readonly HashSet<string> UserProviderCustomCopyExcludedPropertyNames = new(StringComparer.Ordinal)
         {
             nameof(UserLoginInfo.ProviderKey),
             nameof(UserLoginInfo.LoginProvider),
@@ -90,6 +91,8 @@ namespace Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Identity.Mappers
 
         private readonly IReadOnlyCollection<IIdentityUserMappingCustomizer<TUserDto, TUser>> _userMappingCustomizers;
         private readonly IReadOnlyCollection<IIdentityRoleMappingCustomizer<TRoleDto, TRole>> _roleMappingCustomizers;
+        private static readonly ConcurrentDictionary<Type, IReadOnlyDictionary<string, PropertyInfo>> ReadablePropertiesCache = new();
+        private static readonly ConcurrentDictionary<Type, PropertyInfo[]> WritablePropertiesCache = new();
 
         public IdentityDataMapper(
             IEnumerable<IIdentityUserMappingCustomizer<TUserDto, TUser>> userMappingCustomizers = null,
@@ -101,57 +104,82 @@ namespace Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Identity.Mappers
 
         public TUsersDto MapPagedUsersToDto(PagedList<TUser> pagedUsers)
         {
-            var usersDto = CreateInstance<TUsersDto>();
+            if (pagedUsers == null)
+            {
+                return null;
+            }
+
+            var usersDto = MapperInstanceFactory.CreateInstance<TUsersDto>();
             usersDto.TotalCount = pagedUsers.TotalCount;
             usersDto.PageSize = pagedUsers.PageSize;
-            usersDto.Users = pagedUsers.Data.Select(MapUserToDto).ToList();
+            usersDto.Users = pagedUsers.Data?.Select(MapUserToDto).ToList() ?? [];
 
             return usersDto;
         }
 
         public TRolesDto MapPagedRolesToRolesDto(PagedList<TRole> pagedRoles)
         {
-            var rolesDto = CreateInstance<TRolesDto>();
+            if (pagedRoles == null)
+            {
+                return null;
+            }
+
+            var rolesDto = MapperInstanceFactory.CreateInstance<TRolesDto>();
             rolesDto.TotalCount = pagedRoles.TotalCount;
             rolesDto.PageSize = pagedRoles.PageSize;
-            rolesDto.Roles = pagedRoles.Data.Select(MapRoleToDto).ToList();
+            rolesDto.Roles = pagedRoles.Data?.Select(MapRoleToDto).ToList() ?? [];
 
             return rolesDto;
         }
 
         public TUserRolesDto MapPagedRolesToUserRolesDto(PagedList<TRole> pagedRoles)
         {
-            var userRolesDto = CreateInstance<TUserRolesDto>();
+            if (pagedRoles == null)
+            {
+                return null;
+            }
+
+            var userRolesDto = MapperInstanceFactory.CreateInstance<TUserRolesDto>();
             userRolesDto.TotalCount = pagedRoles.TotalCount;
             userRolesDto.PageSize = pagedRoles.PageSize;
-            userRolesDto.Roles = pagedRoles.Data.Select(MapRoleToDto).ToList();
+            userRolesDto.Roles = pagedRoles.Data?.Select(MapRoleToDto).ToList() ?? [];
 
             return userRolesDto;
         }
 
         public TUserClaimsDto MapPagedUserClaimsToDto(PagedList<TUserClaim> pagedClaims)
         {
-            var userClaimsDto = CreateInstance<TUserClaimsDto>();
+            if (pagedClaims == null)
+            {
+                return null;
+            }
+
+            var userClaimsDto = MapperInstanceFactory.CreateInstance<TUserClaimsDto>();
             userClaimsDto.TotalCount = pagedClaims.TotalCount;
             userClaimsDto.PageSize = pagedClaims.PageSize;
-            userClaimsDto.Claims = pagedClaims.Data.Select(MapUserClaimToClaimDto).ToList();
+            userClaimsDto.Claims = pagedClaims.Data?.Select(MapUserClaimToClaimDto).ToList() ?? [];
 
             return userClaimsDto;
         }
 
         public TRoleClaimsDto MapPagedRoleClaimsToDto(PagedList<TRoleClaim> pagedClaims)
         {
-            var roleClaimsDto = CreateInstance<TRoleClaimsDto>();
+            if (pagedClaims == null)
+            {
+                return null;
+            }
+
+            var roleClaimsDto = MapperInstanceFactory.CreateInstance<TRoleClaimsDto>();
             roleClaimsDto.TotalCount = pagedClaims.TotalCount;
             roleClaimsDto.PageSize = pagedClaims.PageSize;
-            roleClaimsDto.Claims = pagedClaims.Data.Select(MapRoleClaimToClaimDto).ToList();
+            roleClaimsDto.Claims = pagedClaims.Data?.Select(MapRoleClaimToClaimDto).ToList() ?? [];
 
             return roleClaimsDto;
         }
 
         public TUserDto MapUserToDto(TUser source)
         {
-            var userDto = CreateInstance<TUserDto>();
+            var userDto = MapperInstanceFactory.CreateInstance<TUserDto>();
             userDto.Id = source.Id;
             userDto.UserName = source.UserName;
             userDto.Email = source.Email;
@@ -162,7 +190,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Identity.Mappers
             userDto.TwoFactorEnabled = source.TwoFactorEnabled;
             userDto.AccessFailedCount = source.AccessFailedCount;
             userDto.LockoutEnd = source.LockoutEnd;
-            CopyMatchingProperties(source, userDto, UserMappedPropertyNames);
+            CopyMatchingProperties(source, userDto, UserCustomCopyExcludedPropertyNames);
             ApplyUserEntityToDtoCustomizers(source, userDto);
 
             return userDto;
@@ -170,10 +198,10 @@ namespace Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Identity.Mappers
 
         public TRoleDto MapRoleToDto(TRole source)
         {
-            var roleDto = CreateInstance<TRoleDto>();
+            var roleDto = MapperInstanceFactory.CreateInstance<TRoleDto>();
             roleDto.Id = source.Id;
             roleDto.Name = source.Name;
-            CopyMatchingProperties(source, roleDto, RoleMappedPropertyNames);
+            CopyMatchingProperties(source, roleDto, RoleCustomCopyExcludedPropertyNames);
             ApplyRoleEntityToDtoCustomizers(source, roleDto);
 
             return roleDto;
@@ -181,51 +209,51 @@ namespace Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Identity.Mappers
 
         public TUserClaimsDto MapUserClaimToClaimsDto(TUserClaim source)
         {
-            var claimDto = CreateInstance<TUserClaimsDto>();
+            var claimDto = MapperInstanceFactory.CreateInstance<TUserClaimsDto>();
             claimDto.ClaimId = source.Id;
             claimDto.UserId = source.UserId;
             claimDto.ClaimType = source.ClaimType;
             claimDto.ClaimValue = source.ClaimValue;
-            CopyMatchingProperties(source, claimDto, UserClaimMappedPropertyNames);
+            CopyMatchingProperties(source, claimDto, UserClaimCustomCopyExcludedPropertyNames);
 
             return claimDto;
         }
 
         public TRoleClaimsDto MapRoleClaimToRoleClaimsDto(TRoleClaim source)
         {
-            var claimDto = CreateInstance<TRoleClaimsDto>();
+            var claimDto = MapperInstanceFactory.CreateInstance<TRoleClaimsDto>();
             claimDto.ClaimId = source.Id;
             claimDto.RoleId = source.RoleId;
             claimDto.ClaimType = source.ClaimType;
             claimDto.ClaimValue = source.ClaimValue;
-            CopyMatchingProperties(source, claimDto, RoleClaimMappedPropertyNames);
+            CopyMatchingProperties(source, claimDto, RoleClaimCustomCopyExcludedPropertyNames);
 
             return claimDto;
         }
 
         public TUserProviderDto MapUserLoginToProviderDto(TUserLogin source)
         {
-            var providerDto = CreateInstance<TUserProviderDto>();
+            var providerDto = MapperInstanceFactory.CreateInstance<TUserProviderDto>();
             providerDto.UserId = source.UserId;
             providerDto.ProviderKey = source.ProviderKey;
             providerDto.LoginProvider = source.LoginProvider;
             providerDto.ProviderDisplayName = source.ProviderDisplayName;
-            CopyMatchingProperties(source, providerDto, UserProviderMappedPropertyNames);
+            CopyMatchingProperties(source, providerDto, UserProviderCustomCopyExcludedPropertyNames);
 
             return providerDto;
         }
 
         public TUserProvidersDto MapUserLoginInfosToProvidersDto(List<UserLoginInfo> source)
         {
-            var providersDto = CreateInstance<TUserProvidersDto>();
-            providersDto.Providers = source.Select(MapUserLoginInfoToProviderDto).ToList();
+            var providersDto = MapperInstanceFactory.CreateInstance<TUserProvidersDto>();
+            providersDto.Providers = source?.Select(MapUserLoginInfoToProviderDto).ToList() ?? [];
 
             return providersDto;
         }
 
         public TUser MapUserDtoToEntity(TUserDto user)
         {
-            var userEntity = CreateInstance<TUser>();
+            var userEntity = MapperInstanceFactory.CreateInstance<TUser>();
 
             if (!user.IsDefaultId())
             {
@@ -239,7 +267,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Identity.Mappers
 
         public TRole MapRoleDtoToEntity(TRoleDto role)
         {
-            var roleEntity = CreateInstance<TRole>();
+            var roleEntity = MapperInstanceFactory.CreateInstance<TRole>();
 
             if (!role.IsDefaultId())
             {
@@ -265,7 +293,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Identity.Mappers
             destination.LockoutEnd = source.LockoutEnd;
             destination.TwoFactorEnabled = source.TwoFactorEnabled;
             destination.AccessFailedCount = source.AccessFailedCount;
-            CopyMatchingProperties(source, destination, UserMappedPropertyNames);
+            CopyMatchingProperties(source, destination, UserCustomCopyExcludedPropertyNames);
             ApplyUserDtoToEntityCustomizers(source, destination);
         }
 
@@ -275,65 +303,65 @@ namespace Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Identity.Mappers
             ArgumentNullException.ThrowIfNull(destination);
 
             destination.Name = source.Name;
-            CopyMatchingProperties(source, destination, RoleMappedPropertyNames);
+            CopyMatchingProperties(source, destination, RoleCustomCopyExcludedPropertyNames);
             ApplyRoleDtoToEntityCustomizers(source, destination);
         }
 
         public TUserClaim MapUserClaimsDtoToEntity(TUserClaimsDto claimsDto)
         {
-            var userClaim = CreateInstance<TUserClaim>();
+            var userClaim = MapperInstanceFactory.CreateInstance<TUserClaim>();
             userClaim.Id = claimsDto.ClaimId;
             userClaim.UserId = claimsDto.UserId;
             userClaim.ClaimType = claimsDto.ClaimType;
             userClaim.ClaimValue = claimsDto.ClaimValue;
-            CopyMatchingProperties(claimsDto, userClaim, UserClaimMappedPropertyNames);
+            CopyMatchingProperties(claimsDto, userClaim, UserClaimCustomCopyExcludedPropertyNames);
 
             return userClaim;
         }
 
         public TRoleClaim MapRoleClaimsDtoToEntity(TRoleClaimsDto claimsDto)
         {
-            var roleClaim = CreateInstance<TRoleClaim>();
+            var roleClaim = MapperInstanceFactory.CreateInstance<TRoleClaim>();
             roleClaim.Id = claimsDto.ClaimId;
             roleClaim.RoleId = claimsDto.RoleId;
             roleClaim.ClaimType = claimsDto.ClaimType;
             roleClaim.ClaimValue = claimsDto.ClaimValue;
-            CopyMatchingProperties(claimsDto, roleClaim, RoleClaimMappedPropertyNames);
+            CopyMatchingProperties(claimsDto, roleClaim, RoleClaimCustomCopyExcludedPropertyNames);
 
             return roleClaim;
         }
 
         private TUserClaimDto MapUserClaimToClaimDto(TUserClaim source)
         {
-            var claimDto = CreateInstance<TUserClaimDto>();
+            var claimDto = MapperInstanceFactory.CreateInstance<TUserClaimDto>();
             claimDto.ClaimId = source.Id;
             claimDto.UserId = source.UserId;
             claimDto.ClaimType = source.ClaimType;
             claimDto.ClaimValue = source.ClaimValue;
-            CopyMatchingProperties(source, claimDto, UserClaimMappedPropertyNames);
+            CopyMatchingProperties(source, claimDto, UserClaimCustomCopyExcludedPropertyNames);
 
             return claimDto;
         }
 
         private TRoleClaimDto MapRoleClaimToClaimDto(TRoleClaim source)
         {
-            var claimDto = CreateInstance<TRoleClaimDto>();
+            var claimDto = MapperInstanceFactory.CreateInstance<TRoleClaimDto>();
             claimDto.ClaimId = source.Id;
             claimDto.RoleId = source.RoleId;
             claimDto.ClaimType = source.ClaimType;
             claimDto.ClaimValue = source.ClaimValue;
-            CopyMatchingProperties(source, claimDto, RoleClaimMappedPropertyNames);
+            CopyMatchingProperties(source, claimDto, RoleClaimCustomCopyExcludedPropertyNames);
 
             return claimDto;
         }
 
         private TUserProviderDto MapUserLoginInfoToProviderDto(UserLoginInfo source)
         {
-            var providerDto = CreateInstance<TUserProviderDto>();
+            var providerDto = MapperInstanceFactory.CreateInstance<TUserProviderDto>();
             providerDto.ProviderKey = source.ProviderKey;
             providerDto.LoginProvider = source.LoginProvider;
             providerDto.ProviderDisplayName = source.ProviderDisplayName;
-            CopyMatchingProperties(source, providerDto, UserProviderMappedPropertyNames);
+            CopyMatchingProperties(source, providerDto, UserProviderCustomCopyExcludedPropertyNames);
 
             return providerDto;
         }
@@ -370,27 +398,6 @@ namespace Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Identity.Mappers
             }
         }
 
-        private static TEntity CreateInstance<TEntity>() where TEntity : class
-        {
-            try
-            {
-                var instance = Activator.CreateInstance<TEntity>();
-                if (instance == null)
-                {
-                    throw new InvalidOperationException($"Cannot create an instance of {typeof(TEntity).FullName}.");
-                }
-
-                return instance;
-            }
-            catch (Exception ex) when (ex is MissingMethodException or MemberAccessException)
-            {
-                throw new InvalidOperationException(
-                    $"Cannot create an instance of {typeof(TEntity).FullName}. " +
-                    "Ensure the type has a public parameterless constructor.",
-                    ex);
-            }
-        }
-
         private static void CopyMatchingProperties<TSource, TDestination>(TSource source, TDestination destination, IReadOnlySet<string> excludedProperties)
         {
             if (source == null || destination == null)
@@ -398,15 +405,8 @@ namespace Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Identity.Mappers
                 return;
             }
 
-            var sourceProperties = typeof(TSource)
-                .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .Where(x => x.CanRead && x.GetIndexParameters().Length == 0)
-                .OrderBy(x => GetInheritanceDistance(typeof(TSource), x.DeclaringType))
-                .GroupBy(x => x.Name, StringComparer.Ordinal)
-                .ToDictionary(x => x.Key, x => x.First(), StringComparer.Ordinal);
-
-            foreach (var destinationProperty in typeof(TDestination).GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                         .Where(x => x.CanWrite && x.GetIndexParameters().Length == 0))
+            var sourceProperties = GetReadablePropertiesMap(typeof(TSource));
+            foreach (var destinationProperty in GetWritableProperties(typeof(TDestination)))
             {
                 if (excludedProperties.Contains(destinationProperty.Name))
                 {
@@ -418,6 +418,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Identity.Mappers
                     continue;
                 }
 
+                // Intentional limitation: copy only assignable types; no implicit coercion (e.g. DateTime? <-> DateTime).
                 if (!destinationProperty.PropertyType.IsAssignableFrom(sourceProperty.PropertyType))
                 {
                     continue;
@@ -425,6 +426,26 @@ namespace Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Identity.Mappers
 
                 destinationProperty.SetValue(destination, sourceProperty.GetValue(source));
             }
+        }
+
+        private static IReadOnlyDictionary<string, PropertyInfo> GetReadablePropertiesMap(Type type)
+        {
+            return ReadablePropertiesCache.GetOrAdd(type, targetType =>
+                targetType
+                    .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                    .Where(x => x.CanRead && x.GetIndexParameters().Length == 0)
+                    .OrderBy(x => GetInheritanceDistance(targetType, x.DeclaringType))
+                    .GroupBy(x => x.Name, StringComparer.Ordinal)
+                    .ToDictionary(x => x.Key, x => x.First(), StringComparer.Ordinal));
+        }
+
+        private static PropertyInfo[] GetWritableProperties(Type type)
+        {
+            return WritablePropertiesCache.GetOrAdd(type, targetType =>
+                targetType
+                    .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                    .Where(x => x.CanWrite && x.GetIndexParameters().Length == 0)
+                    .ToArray());
         }
 
         private static int GetInheritanceDistance(Type targetType, Type declaringType)

@@ -67,6 +67,12 @@ namespace Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Identity.Extensions
             where TUserClaimDto : UserClaimDto<TKey>
             where TRoleClaimDto : RoleClaimDto<TKey>
         {
+            if (typeof(TUserDtoKey) != typeof(TKey) || typeof(TRoleDtoKey) != typeof(TKey))
+            {
+                throw new InvalidOperationException(
+                    $"Generic key parameters must match. " +
+                    $"{nameof(TUserDtoKey)} and {nameof(TRoleDtoKey)} must be the same type as {nameof(TKey)}.");
+            }
 
             return services.AddAdminAspNetIdentityServices<TAdminDbContext, TAdminDbContext, TUserDto, TRoleDto,
                 TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken, TUserPasskey,

@@ -348,6 +348,33 @@ namespace Skoruba.Duende.IdentityServer.Admin.UnitTests.Mappers
 
         #endregion
 
+        #region Null guards
+
+        [Fact]
+        public void MapPagedMethods_WithNullSource_ReturnNull()
+        {
+            var mapper = CreateDefaultMapper();
+
+            mapper.MapPagedUsersToDto(null).Should().BeNull();
+            mapper.MapPagedRolesToRolesDto(null).Should().BeNull();
+            mapper.MapPagedRolesToUserRolesDto(null).Should().BeNull();
+            mapper.MapPagedUserClaimsToDto(null).Should().BeNull();
+            mapper.MapPagedRoleClaimsToDto(null).Should().BeNull();
+        }
+
+        [Fact]
+        public void MapUserLoginInfosToProvidersDto_WithNullSource_ReturnsEmptyProviders()
+        {
+            var mapper = CreateDefaultMapper();
+
+            var dto = mapper.MapUserLoginInfosToProvidersDto(null);
+
+            dto.Should().NotBeNull();
+            dto.Providers.Should().BeEmpty();
+        }
+
+        #endregion
+
         #region MapPagedUsersToDto
 
         [Fact]

@@ -37,14 +37,22 @@ namespace Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Mappers
                 return [];
             }
 
-            var dict = JsonSerializer.Deserialize<Dictionary<string, string>>(source);
-            if (dict == null || dict.Count == 0)
+            try
             {
+                var dict = JsonSerializer.Deserialize<Dictionary<string, string>>(source);
+                if (dict == null || dict.Count == 0)
+                {
+                    return [];
+                }
+
+                var index = 0;
+                return dict.ToDictionary(_ => index++, item => new IdentityProviderPropertyDto { Name = item.Key, Value = item.Value });
+            }
+            catch (JsonException)
+            {
+                // Be resilient against malformed persisted values and keep read-side behavior tolerant.
                 return [];
             }
-
-            var index = 0;
-            return dict.ToDictionary(_ => index++, item => new IdentityProviderPropertyDto { Name = item.Key, Value = item.Value });
         }
     }
 

@@ -23,7 +23,16 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Mappers
 
         private static Dictionary<string, string> MapProperties(Dictionary<int, IdentityProviderPropertyDto> source)
         {
-            return source?.ToDictionary(x => x.Value.Name, dto => dto.Value.Value) ?? new Dictionary<string, string>();
+            if (source == null || source.Count == 0)
+            {
+                return new Dictionary<string, string>();
+            }
+
+            return source
+                .Where(x => !string.IsNullOrWhiteSpace(x.Value?.Name))
+                .Select(x => x.Value)
+                .GroupBy(x => x.Name, System.StringComparer.Ordinal)
+                .ToDictionary(x => x.Key, x => x.Last().Value, System.StringComparer.Ordinal);
         }
 
         private static Dictionary<int, IdentityProviderPropertyDto> MapProperties(Dictionary<string, string> source)

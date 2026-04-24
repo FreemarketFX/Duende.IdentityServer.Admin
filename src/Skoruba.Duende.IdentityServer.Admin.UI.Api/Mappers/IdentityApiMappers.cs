@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Identity.Dtos.Identity;
 using Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Identity.Dtos.Identity.Base;
+using Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Identity.Mappers;
 using Skoruba.Duende.IdentityServer.Admin.UI.Api.Dtos.Roles;
 using Skoruba.Duende.IdentityServer.Admin.UI.Api.Dtos.Users;
 
@@ -26,7 +27,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Mappers
         public static TUserRolesDto ToUserRolesDto<TUserRolesDto, TKey>(this UserRoleApiDto<TKey> source)
             where TUserRolesDto : BaseUserRolesDto<TKey>
         {
-            var dto = CreateInstance<TUserRolesDto>();
+            var dto = MapperInstanceFactory.CreateInstance<TUserRolesDto>();
             dto.UserId = source.UserId;
             dto.RoleId = source.RoleId;
             return dto;
@@ -46,7 +47,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Mappers
         public static TUserClaimsDto ToUserClaimsDto<TUserClaimsDto, TKey>(this UserClaimApiDto<TKey> source)
             where TUserClaimsDto : UserClaimDto<TKey>
         {
-            var dto = CreateInstance<TUserClaimsDto>();
+            var dto = MapperInstanceFactory.CreateInstance<TUserClaimsDto>();
             dto.ClaimId = source.ClaimId;
             dto.UserId = source.UserId;
             dto.ClaimType = source.ClaimType;
@@ -66,7 +67,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Mappers
         public static TUserProviderDto ToUserProviderDto<TUserProviderDto, TKey>(this UserProviderDeleteApiDto<TKey> source)
             where TUserProviderDto : UserProviderDto<TKey>
         {
-            var dto = CreateInstance<TUserProviderDto>();
+            var dto = MapperInstanceFactory.CreateInstance<TUserProviderDto>();
             dto.UserId = source.UserId;
             dto.ProviderKey = source.ProviderKey;
             dto.LoginProvider = source.LoginProvider;
@@ -76,7 +77,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Mappers
         public static TUserChangePasswordDto ToUserChangePasswordDto<TUserChangePasswordDto, TKey>(this UserChangePasswordApiDto<TKey> source)
             where TUserChangePasswordDto : UserChangePasswordDto<TKey>
         {
-            var dto = CreateInstance<TUserChangePasswordDto>();
+            var dto = MapperInstanceFactory.CreateInstance<TUserChangePasswordDto>();
             dto.UserId = source.UserId;
             dto.Password = source.Password;
             dto.ConfirmPassword = source.ConfirmPassword;
@@ -97,7 +98,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Mappers
         public static TRoleClaimsDto ToRoleClaimsDto<TRoleClaimsDto, TKey>(this RoleClaimApiDto<TKey> source)
             where TRoleClaimsDto : RoleClaimDto<TKey>
         {
-            var dto = CreateInstance<TRoleClaimsDto>();
+            var dto = MapperInstanceFactory.CreateInstance<TRoleClaimsDto>();
             dto.ClaimId = source.ClaimId;
             dto.RoleId = source.RoleId;
             dto.ClaimType = source.ClaimType;
@@ -139,25 +140,5 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Mappers
             };
         }
 
-        private static T CreateInstance<T>()
-        {
-            try
-            {
-                var instance = Activator.CreateInstance<T>();
-                if (instance == null)
-                {
-                    throw new InvalidOperationException($"Cannot create an instance of {typeof(T).FullName}.");
-                }
-
-                return instance;
-            }
-            catch (Exception ex) when (ex is MissingMethodException or MemberAccessException)
-            {
-                throw new InvalidOperationException(
-                    $"Cannot create an instance of {typeof(T).FullName}. " +
-                    "Ensure the type has a public parameterless constructor.",
-                    ex);
-            }
-        }
     }
 }
