@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useQuery, useMutation, useQueryClient } from "react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { usePaginationTable } from "@/components/DataTable/usePaginationTable";
 import { DataTable } from "@/components/DataTable/DataTable";
@@ -28,11 +28,11 @@ type PropertiesTabProps = {
   getProperties: (
     resourceId: number,
     pageIndex: number,
-    pageSize: number
+    pageSize: number,
   ) => Promise<PropertiesData>;
   addProperty: (
     resourceId: number,
-    data: { key: string; value: string }
+    data: { key: string; value: string },
   ) => Promise<void>;
   deleteProperty: (id: number) => Promise<void>;
 };
@@ -53,33 +53,34 @@ const PropertiesApi: React.FC<PropertiesTabProps> = ({
 
   const queryClient = useQueryClient();
 
-  const propertiesQuery = useQuery(
-    [...queryKey, pagination],
-    () => getProperties(resourceId, pagination.pageIndex, pagination.pageSize),
-    { keepPreviousData: true }
-  );
+  const propertiesQuery = useQuery({
+    queryKey: [...queryKey, pagination],
+    queryFn: () =>
+      getProperties(resourceId, pagination.pageIndex, pagination.pageSize),
+    placeholderData: (previousData) => previousData,
+  });
 
-  const addMutation = useMutation(
-    (data: { key: string; value: string }) => addProperty(resourceId, data),
-    {
-      onSuccess: () => {
-        toast({
-          title: t("Actions.Hooray"),
-          description: t("Property.Actions.Added"),
-        });
-        queryClient.invalidateQueries(queryKey);
-        closeModal();
-      },
-    }
-  );
+  const addMutation = useMutation({
+    mutationFn: (data: { key: string; value: string }) =>
+      addProperty(resourceId, data),
+    onSuccess: () => {
+      toast({
+        title: t("Actions.Hooray"),
+        description: t("Property.Actions.Added"),
+      });
+      queryClient.invalidateQueries({ queryKey: queryKey });
+      closeModal();
+    },
+  });
 
-  const deleteMutation = useMutation((id: number) => deleteProperty(id), {
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => deleteProperty(id),
     onSuccess: () => {
       toast({
         title: t("Actions.Hooray"),
         description: t("Property.Actions.Deleted"),
       });
-      queryClient.invalidateQueries(queryKey);
+      queryClient.invalidateQueries({ queryKey: queryKey });
     },
   });
 

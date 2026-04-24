@@ -5,7 +5,7 @@ import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { toast } from "@/components/ui/use-toast";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createUser, updateUser } from "@/services/UserServices";
 import { UserFormData, formSchema } from "../Common/UserSchema";
 import { UsersUrl } from "@/routing/Urls";
@@ -50,28 +50,26 @@ const UserForm: React.FC<Props> = ({ mode, userId, defaultValues }) => {
   const navigate = useNavigateWithBlocker(form);
   const { DialogCmp } = useConfirmUnsavedChanges(form.formState.isDirty);
 
-  const mutation = useMutation(
-    (data: UserFormData) =>
+  const mutation = useMutation({
+    mutationFn: (data: UserFormData) =>
       mode === UserFormMode.Create
         ? createUser(data)
         : updateUser(userId!, data),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(queryKeys.users);
-        queryClient.invalidateQueries(queryKeys.user);
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [queryKeys.users] });
+      queryClient.invalidateQueries({ queryKey: [queryKeys.user] });
 
-        navigate(UsersUrl);
+      navigate(UsersUrl);
 
-        toast({
-          title: <Hoorey />,
-          description:
-            mode === UserFormMode.Create
-              ? t("User.Actions.Created")
-              : t("User.Actions.Updated"),
-        });
-      },
-    }
-  );
+      toast({
+        title: <Hoorey />,
+        description:
+          mode === UserFormMode.Create
+            ? t("User.Actions.Created")
+            : t("User.Actions.Updated"),
+      });
+    },
+  });
 
   const showDelete =
     mode === UserFormMode.Edit && !!userId && !!defaultValues.userName;

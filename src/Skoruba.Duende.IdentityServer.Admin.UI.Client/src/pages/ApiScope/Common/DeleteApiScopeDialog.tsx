@@ -8,7 +8,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteApiScope } from "@/services/ApiScopeServices";
 import { Trans, useTranslation } from "react-i18next";
 import { toast } from "@/components/ui/use-toast";
@@ -31,16 +31,21 @@ const DeleteApiScopeDialog = ({
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
-  const mutation = useMutation(() => deleteApiScope(apiScopeId), {
+  const mutation = useMutation({
+    mutationFn: () => deleteApiScope(apiScopeId),
     onSuccess: () => {
       toast({
         title: <Hoorey />,
         description: t("ApiScope.Actions.Deleted"),
       });
-      queryClient.invalidateQueries(queryKeys.apiScopes);
+      queryClient.invalidateQueries({ queryKey: [queryKeys.apiScopes] });
       // Invalidate configuration issues cache when API scope is deleted
-      queryClient.invalidateQueries(queryKeys.configurationIssues);
-      queryClient.invalidateQueries(queryKeys.configurationIssuesSummary);
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.configurationIssues],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.configurationIssuesSummary],
+      });
       modal.closeModal();
       onApiScopeDeleted?.();
     },

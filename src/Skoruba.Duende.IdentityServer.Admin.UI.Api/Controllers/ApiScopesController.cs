@@ -34,7 +34,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
         public async Task<ActionResult<ApiScopesApiDto>> GetScopes(string search, int page = 1, int pageSize = 10)
         {
             var apiScopesDto = await _apiScopeService.GetApiScopesAsync(search, page, pageSize);
-            var apiScopesApiDto = apiScopesDto.ToApiScopeApiModel<ApiScopesApiDto>();
+            var apiScopesApiDto = apiScopesDto.ToApiScopesApiDto();
 
             return Ok(apiScopesApiDto);
         }
@@ -67,7 +67,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
         public async Task<ActionResult<ApiScopeApiDto>> GetScope(int id)
         {
             var apiScopesDto = await _apiScopeService.GetApiScopeAsync(id);
-            var apiScopeApiDto = apiScopesDto.ToApiScopeApiModel<ApiScopeApiDto>();
+            var apiScopeApiDto = apiScopesDto.ToApiScopeApiDto();
 
             return Ok(apiScopeApiDto);
         }
@@ -76,7 +76,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
         public async Task<ActionResult<ApiScopePropertiesApiDto>> GetScopeProperties(int id, int page = 1, int pageSize = 10)
         {
             var apiScopePropertiesDto = await _apiScopeService.GetApiScopePropertiesAsync(id, page, pageSize);
-            var apiScopePropertiesApiDto = apiScopePropertiesDto.ToApiScopeApiModel<ApiScopePropertiesApiDto>();
+            var apiScopePropertiesApiDto = apiScopePropertiesDto.ToApiScopePropertiesApiDto();
 
             return Ok(apiScopePropertiesApiDto);
         }
@@ -86,7 +86,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
         [ProducesResponseType(400)]
         public async Task<ActionResult<ApiScopeApiDto>> PostScope([FromBody] ApiScopeApiDto apiScopeApi)
         {
-            var apiScope = apiScopeApi.ToApiScopeApiModel<ApiScopeDto>();
+            var apiScope = apiScopeApi.ToApiScopeDto();
 
             if (!apiScope.Id.Equals(default))
             {
@@ -104,7 +104,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
         [ProducesResponseType(400)]
         public async Task<ActionResult<ApiScopePropertyApiDto>> PostProperty(int id, [FromBody] ApiScopePropertyApiDto apiScopePropertyApi)
         {
-            var apiResourcePropertiesDto = apiScopePropertyApi.ToApiScopeApiModel<ApiScopePropertiesDto>();
+            var apiResourcePropertiesDto = apiScopePropertyApi.ToApiScopePropertiesDto();
             apiResourcePropertiesDto.ApiScopeId = id;
 
             if (!apiResourcePropertiesDto.ApiScopePropertyId.Equals(default))
@@ -122,7 +122,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
         public async Task<ActionResult<ApiScopePropertyApiDto>> GetProperty(int propertyId)
         {
             var apiScopePropertyAsync = await _apiScopeService.GetApiScopePropertyAsync(propertyId);
-            var resourcePropertyApiDto = apiScopePropertyAsync.ToApiScopeApiModel<ApiScopePropertyApiDto>();
+            var resourcePropertyApiDto = apiScopePropertyAsync.ToApiScopePropertyApiDto();
 
             return Ok(resourcePropertyApiDto);
         }
@@ -146,7 +146,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> PutScope([FromBody] ApiScopeApiDto apiScopeApi)
         {
-            var apiScope = apiScopeApi.ToApiScopeApiModel<ApiScopeDto>();
+            var apiScope = apiScopeApi.ToApiScopeDto();
 
             await _apiScopeService.GetApiScopeAsync(apiScope.Id);
 

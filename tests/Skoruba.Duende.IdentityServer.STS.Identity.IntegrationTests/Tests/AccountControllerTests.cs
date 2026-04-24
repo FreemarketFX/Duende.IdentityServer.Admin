@@ -184,5 +184,114 @@ namespace Skoruba.Duende.IdentityServer.STS.Identity.IntegrationTests.Tests
             // Assert Identity cookie
             existsCookie.Should().BeFalse();
         }
+
+        [Fact]
+        public async Task PasskeySubmitCancelDoesNotValidateUsernameAndPassword()
+        {
+            // Clear headers
+            Client.DefaultRequestHeaders.Clear();
+
+            // Prepare request to login
+            const string accountLoginAction = "/Account/Login";
+            var loginResponse = await Client.GetAsync(accountLoginAction);
+            var antiForgeryToken = await loginResponse.ExtractAntiForgeryToken();
+
+            var loginDataForm = new Dictionary<string, string>
+            {
+                { "__passkeySubmit", string.Empty },
+                { UserMocks.AntiForgeryTokenKey, antiForgeryToken }
+            };
+
+            // Submit passkey action without credential payload (equivalent to passkey picker cancel)
+            var requestMessage = RequestHelper.CreatePostRequestWithCookies(accountLoginAction, loginDataForm, loginResponse);
+            var responseMessage = await Client.SendAsync(requestMessage);
+
+            // Assert status code
+            responseMessage.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            // Get html content
+            var content = await responseMessage.Content.ReadAsStringAsync();
+
+            // Assert no validation/credential errors are shown
+            var doc = new HtmlDocument();
+            doc.LoadHtml(content);
+            var errorNodes = doc.DocumentNode
+                .SelectNodes("//div[contains(@class, 'validation-summary-errors')]/ul/li");
+            errorNodes.Should().BeNull();
+        }
+
+        [Fact]
+        public async Task PasskeyErrorPayloadWithoutSubmitButtonDoesNotValidateUsernameAndPassword()
+        {
+            // Clear headers
+            Client.DefaultRequestHeaders.Clear();
+
+            // Prepare request to login
+            const string accountLoginAction = "/Account/Login";
+            var loginResponse = await Client.GetAsync(accountLoginAction);
+            var antiForgeryToken = await loginResponse.ExtractAntiForgeryToken();
+
+            var loginDataForm = new Dictionary<string, string>
+            {
+                { "Passkey.Error", "No passkey was provided by the authenticator." },
+                { UserMocks.AntiForgeryTokenKey, antiForgeryToken }
+            };
+
+            // Submit passkey-style payload without submitter marker
+            var requestMessage = RequestHelper.CreatePostRequestWithCookies(accountLoginAction, loginDataForm, loginResponse);
+            var responseMessage = await Client.SendAsync(requestMessage);
+
+            // Assert status code
+            responseMessage.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            // Get html content
+            var content = await responseMessage.Content.ReadAsStringAsync();
+
+            // Assert no validation/credential errors are shown
+            var doc = new HtmlDocument();
+            doc.LoadHtml(content);
+            var errorNodes = doc.DocumentNode
+                .SelectNodes("//div[contains(@class, 'validation-summary-errors')]/ul/li");
+            errorNodes.Should().BeNull();
+        }
+
+        [Fact]
+        public async Task PasskeySubmitInvalidCredentialShowsPasskeySpecificError()
+        {
+            // Clear headers
+            Client.DefaultRequestHeaders.Clear();
+
+            // Prepare request to login
+            const string accountLoginAction = "/Account/Login";
+            var loginResponse = await Client.GetAsync(accountLoginAction);
+            var antiForgeryToken = await loginResponse.ExtractAntiForgeryToken();
+
+            var loginDataForm = new Dictionary<string, string>
+            {
+                { "__passkeySubmit", "1" },
+                { "button", "__passkeySubmit" },
+                { "Passkey.CredentialJson", "{}" },
+                { UserMocks.AntiForgeryTokenKey, antiForgeryToken }
+            };
+
+            // Submit invalid passkey payload
+            var requestMessage = RequestHelper.CreatePostRequestWithCookies(accountLoginAction, loginDataForm, loginResponse);
+            var responseMessage = await Client.SendAsync(requestMessage);
+
+            // Assert status code
+            responseMessage.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            // Get html content
+            var content = await responseMessage.Content.ReadAsStringAsync();
+
+            // Assert passkey-specific error message
+            var doc = new HtmlDocument();
+            doc.LoadHtml(content);
+            var errorNodes = doc.DocumentNode
+                .SelectNodes("//div[contains(@class, 'validation-summary-errors')]/ul/li");
+            errorNodes.Should().NotBeNull();
+            errorNodes!.Select(node => node.InnerText).Should().ContainSingle()
+                .Which.Should().Be("Passkey sign-in failed");
+        }
     }
 }

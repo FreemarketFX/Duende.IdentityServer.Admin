@@ -34,7 +34,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
         public async Task<ActionResult<IdentityResourcesApiDto>> Get(string searchText, int page = 1, int pageSize = 10)
         {
             var identityResourcesDto = await _identityResourceService.GetIdentityResourcesAsync(searchText, page, pageSize);
-            var identityResourcesApiDto = identityResourcesDto.ToIdentityResourceApiModel<IdentityResourcesApiDto>();
+            var identityResourcesApiDto = identityResourcesDto.ToIdentityResourcesApiDto();
 
             return Ok(identityResourcesApiDto);
         }
@@ -43,7 +43,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
         public async Task<ActionResult<IdentityResourceApiDto>> Get(int id)
         {
             var identityResourceDto = await _identityResourceService.GetIdentityResourceAsync(id);
-            var identityResourceApiModel = identityResourceDto.ToIdentityResourceApiModel<IdentityResourceApiDto>();
+            var identityResourceApiModel = identityResourceDto.ToIdentityResourceApiDto();
 
             return Ok(identityResourceApiModel);
         }
@@ -77,7 +77,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
         [ProducesResponseType(400)]
         public async Task<ActionResult<IdentityResourceApiDto>> Post([FromBody] IdentityResourceApiDto identityResourceApi)
         {
-            var identityResourceDto = identityResourceApi.ToIdentityResourceApiModel<IdentityResourceDto>();
+            var identityResourceDto = identityResourceApi.ToIdentityResourceDto();
 
             if (!identityResourceDto.Id.Equals(default))
             {
@@ -96,7 +96,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> Put([FromBody] IdentityResourceApiDto identityResourceApi)
         {
-            var identityResource = identityResourceApi.ToIdentityResourceApiModel<IdentityResourceDto>();
+            var identityResource = identityResourceApi.ToIdentityResourceDto();
 
             await _identityResourceService.GetIdentityResourceAsync(identityResource.Id);
             await _identityResourceService.UpdateIdentityResourceAsync(identityResource);
@@ -121,7 +121,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
         public async Task<ActionResult<IdentityResourcePropertiesApiDto>> GetProperties(int id, int page = 1, int pageSize = 10)
         {
             var identityResourcePropertiesDto = await _identityResourceService.GetIdentityResourcePropertiesAsync(id, page, pageSize);
-            var identityResourcePropertiesApiDto = identityResourcePropertiesDto.ToIdentityResourceApiModel<IdentityResourcePropertiesApiDto>();
+            var identityResourcePropertiesApiDto = identityResourcePropertiesDto.ToIdentityResourcePropertiesApiDto();
 
             return Ok(identityResourcePropertiesApiDto);
         }
@@ -130,7 +130,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
         public async Task<ActionResult<IdentityResourcePropertyApiDto>> GetProperty(int propertyId)
         {
             var identityResourcePropertiesDto = await _identityResourceService.GetIdentityResourcePropertyAsync(propertyId);
-            var identityResourcePropertyApiDto = identityResourcePropertiesDto.ToIdentityResourceApiModel<IdentityResourcePropertyApiDto>();
+            var identityResourcePropertyApiDto = identityResourcePropertiesDto.ToIdentityResourcePropertyApiDto();
 
             return Ok(identityResourcePropertyApiDto);
         }
@@ -140,7 +140,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
         [ProducesResponseType(400)]
         public async Task<ActionResult<IdentityResourcePropertyApiDto>> PostProperty(int id, [FromBody] IdentityResourcePropertyApiDto identityResourcePropertyApi)
         {
-            var identityResourcePropertiesDto = identityResourcePropertyApi.ToIdentityResourceApiModel<IdentityResourcePropertiesDto>();
+            var identityResourcePropertiesDto = identityResourcePropertyApi.ToIdentityResourcePropertiesDto();
             identityResourcePropertiesDto.IdentityResourceId = id;
 
             if (!identityResourcePropertiesDto.IdentityResourcePropertyId.Equals(default))

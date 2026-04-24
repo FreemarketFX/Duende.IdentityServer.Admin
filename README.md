@@ -16,7 +16,7 @@ Modern admin UI for **Duende IdentityServer** and **ASP.NET Core Identity**.
 - ✅ **Stable (production): v2.7.0**  
   https://github.com/skoruba/Duende.IdentityServer.Admin/tree/release/2.7.0
 
-- 🎉 **Next generation (v3 – preview)** – current prerelease: `3.0.0-preview.22`
+- 🎉 **Next generation (v3 – preview)** – current prerelease: `3.0.0-preview.24`
   - React + TypeScript + Tailwind CSS + shadcn/ui
   - .NET 10 backend REST API
   - New monitoring and wizard flows
@@ -96,7 +96,7 @@ Define and track configuration rules for clients, API resources, and identity re
 ### 1. Install the template
 
 ```sh
-dotnet new install Skoruba.Duende.IdentityServer.Admin.Templates::3.0.0-preview.22
+dotnet new install Skoruba.Duende.IdentityServer.Admin.Templates::3.0.0-preview.24
 ```
 
 ### 2. Create a new project
@@ -595,6 +595,42 @@ Enable or disable user registration:
 
 ---
 
+## 🧩 Identity Mapping Customization
+
+Identity DTO/entity mapping in `Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Identity` is handled by `IdentityDataMapper`.
+
+By default:
+
+- Standard ASP.NET Core Identity fields are mapped explicitly.
+- Additional custom fields are mapped automatically when DTO and entity use the same property name and compatible type.
+- Internal Identity fields (`PasswordHash`, `SecurityStamp`, `ConcurrencyStamp`, `NormalizedUserName`, `NormalizedEmail`) are protected during DTO -> entity updates.
+
+### 1. Same-name custom properties
+
+If your custom `UserDto` / `RoleDto` and `IdentityUser` / `IdentityRole` share the same custom property name, no extra configuration is needed.
+
+### 2. Different property names (customizers)
+
+When names differ, implement customizers and register them in DI:
+
+```csharp
+services
+    .AddAdminAspNetIdentityServices<...>()
+    .AddIdentityUserMappingCustomizer<ApplicationUserDto, ApplicationUser, ApplicationUserMappingCustomizer>()
+    .AddIdentityRoleMappingCustomizer<ApplicationRoleDto, ApplicationRole, ApplicationRoleMappingCustomizer>();
+```
+
+Customizers implement:
+
+- `IIdentityUserMappingCustomizer<TUserDto, TUser>`
+- `IIdentityRoleMappingCustomizer<TRoleDto, TRole>`
+
+### 3. Full mapper override
+
+If you need full control, replace the default `IIdentityDataMapper<...>` registration in DI with your own implementation after calling `AddAdminAspNetIdentityServices`.
+
+---
+
 ## 📚 Solution Overview
 
 The solution contains **unit and integration tests** for all major components.
@@ -651,16 +687,12 @@ For detailed release history and upcoming features, see [CHANGELOG.md](CHANGELOG
 
 ### 3.1.0
 
-- Passkeys support ([251](https://github.com/skoruba/Duende.IdentityServer.Admin/issues/251))
-
-### 3.2.0
-
 - Add support for importing/exporting IdentityServer data in JSON format ([20](https://github.com/skoruba/Duende.IdentityServer.Admin/issues/20))
 
 ### 4.0.0
 
 - DTO refactoring
-- Removal of AutoMapper and FluentAssertions
+- Removal of FluentAssertions
 - Additional translations for the Admin UI
 
 ### 5.0.0

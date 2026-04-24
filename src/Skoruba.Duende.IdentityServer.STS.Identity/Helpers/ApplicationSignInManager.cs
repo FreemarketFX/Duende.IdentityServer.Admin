@@ -68,6 +68,23 @@ namespace Skoruba.Duende.IdentityServer.STS.Identity.Helpers
 
             await base.SignInWithClaimsAsync(user, authenticationProperties, claims);
         }
+
+        /// <summary>
+        /// Validates a passkey assertion and, if valid, signs the user in while also returning the signed-in user.
+        /// This is necessary because <see cref="PasskeySignInAsync"/> does not return the user object,
+        /// and the request principal is not updated after the auth cookie is issued in the same request.
+        /// </summary>
+        public async Task<(SignInResult Result, TUser User)> PasskeySignInWithUserAsync(string credentialJson)
+        {
+            var assertionResult = await PerformPasskeyAssertionAsync(credentialJson);
+            if (!assertionResult.Succeeded)
+            {
+                return (SignInResult.Failed, default);
+            }
+
+            var signInResult = await SignInOrTwoFactorAsync(assertionResult.User, isPersistent: false);
+            return (signInResult, assertionResult.User);
+        }
     }
 }
 

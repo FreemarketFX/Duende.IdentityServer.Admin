@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -14,6 +13,7 @@ using Skoruba.Duende.IdentityServer.Admin.UI.Api.Configuration.Constants;
 using Skoruba.Duende.IdentityServer.Admin.UI.Api.Dtos.Roles;
 using Skoruba.Duende.IdentityServer.Admin.UI.Api.ExceptionHandling;
 using Skoruba.Duende.IdentityServer.Admin.UI.Api.Helpers.Localization;
+using Skoruba.Duende.IdentityServer.Admin.UI.Api.Mappers;
 using Skoruba.Duende.IdentityServer.Admin.UI.Api.Resources;
 
 namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
@@ -54,7 +54,6 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
             TUsersDto, TRolesDto, TUserRolesDto, TUserClaimsDto,
             TUserProviderDto, TUserProvidersDto, TUserChangePasswordDto, TRoleClaimsDto, TUserClaimDto, TRoleClaimDto>> _localizer;
 
-        private readonly IMapper _mapper;
         private readonly IApiErrorResources _errorResources;
 
         public RolesController(IIdentityService<TUserDto, TRoleDto, TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken,
@@ -62,11 +61,10 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
                 TUserProviderDto, TUserProvidersDto, TUserChangePasswordDto, TRoleClaimsDto, TUserClaimDto, TRoleClaimDto> identityService,
             IGenericControllerLocalizer<UsersController<TUserDto, TRoleDto, TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken,
                 TUsersDto, TRolesDto, TUserRolesDto, TUserClaimsDto,
-                TUserProviderDto, TUserProvidersDto, TUserChangePasswordDto, TRoleClaimsDto, TUserClaimDto, TRoleClaimDto>> localizer, IMapper mapper, IApiErrorResources errorResources)
+                TUserProviderDto, TUserProvidersDto, TUserChangePasswordDto, TRoleClaimsDto, TUserClaimDto, TRoleClaimDto>> localizer, IApiErrorResources errorResources)
         {
             _identityService = identityService;
             _localizer = localizer;
-            _mapper = mapper;
             _errorResources = errorResources;
         }
 
@@ -138,7 +136,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
         public async Task<ActionResult<RoleClaimsApiDto<TKey>>> GetRoleClaims(string id, int page = 1, int pageSize = 10)
         {
             var roleClaimsDto = await _identityService.GetRoleClaimsAsync(id, page, pageSize);
-            var roleClaimsApiDto = _mapper.Map<RoleClaimsApiDto<TKey>>(roleClaimsDto);
+            var roleClaimsApiDto = roleClaimsDto.ToRoleClaimsApiDto<TRoleClaimDto, TKey>();
 
             return Ok(roleClaimsApiDto);
         }
@@ -148,7 +146,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
         [ProducesResponseType(400)]
         public async Task<ActionResult<RoleClaimApiDto<TKey>>> PostRoleClaims([FromBody] RoleClaimApiDto<TKey> roleClaims)
         {
-            var roleClaimsDto = _mapper.Map<TRoleClaimsDto>(roleClaims);
+            var roleClaimsDto = roleClaims.ToRoleClaimsDto<TRoleClaimsDto, TKey>();
 
             if (!roleClaimsDto.ClaimId.Equals(default))
             {
@@ -166,7 +164,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> PutRoleClaims([FromBody] RoleClaimApiDto<TKey> roleClaims)
         {
-            var roleClaimsDto = _mapper.Map<TRoleClaimsDto>(roleClaims);
+            var roleClaimsDto = roleClaims.ToRoleClaimsDto<TRoleClaimsDto, TKey>();
 
             if (!roleClaimsDto.ClaimId.Equals(default))
             {

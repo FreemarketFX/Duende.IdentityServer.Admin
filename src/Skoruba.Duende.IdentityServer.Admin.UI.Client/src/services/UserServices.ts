@@ -2,7 +2,12 @@ import ApiHelper from "@/helpers/ApiHelper";
 import { PersistedGrant, UserData, UsersData } from "@/models/Users/UserModels";
 import { UserFormData } from "@/pages/User/Common/UserSchema";
 import { client } from "@skoruba/duende.identityserver.admin.api.client";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  keepPreviousData,
+} from "@tanstack/react-query";
 import { queryKeys } from "./QueryKeys";
 import { combineDateTime, getDateAndTime } from "@/helpers/DateTimeHelper";
 
@@ -14,16 +19,16 @@ const getPersistedGrantsClient = () =>
 export const useUserRoles = (
   userId: string,
   pageIndex: number = 0,
-  pageSize: number = 10
+  pageSize: number = 10,
 ) => {
-  return useQuery(
-    [queryKeys.userRoles, userId, pageIndex, pageSize],
-    async () => {
+  return useQuery({
+    queryKey: [queryKeys.userRoles, userId, pageIndex, pageSize],
+    queryFn: async () => {
       const usersClient = getClient();
       const result = await usersClient.getUserRoles(
         userId,
         pageIndex,
-        pageSize
+        pageSize,
       );
 
       return {
@@ -31,68 +36,66 @@ export const useUserRoles = (
         totalCount: result.totalCount ?? 0,
       };
     },
-    {
-      enabled: !!userId,
-      keepPreviousData: true,
-    }
-  );
+    enabled: !!userId,
+    placeholderData: keepPreviousData,
+  });
 };
 
 export const useAddUserRole = (userId: string) => {
   const queryClient = useQueryClient();
 
-  return useMutation(
-    async (roleId: string) => {
+  return useMutation({
+    mutationFn: async (roleId: string) => {
       const usersClient = new client.UsersClient(ApiHelper.getApiBaseUrl());
       return await usersClient.postUserRoles(
-        new client.UserRoleApiDtoOfString({ userId, roleId })
+        new client.UserRoleApiDtoOfString({ userId, roleId }),
       );
     },
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries([queryKeys.userRoles, userId]);
-      },
-    }
-  );
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.userRoles, userId],
+      });
+    },
+  });
 };
 
 export const useDeleteUserRole = (userId: string) => {
   const queryClient = useQueryClient();
 
-  return useMutation(
-    async (roleId: string) => {
+  return useMutation({
+    mutationFn: async (roleId: string) => {
       const usersClient = new client.UsersClient(ApiHelper.getApiBaseUrl());
       return await usersClient.deleteUserRoles(
-        new client.UserRoleApiDtoOfString({ userId, roleId })
+        new client.UserRoleApiDtoOfString({ userId, roleId }),
       );
     },
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries([queryKeys.userRoles, userId]);
-      },
-    }
-  );
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.userRoles, userId],
+      });
+    },
+  });
 };
 
 export const useUserClaims = (
   userId: string,
   pageIndex: number,
-  pageSize: number
+  pageSize: number,
 ) => {
-  return useQuery(
-    [queryKeys.userClaims, userId, pageIndex, pageSize],
-    async () => {
+  return useQuery({
+    queryKey: [queryKeys.userClaims, userId, pageIndex, pageSize],
+    queryFn: async () => {
       const usersClient = getClient();
       return await usersClient.getUserClaims(userId, pageIndex + 1, pageSize);
-    }
-  );
+    },
+  });
 };
 
 export const useAddUserClaim = (userId: string) => {
   const queryClient = useQueryClient();
 
-  return useMutation(
-    async ({ key, value }: { key: string; value: string }) => {
+  return useMutation({
+    mutationFn: async ({ key, value }: { key: string; value: string }) => {
       const usersClient = getClient();
       const dto = new client.UserClaimApiDtoOfString({
         claimId: 0,
@@ -102,34 +105,34 @@ export const useAddUserClaim = (userId: string) => {
       });
       return await usersClient.postUserClaims(dto);
     },
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries([queryKeys.userClaims, userId]);
-      },
-    }
-  );
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.userClaims, userId],
+      });
+    },
+  });
 };
 
 export const useDeleteUserClaim = (userId: string) => {
   const queryClient = useQueryClient();
 
-  return useMutation(
-    async (claimId: number) => {
+  return useMutation({
+    mutationFn: async (claimId: number) => {
       const usersClient = getClient();
       return await usersClient.deleteUserClaims(userId, claimId);
     },
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries([queryKeys.userClaims, userId]);
-      },
-    }
-  );
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.userClaims, userId],
+      });
+    },
+  });
 };
 
 export const getUsers = async (
   search: string,
   pageIndex: number,
-  pageSize: number
+  pageSize: number,
 ): Promise<UsersData> => {
   const usersClient = new client.UsersClient(ApiHelper.getApiBaseUrl());
 
@@ -185,13 +188,13 @@ export const createUser = async (data: UserFormData): Promise<void> => {
       lockoutEnabled: data.lockoutEnabled ?? false,
       twoFactorEnabled: data.twoFactorEnabled ?? false,
       accessFailedCount: data.accessFailedCount ?? 0,
-    })
+    }),
   );
 };
 
 export const updateUser = async (
   id: string,
-  data: UserFormData
+  data: UserFormData,
 ): Promise<void> => {
   const usersClient = new client.UsersClient(ApiHelper.getApiBaseUrl());
 
@@ -208,7 +211,7 @@ export const updateUser = async (
       lockoutEnabled: data.lockoutEnabled ?? false,
       twoFactorEnabled: data.twoFactorEnabled ?? false,
       accessFailedCount: data.accessFailedCount ?? 0,
-    })
+    }),
   );
 };
 
@@ -218,10 +221,13 @@ export const deleteUser = async (id: string): Promise<void> => {
 };
 
 export const useUserExternalApps = (userId: string) => {
-  return useQuery([queryKeys.userExternalApps, userId], async () => {
-    const usersClient = getClient();
-    const result = await usersClient.getUserProviders(userId);
-    return result.providers ?? [];
+  return useQuery({
+    queryKey: [queryKeys.userExternalApps, userId],
+    queryFn: async () => {
+      const usersClient = getClient();
+      const result = await usersClient.getUserProviders(userId);
+      return result.providers ?? [];
+    },
   });
 };
 
@@ -230,34 +236,36 @@ export const useDeleteUserExternalApp = (userId: string) => {
     void,
     client.ProblemDetails,
     { loginProvider: string; providerKey: string }
-  >(async ({ loginProvider, providerKey }) => {
-    const usersClient = getClient();
+  >({
+    mutationFn: async ({ loginProvider, providerKey }) => {
+      const usersClient = getClient();
 
-    const payload = new client.UserProviderDeleteApiDtoOfString({
-      userId,
-      providerKey,
-      loginProvider,
-    });
+      const payload = new client.UserProviderDeleteApiDtoOfString({
+        userId,
+        providerKey,
+        loginProvider,
+      });
 
-    await usersClient.deleteUserProviders(payload);
+      await usersClient.deleteUserProviders(payload);
+    },
   });
 };
 
 export const useUserPersistedGrants = (
   userId: string,
   pageIndex: number,
-  pageSize: number
+  pageSize: number,
 ) => {
-  return useQuery(
-    [queryKeys.userPersistedGrants, userId, pageIndex, pageSize],
-    async () => {
+  return useQuery({
+    queryKey: [queryKeys.userPersistedGrants, userId, pageIndex, pageSize],
+    queryFn: async () => {
       const persistedGrantsClient = getPersistedGrantsClient();
 
       try {
         const result = await persistedGrantsClient.getBySubject(
           userId,
           pageIndex + 1,
-          pageSize
+          pageSize,
         );
         return {
           persistedGrants: result.persistedGrants ?? [],
@@ -276,12 +284,12 @@ export const useUserPersistedGrants = (
         throw error;
       }
     },
-    { keepPreviousData: true }
-  );
+    placeholderData: keepPreviousData,
+  });
 };
 
 export const getPersistedGrantDetail = async (
-  key: string
+  key: string,
 ): Promise<PersistedGrant> => {
   const persistedGrantsClient = getPersistedGrantsClient();
 
@@ -323,30 +331,30 @@ export const deletePersistedGrant = async (key: string): Promise<void> => {
 export const useDeletePersistedGrant = () => {
   const queryClient = useQueryClient();
 
-  return useMutation(
-    async (key: string) => {
+  return useMutation({
+    mutationFn: async (key: string) => {
       await deletePersistedGrant(key);
     },
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(queryKeys.userPersistedGrants);
-      },
-    }
-  );
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.userPersistedGrants],
+      });
+    },
+  });
 };
 
 export const useDeleteAllPersistedGrantsForUser = () => {
   const queryClient = useQueryClient();
 
-  return useMutation(
-    async (userId: string) => {
+  return useMutation({
+    mutationFn: async (userId: string) => {
       const persistedGrantsClient = getPersistedGrantsClient();
       await persistedGrantsClient.deleteBySubject(userId);
     },
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(queryKeys.userPersistedGrants);
-      },
-    }
-  );
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.userPersistedGrants],
+      });
+    },
+  });
 };

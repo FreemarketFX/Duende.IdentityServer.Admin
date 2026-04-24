@@ -1,5 +1,5 @@
 import { queryKeys } from "@/services/QueryKeys";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 
 export type CsrfResponse = { token: string; fieldName: string };
 
@@ -21,7 +21,7 @@ export function useCsrfToken(csrfUrl: string, enabled: boolean) {
     queryFn: () => fetchCsrf(csrfUrl),
     enabled,
     staleTime: 0,
-    cacheTime: 0,
+    gcTime: 0,
     refetchOnMount: "always",
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,

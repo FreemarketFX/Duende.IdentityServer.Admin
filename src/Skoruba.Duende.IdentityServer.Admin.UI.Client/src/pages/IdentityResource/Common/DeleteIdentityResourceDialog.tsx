@@ -9,7 +9,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Trans, useTranslation } from "react-i18next";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/components/ui/use-toast";
 import { deleteIdentityResource } from "@/services/IdentityResourceServices";
 import { queryKeys } from "@/services/QueryKeys";
@@ -31,23 +31,27 @@ const DeleteIdentityResourceDialog = ({
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
-  const mutation = useMutation(
-    () => deleteIdentityResource(identityResourceId),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(queryKeys.identityResources);
-        // Invalidate configuration issues cache when identity resource is deleted
-        queryClient.invalidateQueries(queryKeys.configurationIssues);
-        queryClient.invalidateQueries(queryKeys.configurationIssuesSummary);
-        toast({
-          title: <Hoorey />,
-          description: t("IdentityResource.Actions.Deleted"),
-        });
-        modal.closeModal();
-        onIdentityResourceDeleted?.();
-      },
-    }
-  );
+  const mutation = useMutation({
+    mutationFn: () => deleteIdentityResource(identityResourceId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.identityResources],
+      });
+      // Invalidate configuration issues cache when identity resource is deleted
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.configurationIssues],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.configurationIssuesSummary],
+      });
+      toast({
+        title: <Hoorey />,
+        description: t("IdentityResource.Actions.Deleted"),
+      });
+      modal.closeModal();
+      onIdentityResourceDeleted?.();
+    },
+  });
 
   return (
     <AlertDialog open={modal.isOpen} onOpenChange={modal.closeModal}>

@@ -1,5 +1,53 @@
 # Changelog
 
+## [3.0.0-preview.24]
+
+### Changed
+
+- Updated solution/template/frontend package version references to `3.0.0-preview.24`
+
+### Fixed
+
+- Prevented invalid configuration where `ApiScope` and `IdentityResource` share the same name by extending repository `CanInsert` validation across both entity types
+- Added repository unit tests for cross-entity name collision checks between API scopes and identity resources
+- Improved optional numeric field handling in Admin UI Client (`FormRow` number mode) so clearing a value keeps it nullable instead of immediately restoring the previous number
+- Updated client and configuration-rule form schemas to correctly accept nullable optional numeric values for advanced settings and rule parameters
+
+---
+
+## [3.0.0-preview.23]
+
+### Added
+
+- Passkey (WebAuthn) authentication support in STS Identity (register, rename, and remove passkeys)
+- New STS passkey pages, localization resources, and client-side helpers
+- User passkey persistence model (`UserIdentityPasskey`) with SQL Server and PostgreSQL migrations
+- New Mapperly-based identity data mapping pipeline with customization extension points
+
+### Changed
+
+- Replaced AutoMapper with Mapperly across Admin BusinessLogic, Identity BusinessLogic, and Admin UI API mappers ([#287](https://github.com/skoruba/Duende.IdentityServer.Admin/pull/287))
+- Updated package references across the solution (including Duende IdentityServer 7.4.7, EF Core/ASP.NET Core 10.0.7, NSwag 14.7.1) ([#288](https://github.com/skoruba/Duende.IdentityServer.Admin/pull/288))
+- Migrated Admin UI Client from `react-query` v3 to `@tanstack/react-query` v5
+- Upgraded frontend linting/tooling to ESLint v10 and refreshed related TypeScript dependencies
+- Updated v3 template and documentation references to `3.0.0-preview.23`
+
+### Fixed
+
+- Duplicate type mapping configuration for `UserLoginInfo -> TUserProviderDto` ([#271](https://github.com/skoruba/Duende.IdentityServer.Admin/issues/271))
+- Client retrieval generating overly complex SQL query ([#265](https://github.com/skoruba/Duende.IdentityServer.Admin/issues/265))
+- Admin UI dark-mode background rendering for audit log JSON data ([#284](https://github.com/skoruba/Duende.IdentityServer.Admin/issues/284))
+- Client claims update flow now avoids reusing existing claim IDs in update graphs (prevents EF tracking/concurrency conflicts)
+- Improved mapper null handling and runtime error messages for dynamic instance creation
+- Resolved npm audit vulnerabilities in `Admin.UI.Client` dependencies (`i18next-http-backend`, `uuid`)
+
+### Breaking Changes
+
+- Added passkey persistence schema for Identity (`AddUserPasskeys`) – apply new EF migrations for SQL Server/PostgreSQL
+- AutoMapper dependency removed from mapper projects; custom mapping extensions should use the new Mapperly customization interfaces
+
+---
+
 ## [3.0.0-preview.21]
 
 ### Added

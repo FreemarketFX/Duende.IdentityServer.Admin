@@ -1,6 +1,7 @@
 // Copyright (c) Jan Škoruba. All Rights Reserved.
 // Licensed under the Apache License, Version 2.0.
 
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using SkorubaDuende.IdentityServerAdmin.Admin.EntityFramework.Shared.Configuration.Schema;
@@ -8,7 +9,7 @@ using SkorubaDuende.IdentityServerAdmin.Admin.EntityFramework.Shared.Entities.Id
 
 namespace SkorubaDuende.IdentityServerAdmin.Admin.EntityFramework.Shared.DbContexts
 {
-    public class AdminIdentityDbContext : IdentityDbContext<UserIdentity, UserIdentityRole, string, UserIdentityUserClaim, UserIdentityUserRole, UserIdentityUserLogin, UserIdentityRoleClaim, UserIdentityUserToken>
+    public class AdminIdentityDbContext : IdentityDbContext<UserIdentity, UserIdentityRole, string, UserIdentityUserClaim, UserIdentityUserRole, UserIdentityUserLogin, UserIdentityRoleClaim, UserIdentityUserToken, UserIdentityPasskey>
     {
         private readonly IdentityTableConfiguration _schemaConfiguration;
 
@@ -34,6 +35,7 @@ namespace SkorubaDuende.IdentityServerAdmin.Admin.EntityFramework.Shared.DbConte
             builder.Entity<UserIdentityUserLogin>().ToTable(_schemaConfiguration.IdentityUserLogins);
             builder.Entity<UserIdentityUserClaim>().ToTable(_schemaConfiguration.IdentityUserClaims);
             builder.Entity<UserIdentityUserToken>().ToTable(_schemaConfiguration.IdentityUserTokens);
+            builder.Entity<UserIdentityPasskey>().ToTable(_schemaConfiguration.IdentityUserPasskeys);
         }
     }
 }

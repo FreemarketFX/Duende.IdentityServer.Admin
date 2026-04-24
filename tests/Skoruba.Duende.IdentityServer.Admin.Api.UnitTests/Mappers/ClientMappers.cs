@@ -16,7 +16,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.UnitTests.Mappers
             //Generate DTO
             var clientApiDto = ClientDtoApiMock.GenerateRandomClient(1);
 
-            var clientDto = clientApiDto.ToClientApiModel<ClientDto>();
+            var clientDto = clientApiDto.ToClientDto();
 
             clientDto.Should().NotBeNull();
 
@@ -29,7 +29,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.UnitTests.Mappers
             //Generate DTO
             var clientDto = ClientDtoMock.GenerateRandomClient(1);
 
-            var clientApiDto = clientDto.ToClientApiModel<ClientApiDto>();
+            var clientApiDto = clientDto.ToClientApiDto();
 
             clientDto.Should().NotBeNull();
 
@@ -55,7 +55,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.UnitTests.Mappers
         {
             var clientSecretApi = ClientDtoApiMock.GenerateRandomClientSecret(1);
 
-            var clientSecretsDto = clientSecretApi.ToClientApiModel<ClientSecretsDto>();
+            var clientSecretsDto = clientSecretApi.ToClientSecretsDto();
 
             clientSecretApi.Id.Should().Be(clientSecretsDto.ClientSecretId);
 
@@ -67,7 +67,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.UnitTests.Mappers
         {
             var clientSecretDto = ClientDtoMock.GenerateRandomClientSecret(1, 1);
 
-            var clientSecretApiDto = clientSecretDto.ToClientApiModel<ClientSecretApiDto>();
+            var clientSecretApiDto = clientSecretDto.ToClientSecretApiDto();
 
             clientSecretDto.ClientSecretId.Should().Be(clientSecretApiDto.Id);
 
@@ -88,7 +88,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.UnitTests.Mappers
         {
             var clientClaimApiDto = ClientDtoApiMock.GenerateRandomClientClaim(1);
 
-            var clientClaimsDto = clientClaimApiDto.ToClientApiModel<ClientClaimsDto>();
+            var clientClaimsDto = clientClaimApiDto.ToClientClaimsDto();
 
             clientClaimApiDto.Id.Should().Be(clientClaimsDto.ClientClaimId);
 
@@ -100,7 +100,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.UnitTests.Mappers
         {
             var clientClaimDto = ClientDtoMock.GenerateRandomClientClaim(1, 1);
 
-            var clientClaimApiDto = clientClaimDto.ToClientApiModel<ClientClaimApiDto>();
+            var clientClaimApiDto = clientClaimDto.ToClientClaimApiDto();
 
             clientClaimDto.ClientClaimId.Should().Be(clientClaimApiDto.Id);
 
@@ -118,7 +118,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.UnitTests.Mappers
         {
             var clientPropertyApiDto = ClientDtoApiMock.GenerateRandomClientProperty(1);
 
-            var clientPropertiesDto = clientPropertyApiDto.ToClientApiModel<ClientPropertiesDto>();
+            var clientPropertiesDto = clientPropertyApiDto.ToClientPropertiesDto();
 
             clientPropertyApiDto.Id.Should().Be(clientPropertiesDto.ClientPropertyId);
 
@@ -130,7 +130,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.UnitTests.Mappers
         {
             var clientPropertyDto = ClientDtoMock.GenerateRandomClientProperty(1, 1);
 
-            var clientPropertyApiDto = clientPropertyDto.ToClientApiModel<ClientPropertyApiDto>();
+            var clientPropertyApiDto = clientPropertyDto.ToClientPropertyApiDto();
 
             clientPropertyDto.ClientPropertyId.Should().Be(clientPropertyApiDto.Id);
 

@@ -62,5 +62,29 @@ namespace Skoruba.Duende.IdentityServer.Admin.UnitTests.Mappers
                 .Select(x=>new IdentityProviderPropertyDto {Name=x.Key, Value = x.Value}));
 
         }
+
+        [Fact]
+        public void CanMapIdentityProviderDtoWithEmptyPropertiesToEntity()
+        {
+            var identityProviderDto = IdentityProviderDtoMock.GenerateRandomIdentityProvider(1);
+            identityProviderDto.Properties = new Dictionary<int, IdentityProviderPropertyDto>();
+
+            var identityProvider = identityProviderDto.ToEntity();
+
+            identityProvider.Should().NotBeNull();
+            identityProvider.Properties.Should().Be("{}");
+        }
+
+        [Fact]
+        public void CanMapIdentityProviderWithMalformedPropertiesJsonToModel()
+        {
+            var identityProvider = IdentityProviderMock.GenerateRandomIdentityProvider(1);
+            identityProvider.Properties = "{ malformed-json ";
+
+            var identityProviderDto = identityProvider.ToModel();
+
+            identityProviderDto.Should().NotBeNull();
+            identityProviderDto.Properties.Should().BeEmpty();
+        }
     }
 }

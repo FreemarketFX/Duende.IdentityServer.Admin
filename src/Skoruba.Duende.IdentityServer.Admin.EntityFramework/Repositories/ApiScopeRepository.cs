@@ -93,13 +93,25 @@ namespace Skoruba.Duende.IdentityServer.Admin.EntityFramework.Repositories
             if (apiScope.Id == 0)
             {
                 var existsWithSameName = await DbContext.ApiScopes.Where(x => x.Name == apiScope.Name).SingleOrDefaultAsync();
-                return existsWithSameName == null;
+                if (existsWithSameName != null)
+                {
+                    return false;
+                }
             }
             else
             {
                 var existsWithSameName = await DbContext.ApiScopes.Where(x => x.Name == apiScope.Name && x.Id != apiScope.Id).SingleOrDefaultAsync();
-                return existsWithSameName == null;
+                if (existsWithSameName != null)
+                {
+                    return false;
+                }
             }
+
+            var existsIdentityResourceWithSameName = await DbContext.IdentityResources
+                .Where(x => x.Name == apiScope.Name)
+                .SingleOrDefaultAsync();
+
+            return existsIdentityResourceWithSameName == null;
         }
 
         public virtual async Task<PagedList<ApiScope>> GetApiScopesAsync(string search, int page = 1, int pageSize = 10)

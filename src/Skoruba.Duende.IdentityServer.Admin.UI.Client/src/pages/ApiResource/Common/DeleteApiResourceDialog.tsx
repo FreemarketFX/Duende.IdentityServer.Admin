@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import DeleteDialog from "../../../components/DeleteDialog/DeleteDialog";
 import { Trans, useTranslation } from "react-i18next";
 import { UseModalReturn } from "@/hooks/modalHooks";
@@ -24,17 +24,19 @@ const DeleteApiResourceDialog = ({
 
   const queryClient = useQueryClient();
 
-  const removeApiResource = useMutation(
-    () => deleteApiResource(Number(apiResourceId)),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(queryKeys.apiResources);
-        // Invalidate configuration issues cache when API resource is deleted
-        queryClient.invalidateQueries(queryKeys.configurationIssues);
-        queryClient.invalidateQueries(queryKeys.configurationIssuesSummary);
-      },
-    }
-  );
+  const removeApiResource = useMutation({
+    mutationFn: () => deleteApiResource(Number(apiResourceId)),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [queryKeys.apiResources] });
+      // Invalidate configuration issues cache when API resource is deleted
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.configurationIssues],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.configurationIssuesSummary],
+      });
+    },
+  });
 
   const handleDelete = () => {
     removeApiResource.mutate();

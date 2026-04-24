@@ -10,7 +10,7 @@ import {
 } from "@/models/Clients/ClientModels";
 import { SecretsFormData } from "@/components/SecretForm/SecretForm";
 import { client } from "@skoruba/duende.identityserver.admin.api.client";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { INT_MAX } from "@/helpers/NumberHelper";
 import { queryKeys, queryWithoutCache } from "./QueryKeys";
 import { getNowForUnspecifiedDb } from "@/helpers/DateTimeHelper";
@@ -18,7 +18,7 @@ import { getNowForUnspecifiedDb } from "@/helpers/DateTimeHelper";
 export const getClients = async (
   searchTerms: string,
   pageIndex: number,
-  pageSize: number
+  pageSize: number,
 ): Promise<ClientsData> => {
   const clientsClient = new client.ClientsClient(ApiHelper.getApiBaseUrl());
 
@@ -34,7 +34,7 @@ export const getClients = async (
           key: property.key!,
           value: property.value!,
         })),
-      })
+      }),
     ) ?? [];
 
   return { items, totalCount: clients.totalCount };
@@ -43,14 +43,14 @@ export const getClients = async (
 export const getClientSecrets = async (
   clientId: number,
   pageIndex: number,
-  pageSize: number
+  pageSize: number,
 ): Promise<ClientSecretsData> => {
   const clientClient = new client.ClientsClient(ApiHelper.getApiBaseUrl());
 
   const secrets = await clientClient.getSecrets(
     clientId,
     pageIndex + 1,
-    pageSize
+    pageSize,
   );
 
   const secretsData: ClientSecretData[] =
@@ -73,7 +73,7 @@ export const deleteClientSecret = async (secretId: number) => {
 
 export const getClientScopes = async (
   excludeIdentityResources: boolean,
-  excludeApiScopes: boolean
+  excludeApiScopes: boolean,
 ): Promise<ClientScope[]> => {
   const clientClient = new client.ClientsClient(ApiHelper.getApiBaseUrl());
 
@@ -81,7 +81,7 @@ export const getClientScopes = async (
     undefined,
     undefined,
     excludeIdentityResources,
-    excludeApiScopes
+    excludeApiScopes,
   );
 
   const items = scopes.map((scope) => ({ id: scope, label: scope }));
@@ -106,17 +106,21 @@ export const getSigningAlgorithms = async (): Promise<SelectItem[]> => {
 };
 
 export const useSigningAlgorithms = () => {
-  return useQuery(queryKeys.signingAlgorithms, getSigningAlgorithms);
+  return useQuery({
+    queryKey: [queryKeys.signingAlgorithms],
+    queryFn: getSigningAlgorithms,
+  });
 };
 
 export const useClient = (clientId: number) => {
-  return useQuery([queryKeys.client, clientId], () =>
-    getClient(Number(clientId!))
-  );
+  return useQuery({
+    queryKey: [queryKeys.client, clientId],
+    queryFn: () => getClient(Number(clientId!)),
+  });
 };
 
 export const getClient = async (
-  clientId: number
+  clientId: number,
 ): Promise<client.ClientApiDto> => {
   const clientClient = new client.ClientsClient(ApiHelper.getApiBaseUrl());
 
@@ -130,7 +134,7 @@ export const getStandardClaims = async (): Promise<string[]> => {
 };
 
 export const updateClient = async (
-  clientToUpdate: client.IClientApiDto
+  clientToUpdate: client.IClientApiDto,
 ): Promise<void> => {
   const clientClient = new client.ClientsClient(ApiHelper.getApiBaseUrl());
 
@@ -138,12 +142,12 @@ export const updateClient = async (
 };
 
 export const cloneClient = async (
-  clientToClone: client.IClientCloneApiDto
+  clientToClone: client.IClientCloneApiDto,
 ): Promise<void> => {
   const clientClient = new client.ClientsClient(ApiHelper.getApiBaseUrl());
 
   await clientClient.postClientClone(
-    new client.ClientCloneApiDto(clientToClone)
+    new client.ClientCloneApiDto(clientToClone),
   );
 };
 
@@ -185,48 +189,70 @@ const fetchSecretTypes = async (): Promise<SelectItem[]> => {
 
 export const useClientScopes = (
   excludeIdentityResources: boolean,
-  excludeApiScopes: boolean
+  excludeApiScopes: boolean,
 ) => {
-  return useQuery(
-    [queryKeys.clientScopes, excludeIdentityResources, excludeApiScopes],
-    () => getClientScopes(excludeIdentityResources, excludeApiScopes),
-    queryWithoutCache
-  );
+  return useQuery({
+    queryKey: [
+      queryKeys.clientScopes,
+      excludeIdentityResources,
+      excludeApiScopes,
+    ],
+    queryFn: () => getClientScopes(excludeIdentityResources, excludeApiScopes),
+    ...queryWithoutCache,
+  });
 };
 
 export const useGrantTypes = () => {
-  return useQuery(queryKeys.grantTypes, getGrantTypes);
+  return useQuery({
+    queryKey: [queryKeys.grantTypes],
+    queryFn: getGrantTypes,
+  });
 };
 
 export const useStandardClaims = () => {
-  return useQuery(queryKeys.standardClaims, getStandardClaims);
+  return useQuery({
+    queryKey: [queryKeys.standardClaims],
+    queryFn: getStandardClaims,
+  });
 };
 
 export const useAccessTokenTypes = () => {
-  return useQuery(queryKeys.accessTokenTypes, fetchAccessTokenTypes);
+  return useQuery({
+    queryKey: [queryKeys.accessTokenTypes],
+    queryFn: fetchAccessTokenTypes,
+  });
 };
 
 export const useRefreshTokenUsages = () => {
-  return useQuery(queryKeys.refreshTokenUsages, fetchRefreshTokenUsages);
+  return useQuery({
+    queryKey: [queryKeys.refreshTokenUsages],
+    queryFn: fetchRefreshTokenUsages,
+  });
 };
 
 export const useRefreshTokenExpirations = () => {
-  return useQuery(
-    queryKeys.refreshTokenExpirations,
-    fetchRefreshTokenExpirations
-  );
+  return useQuery({
+    queryKey: [queryKeys.refreshTokenExpirations],
+    queryFn: fetchRefreshTokenExpirations,
+  });
 };
 
 export const useDPoPValidationModes = () => {
-  return useQuery(queryKeys.dpopValidationModes, fetchDPoPValidationModes);
+  return useQuery({
+    queryKey: [queryKeys.dpopValidationModes],
+    queryFn: fetchDPoPValidationModes,
+  });
 };
 
 export const useSecretTypes = () => {
-  return useQuery(queryKeys.secretTypes, fetchSecretTypes);
+  return useQuery({
+    queryKey: [queryKeys.secretTypes],
+    queryFn: fetchSecretTypes,
+  });
 };
 
 export const createClient = async (
-  clientToAdd: client.IClientApiDto
+  clientToAdd: client.IClientApiDto,
 ): Promise<client.ClientApiDto> => {
   const clientClient = new client.ClientsClient(ApiHelper.getApiBaseUrl());
   return await clientClient.post(new client.ClientApiDto(clientToAdd));
@@ -234,7 +260,7 @@ export const createClient = async (
 
 export const addClientSecret = async (
   clientId: number,
-  secret: SecretsFormData
+  secret: SecretsFormData,
 ) => {
   await createClientSecret(clientId, {
     description: secret.secretDescription,
@@ -249,12 +275,12 @@ export const addClientSecret = async (
 
 export const createClientSecret = async (
   clientId: number,
-  clientSecret: client.IClientSecretApiDto
+  clientSecret: client.IClientSecretApiDto,
 ): Promise<void> => {
   const clientClient = new client.ClientsClient(ApiHelper.getApiBaseUrl());
   await clientClient.postSecret(
     clientId,
-    new client.ClientSecretApiDto(clientSecret)
+    new client.ClientSecretApiDto(clientSecret),
   );
 };
 
@@ -266,8 +292,8 @@ type CreateClientVariables = {
 export const useCreateClient = () => {
   const queryClient = useQueryClient();
 
-  return useMutation(
-    async (variables: CreateClientVariables) => {
+  return useMutation({
+    mutationFn: async (variables: CreateClientVariables) => {
       const { clientData, secret } = variables;
       const createdClient = await createClient(clientData);
 
@@ -277,14 +303,16 @@ export const useCreateClient = () => {
 
       return createdClient;
     },
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(queryKeys.clients);
-        queryClient.invalidateQueries(queryKeys.configurationIssues);
-        queryClient.invalidateQueries(queryKeys.configurationIssuesSummary);
-      },
-    }
-  );
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [queryKeys.clients] });
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.configurationIssues],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.configurationIssuesSummary],
+      });
+    },
+  });
 };
 
 export const deleteClient = async (id: number): Promise<void> => {
