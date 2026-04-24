@@ -367,6 +367,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UnitTests.Mappers
         {
             var mapper = CreateDefaultMapper();
 
+            // Intentional contract: return a non-null DTO wrapper with empty Providers for null input.
             var dto = mapper.MapUserLoginInfosToProvidersDto(null);
 
             dto.Should().NotBeNull();

@@ -246,6 +246,8 @@ namespace Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Identity.Mappers
         public TUserProvidersDto MapUserLoginInfosToProvidersDto(List<UserLoginInfo> source)
         {
             var providersDto = MapperInstanceFactory.CreateInstance<TUserProvidersDto>();
+            // Intentionally return a non-null container so callers can always access Providers safely.
+            // This is asymmetric to MapPagedXxx null handling by design.
             providersDto.Providers = source?.Select(MapUserLoginInfoToProviderDto).ToList() ?? [];
 
             return providersDto;

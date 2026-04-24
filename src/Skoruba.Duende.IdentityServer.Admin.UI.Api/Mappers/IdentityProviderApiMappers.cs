@@ -31,6 +31,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Mappers
             return source
                 .Where(x => !string.IsNullOrWhiteSpace(x.Value?.Name))
                 .Select(x => x.Value)
+                // Duplicate names are resolved with last-write-wins to match dictionary-like update semantics.
                 .GroupBy(x => x.Name, System.StringComparer.Ordinal)
                 .ToDictionary(x => x.Key, x => x.Last().Value, System.StringComparer.Ordinal);
         }
