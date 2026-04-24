@@ -284,3 +284,6 @@ __pycache__/
 appsettings.*.json
 
 /shared/nginx/certs/
+
+# macOS Finder metadata
+.DS_Store
