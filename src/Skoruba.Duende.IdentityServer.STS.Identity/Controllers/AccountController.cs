@@ -171,16 +171,12 @@ namespace Skoruba.Duende.IdentityServer.STS.Identity.Controllers
 
                 try
                 {
-                    result = await _signInManager.PasskeySignInAsync(model.Passkey.CredentialJson);
+                    (result, user) = await _signInManager.PasskeySignInWithUserAsync(model.Passkey.CredentialJson);
                 }
                 catch (InvalidOperationException ex)
                 {
                     _logger.LogWarning(ex, "Passkey sign-in failed because no passkey assertion was active or payload was invalid.");
                     result = Microsoft.AspNetCore.Identity.SignInResult.Failed;
-                }
-                if (result.Succeeded)
-                {
-                    user = await _userManager.GetUserAsync(User);
                 }
             }
             else if (ModelState.IsValid)

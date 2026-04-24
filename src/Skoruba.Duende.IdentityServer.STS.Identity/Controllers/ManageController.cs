@@ -808,8 +808,9 @@ namespace Skoruba.Duende.IdentityServer.STS.Identity.Controllers
 
             // Identity passkey name updates are not persisted by all stores yet.
             // Persist the name directly so rename is reliable across providers.
+            var userId = _userManager.GetUserId(User);
             var passkeyEntity = await _identityDbContext.Set<UserIdentityPasskey>()
-                .SingleOrDefaultAsync(userPasskey => userPasskey.CredentialId.SequenceEqual(credentialId));
+                .SingleOrDefaultAsync(userPasskey => userPasskey.UserId == userId && userPasskey.CredentialId.SequenceEqual(credentialId));
             if (passkeyEntity?.Data != null)
             {
                 passkeyEntity.Data.Name = model.Name;

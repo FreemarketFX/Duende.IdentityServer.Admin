@@ -2,6 +2,8 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 // Modified by Jan Skoruba
 
+#nullable enable
+
 using System;
 using System.IO;
 using System.Linq;
@@ -26,7 +28,7 @@ public class PasskeySubmitTagHelper : TagHelper
         public string Name { get; set; } = null!;
         
         [HtmlAttributeName("email-name")]
-        public string EmailName { get; set; }
+        public string? EmailName { get; set; }
 
         public PasskeySubmitTagHelper(IHttpContextAccessor httpContextAccessor)
         {
@@ -35,9 +37,9 @@ public class PasskeySubmitTagHelper : TagHelper
 
         public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
         {
-            // Get tokens
+            // Get tokens and store the antiforgery cookie so that subsequent passkey fetch requests can be validated
             var tokens = _httpContextAccessor.HttpContext?.RequestServices
-                .GetService<IAntiforgery>()?.GetTokens(_httpContextAccessor.HttpContext);
+                .GetService<IAntiforgery>()?.GetAndStoreTokens(_httpContextAccessor.HttpContext);
             
             // Button is the main element we want to create, capture all attributes etc.
             var buttonAttributes = output.Attributes.Where(it => it.Name != "operation" && it.Name != "name" && it.Name != "email-name").ToList();

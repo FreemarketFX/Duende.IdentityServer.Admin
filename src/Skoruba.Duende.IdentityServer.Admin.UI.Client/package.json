@@ -1,7 +1,7 @@
 {
   "name": "skoruba-duende-identityserver-admin",
   "private": true,
-"version": "3.0.0-preview.23",
+  "version": "3.0.0-preview.23",
   "description": "Skoruba Duende IdentityServer Admin UI",
   "author": "Jan Skoruba <jan@skoruba.com>",
   "license": "Apache-2.0",
@@ -74,6 +74,7 @@
     "cpy-cli": "^5.0.0",
     "del-cli": "^6.0.0",
     "eslint": "^10.0.1",
+    "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.4.3",
     "globals": "^17.2.0",
     "postcss": "8.4.49",
