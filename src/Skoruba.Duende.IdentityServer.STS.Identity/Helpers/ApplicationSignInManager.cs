@@ -79,7 +79,7 @@ namespace Skoruba.Duende.IdentityServer.STS.Identity.Helpers
             var assertionResult = await PerformPasskeyAssertionAsync(credentialJson);
             if (!assertionResult.Succeeded)
             {
-                return (SignInResult.Failed, null);
+                return (SignInResult.Failed, default);
             }
 
             var signInResult = await SignInOrTwoFactorAsync(assertionResult.User, isPersistent: false);
