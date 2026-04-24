@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createApiScope, updateApiScope } from "@/services/ApiScopeServices";
 import { createApiScopeSchema, ApiScopeFormData } from "./ApiScopeSchema";
 import ApiScopeTabs from "./ApiScopeTabs";
@@ -53,29 +53,31 @@ const ApiScopeForm: React.FC<ApiScopeFormProps> = ({
 
   const { DialogCmp } = useConfirmUnsavedChanges(form.formState.isDirty);
 
-  const mutation = useMutation(
-    (data: ApiScopeFormData) =>
+  const mutation = useMutation({
+    mutationFn: (data: ApiScopeFormData) =>
       mode === ApiScopeFormMode.Create
         ? createApiScope(data)
         : updateApiScope(Number(scopeId), data),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(queryKeys.apiScope);
-        queryClient.invalidateQueries(queryKeys.apiScopes);
-        // Invalidate configuration issues cache when API scope changes
-        queryClient.invalidateQueries(queryKeys.configurationIssues);
-        queryClient.invalidateQueries(queryKeys.configurationIssuesSummary);
-        toast({
-          title: <Hoorey />,
-          description:
-            mode === ApiScopeFormMode.Create
-              ? t("ApiScope.Actions.Created")
-              : t("ApiScope.Actions.Updated"),
-        });
-        navigateWithBlocker(ApiScopesUrl);
-      },
-    }
-  );
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [queryKeys.apiScope] });
+      queryClient.invalidateQueries({ queryKey: [queryKeys.apiScopes] });
+      // Invalidate configuration issues cache when API scope changes
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.configurationIssues],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.configurationIssuesSummary],
+      });
+      toast({
+        title: <Hoorey />,
+        description:
+          mode === ApiScopeFormMode.Create
+            ? t("ApiScope.Actions.Created")
+            : t("ApiScope.Actions.Updated"),
+      });
+      navigateWithBlocker(ApiScopesUrl);
+    },
+  });
 
   return (
     <>

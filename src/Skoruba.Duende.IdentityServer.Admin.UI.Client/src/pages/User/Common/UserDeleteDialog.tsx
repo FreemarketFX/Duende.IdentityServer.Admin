@@ -1,6 +1,6 @@
 import { Trans, useTranslation } from "react-i18next";
 import DeleteDialog from "@/components/DeleteDialog/DeleteDialog";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteUser } from "@/services/UserServices";
 import { queryKeys } from "@/services/QueryKeys";
 import { toast } from "@/components/ui/use-toast";
@@ -24,9 +24,10 @@ const UserDeleteDialog: React.FC<UserDeleteDialogProps> = ({
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
-  const mutation = useMutation(() => deleteUser(userId), {
+  const mutation = useMutation({
+    mutationFn: () => deleteUser(userId),
     onSuccess: () => {
-      queryClient.invalidateQueries(queryKeys.users);
+      queryClient.invalidateQueries({ queryKey: [queryKeys.users] });
       toast({
         title: <Hoorey />,
         description: t("User.Actions.Deleted"),

@@ -1,37 +1,51 @@
 ﻿// Copyright (c) Jan Škoruba. All Rights Reserved.
 // Licensed under the Apache License, Version 2.0.
 
-using AutoMapper;
+using System.Linq;
 using Duende.IdentityServer.EntityFramework.Entities;
+using Riok.Mapperly.Abstractions;
 using Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Identity.Dtos.Grant;
 using Skoruba.Duende.IdentityServer.Admin.EntityFramework.Entities;
 using Skoruba.Duende.IdentityServer.Admin.EntityFramework.Extensions.Common;
 
 namespace Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Identity.Mappers
 {
+    [Mapper(RequiredMappingStrategy = RequiredMappingStrategy.None)]
+    internal static partial class PersistedGrantMapper
+    {
+        public static partial PersistedGrantDto ToPersistedGrantDto(PersistedGrant source);
+        public static partial PersistedGrantDto ToPersistedGrantDto(PersistedGrantDataView source);
+    }
+
     public static class PersistedGrantMappers
     {
-        static PersistedGrantMappers()
-        {
-            Mapper = new MapperConfiguration(cfg =>cfg.AddProfile<PersistedGrantMapperProfile>())
-                .CreateMapper();
-        }
-
-        internal static IMapper Mapper { get; }
-
         public static PersistedGrantsDto ToModel(this PagedList<PersistedGrantDataView> grant)
         {
-            return grant == null ? null : Mapper.Map<PersistedGrantsDto>(grant);
+            if (grant == null) return null;
+
+            return new PersistedGrantsDto
+            {
+                TotalCount = grant.TotalCount,
+                PageSize = grant.PageSize,
+                PersistedGrants = grant.Data.Select(PersistedGrantMapper.ToPersistedGrantDto).ToList()
+            };
         }
 
         public static PersistedGrantsDto ToModel(this PagedList<PersistedGrant> grant)
         {
-            return grant == null ? null : Mapper.Map<PersistedGrantsDto>(grant);
+            if (grant == null) return null;
+
+            return new PersistedGrantsDto
+            {
+                TotalCount = grant.TotalCount,
+                PageSize = grant.PageSize,
+                PersistedGrants = grant.Data.Select(PersistedGrantMapper.ToPersistedGrantDto).ToList()
+            };
         }
 
         public static PersistedGrantDto ToModel(this PersistedGrant grant)
         {
-            return grant == null ? null : Mapper.Map<PersistedGrantDto>(grant);
+            return grant == null ? null : PersistedGrantMapper.ToPersistedGrantDto(grant);
         }
     }
 }

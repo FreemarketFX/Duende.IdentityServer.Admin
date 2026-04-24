@@ -4,7 +4,7 @@ import Page from "@/components/Page/Page";
 import Loading from "@/components/Loading/Loading";
 import { Breadcrumbs } from "@/components/Breadcrumbs/Breadcrumbs";
 import { ApiScopesUrl } from "@/routing/Urls";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { getApiScope } from "@/services/ApiScopeServices";
 import ApiScopeForm from "../Common/ApiScopeForm";
 import { queryKeys } from "@/services/QueryKeys";
@@ -28,10 +28,10 @@ const ApiScopeEdit = () => {
     (to: string) => void
   >(() => () => {});
 
-  const { data: scopeData, isLoading } = useQuery(
-    [queryKeys.apiScope, scopeId],
-    () => getApiScope(Number(scopeId))
-  );
+  const { data: scopeData, isLoading } = useQuery({
+    queryKey: [queryKeys.apiScope, scopeId],
+    queryFn: () => getApiScope(Number(scopeId)),
+  });
 
   const onApiScopeDeleted = useCallback(() => {
     navigateWithBlocker(ApiScopesUrl);

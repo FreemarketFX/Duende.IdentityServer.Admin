@@ -15,7 +15,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.UnitTests.Mappers
         {
             var apiResourceApiDto = ApiResourceApiDtoMock.GenerateRandomApiResource(1);
             
-            var apiResourceDto = apiResourceApiDto.ToApiResourceApiModel<ApiResourceDto>();
+            var apiResourceDto = apiResourceApiDto.ToApiResourceDto();
 
             apiResourceDto.Should().NotBeNull();
 
@@ -27,7 +27,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.UnitTests.Mappers
         {
             var apiResourceDto = ApiResourceDtoMock.GenerateRandomApiResource(1);
 
-            var apiResourceApiDto = apiResourceDto.ToApiResourceApiModel<ApiResourceApiDto>();
+            var apiResourceApiDto = apiResourceDto.ToApiResourceApiDto();
 
             apiResourceApiDto.Should().BeEquivalentTo(apiResourceDto, options => options
                 .Excluding(x => x.AllowedAccessTokenSigningAlgorithmsItems)
@@ -40,7 +40,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.UnitTests.Mappers
         {
             var apiSecretApiDto = ApiResourceApiDtoMock.GenerateRandomApiSecret(1);
 
-            var apiSecretsDto = apiSecretApiDto.ToApiResourceApiModel<ApiSecretsDto>();
+            var apiSecretsDto = apiSecretApiDto.ToApiSecretsDto();
 
             apiSecretApiDto.Id.Should().Be(apiSecretsDto.ApiSecretId);
 
@@ -52,7 +52,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.UnitTests.Mappers
         {
             var apiResourceSecret = ApiResourceDtoMock.GenerateRandomApiSecret(1, 1);
 
-            var apiResourceApiDto = apiResourceSecret.ToApiResourceApiModel<ApiSecretApiDto>();
+            var apiResourceApiDto = apiResourceSecret.ToApiSecretApiDto();
 
             apiResourceSecret.ApiResourceId.Should().Be(apiResourceApiDto.Id);
 
@@ -73,7 +73,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.UnitTests.Mappers
         {
             var apiResourcePropertyApiDto = ApiResourceApiDtoMock.GenerateRandomApiResourceProperty(1);
 
-            var apiResourcePropertiesDto = apiResourcePropertyApiDto.ToApiResourceApiModel<ApiResourcePropertiesDto>();
+            var apiResourcePropertiesDto = apiResourcePropertyApiDto.ToApiResourcePropertiesDto();
 
             apiResourcePropertyApiDto.Id.Should().Be(apiResourcePropertiesDto.ApiResourcePropertyId);
 
@@ -85,7 +85,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.UnitTests.Mappers
         {
             var apiResourcePropertyDto = ApiResourceDtoMock.GenerateRandomApiResourceProperty(1, 1);
 
-            var apiResourcePropertyApiDto = apiResourcePropertyDto.ToApiResourceApiModel<ApiResourcePropertyApiDto>();
+            var apiResourcePropertyApiDto = apiResourcePropertyDto.ToApiResourcePropertyApiDto();
 
             apiResourcePropertyDto.ApiResourcePropertyId.Should().Be(apiResourcePropertyApiDto.Id);
 

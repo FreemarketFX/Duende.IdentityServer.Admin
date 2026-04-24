@@ -51,6 +51,6 @@ export const queryKeys = {
 } as const;
 
 export const queryWithoutCache = {
-  cacheTime: 0,
+  gcTime: 0,
   staleTime: 0,
 };

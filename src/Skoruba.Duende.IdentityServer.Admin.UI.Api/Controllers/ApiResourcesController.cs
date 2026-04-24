@@ -34,7 +34,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
         public async Task<ActionResult<ApiResourcesApiDto>> Get(string searchText, int page = 1, int pageSize = 10)
         {
             var apiResourcesDto = await _apiResourceService.GetApiResourcesAsync(searchText, page, pageSize);
-            var apiResourcesApiDto = apiResourcesDto.ToApiResourceApiModel<ApiResourcesApiDto>();
+            var apiResourcesApiDto = apiResourcesDto.ToApiResourcesApiDto();
 
             return Ok(apiResourcesApiDto);
         }
@@ -67,7 +67,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
         public async Task<ActionResult<ApiResourceApiDto>> Get(int id)
         {
             var apiResourceDto = await _apiResourceService.GetApiResourceAsync(id);
-            var apiResourceApiDto = apiResourceDto.ToApiResourceApiModel<ApiResourceApiDto>();
+            var apiResourceApiDto = apiResourceDto.ToApiResourceApiDto();
 
             return Ok(apiResourceApiDto);
         }
@@ -77,7 +77,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
         [ProducesResponseType(400)]
         public async Task<ActionResult<ApiResourceApiDto>> Post([FromBody] ApiResourceApiDto apiResourceApi)
         {
-            var apiResourceDto = apiResourceApi.ToApiResourceApiModel<ApiResourceDto>();
+            var apiResourceDto = apiResourceApi.ToApiResourceDto();
 
             if (!apiResourceDto.Id.Equals(default))
             {
@@ -96,7 +96,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> Put([FromBody] ApiResourceApiDto apiResourceApi)
         {
-            var apiResourceDto = apiResourceApi.ToApiResourceApiModel<ApiResourceDto>();
+            var apiResourceDto = apiResourceApi.ToApiResourceDto();
 
             await _apiResourceService.GetApiResourceAsync(apiResourceDto.Id);
             await _apiResourceService.UpdateApiResourceAsync(apiResourceDto);
@@ -121,7 +121,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
         public async Task<ActionResult<ApiSecretsApiDto>> GetSecrets(int id, int page = 1, int pageSize = 10)
         {
             var apiSecretsDto = await _apiResourceService.GetApiSecretsAsync(id, page, pageSize);
-            var apiSecretsApiDto = apiSecretsDto.ToApiResourceApiModel<ApiSecretsApiDto>();
+            var apiSecretsApiDto = apiSecretsDto.ToApiSecretsApiDto();
 
             return Ok(apiSecretsApiDto);
         }
@@ -130,7 +130,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
         public async Task<ActionResult<ApiSecretApiDto>> GetSecret(int secretId)
         {
             var apiSecretsDto = await _apiResourceService.GetApiSecretAsync(secretId);
-            var apiSecretApiDto = apiSecretsDto.ToApiResourceApiModel<ApiSecretApiDto>();
+            var apiSecretApiDto = apiSecretsDto.ToApiSecretApiDto();
 
             return Ok(apiSecretApiDto);
         }
@@ -140,7 +140,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
         [ProducesResponseType(400)]
         public async Task<ActionResult<ApiSecretApiDto>> PostSecret(int id, [FromBody] ApiSecretApiDto clientSecretApi)
         {
-            var secretsDto = clientSecretApi.ToApiResourceApiModel<ApiSecretsDto>();
+            var secretsDto = clientSecretApi.ToApiSecretsDto();
             secretsDto.ApiResourceId = id;
 
             if (!secretsDto.ApiSecretId.Equals(default))
@@ -173,7 +173,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
         public async Task<ActionResult<ApiResourcePropertiesApiDto>> GetProperties(int id, int page = 1, int pageSize = 10)
         {
             var apiResourcePropertiesDto = await _apiResourceService.GetApiResourcePropertiesAsync(id, page, pageSize);
-            var apiResourcePropertiesApiDto = apiResourcePropertiesDto.ToApiResourceApiModel<ApiResourcePropertiesApiDto>();
+            var apiResourcePropertiesApiDto = apiResourcePropertiesDto.ToApiResourcePropertiesApiDto();
 
             return Ok(apiResourcePropertiesApiDto);
         }
@@ -182,7 +182,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
         public async Task<ActionResult<ApiResourcePropertyApiDto>> GetProperty(int propertyId)
         {
             var apiResourcePropertiesDto = await _apiResourceService.GetApiResourcePropertyAsync(propertyId);
-            var apiResourcePropertyApiDto = apiResourcePropertiesDto.ToApiResourceApiModel<ApiResourcePropertyApiDto>();
+            var apiResourcePropertyApiDto = apiResourcePropertiesDto.ToApiResourcePropertyApiDto();
 
             return Ok(apiResourcePropertyApiDto);
         }
@@ -192,7 +192,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
         [ProducesResponseType(400)]
         public async Task<ActionResult<ApiResourcePropertyApiDto>> PostProperty(int id, [FromBody] ApiResourcePropertyApiDto apiPropertyApi)
         {
-            var apiResourcePropertiesDto = apiPropertyApi.ToApiResourceApiModel<ApiResourcePropertiesDto>();
+            var apiResourcePropertiesDto = apiPropertyApi.ToApiResourcePropertiesDto();
             apiResourcePropertiesDto.ApiResourceId = id;
 
             if (!apiResourcePropertiesDto.ApiResourcePropertyId.Equals(default))

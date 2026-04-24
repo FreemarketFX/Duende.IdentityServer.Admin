@@ -204,4 +204,34 @@
   <data name="VerificationSent" xml:space="preserve">
     <value>Verification email sent. Please check your email.</value>
   </data>
+  <data name="PasskeyNotFound" xml:space="preserve">
+    <value>Could not find the passkey.</value>
+  </data>
+  <data name="PasskeyInvalidFormat" xml:space="preserve">
+    <value>The specified passkey ID had an invalid format.</value>
+  </data>
+  <data name="PasskeyDeleted" xml:space="preserve">
+    <value>The passkey was deleted from your account.</value>
+  </data>
+  <data name="PasskeyDeleteFailed" xml:space="preserve">
+    <value>The passkey could not be deleted from your account.</value>
+  </data>
+  <data name="PasskeyAddError" xml:space="preserve">
+    <value>Could not add a passkey: {0}</value>
+  </data>
+  <data name="PasskeyNotProvided" xml:space="preserve">
+    <value>The browser did not provide a passkey.</value>
+  </data>
+  <data name="PasskeyAddFailed" xml:space="preserve">
+    <value>The passkey could not be added to your account.</value>
+  </data>
+  <data name="PasskeyAdded" xml:space="preserve">
+    <value>The passkey was added to your account. Give it an easy to remember name.</value>
+  </data>
+  <data name="PasskeyRenamed" xml:space="preserve">
+    <value>The passkey was renamed successfully.</value>
+  </data>
+  <data name="PasskeyRenameFailed" xml:space="preserve">
+    <value>The passkey could not be renamed.</value>
+  </data>
 </root>

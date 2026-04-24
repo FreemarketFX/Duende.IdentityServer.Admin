@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Skoruba.AuditLogging.Services;
+using Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Dtos.Configuration;
 using Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Mappers;
 using Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Resources;
 using Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Services;
@@ -239,6 +240,34 @@ namespace Skoruba.Duende.IdentityServer.Admin.UnitTests.Services
 
                 //Assert updated client
                 updatedClientDto.Should().BeEquivalentTo(updatedClient, options => options.Excluding(o => o.Id));
+            }
+        }
+
+        [Fact]
+        public async Task UpdateClientAsync_WithClaimsUpdateEnabled_DoesNotFailOnExistingClaimIds()
+        {
+            using (var context = GetDbContext())
+            {
+                var clientService = GetClientService(context);
+
+                var client = ClientDtoMock.GenerateRandomClient(0);
+                client.Claims.Add(new ClientClaimDto
+                {
+                    Type = "sub",
+                    Value = Guid.NewGuid().ToString()
+                });
+
+                await clientService.AddClientAsync(client);
+
+                var clientEntity = await context.Clients.Where(x => x.ClientId == client.ClientId).SingleAsync();
+                var existingClient = await clientService.GetClientAsync(clientEntity.Id);
+                context.Entry(clientEntity).State = EntityState.Detached;
+
+                await clientService.UpdateClientAsync(existingClient, updateClientClaims: true, updateClientProperties: false);
+
+                var updatedClient = await clientService.GetClientAsync(clientEntity.Id);
+                updatedClient.Claims.Should().HaveCount(1);
+                updatedClient.Claims[0].Type.Should().Be("sub");
             }
         }
 

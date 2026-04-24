@@ -8,7 +8,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -19,9 +18,9 @@ using Skoruba.Duende.IdentityServer.Admin.EntityFramework.Identity.Repositories.
 
 namespace Skoruba.Duende.IdentityServer.Admin.EntityFramework.Identity.Repositories
 {
-    public class IdentityRepository<TIdentityDbContext, TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken>
+    public class IdentityRepository<TIdentityDbContext, TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken, TUserPasskey>
         : IIdentityRepository<TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken>
-        where TIdentityDbContext : IdentityDbContext<TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken>
+        where TIdentityDbContext : IdentityDbContext<TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken, TUserPasskey>
         where TUser : IdentityUser<TKey>
         where TRole : IdentityRole<TKey>
         where TKey : IEquatable<TKey>
@@ -30,23 +29,21 @@ namespace Skoruba.Duende.IdentityServer.Admin.EntityFramework.Identity.Repositor
         where TUserLogin : IdentityUserLogin<TKey>
         where TRoleClaim : IdentityRoleClaim<TKey>
         where TUserToken : IdentityUserToken<TKey>
+        where TUserPasskey : IdentityUserPasskey<TKey>
     {
         protected readonly TIdentityDbContext DbContext;
         protected readonly UserManager<TUser> UserManager;
         protected readonly RoleManager<TRole> RoleManager;
-        protected readonly IMapper Mapper;
 
         public bool AutoSaveChanges { get; set; } = true;
 
         public IdentityRepository(TIdentityDbContext dbContext,
             UserManager<TUser> userManager,
-            RoleManager<TRole> roleManager,
-            IMapper mapper)
+            RoleManager<TRole> roleManager)
         {
             DbContext = dbContext;
             UserManager = userManager;
             RoleManager = roleManager;
-            Mapper = mapper;
         }
 
         public virtual TKey ConvertKeyFromString(string id)
@@ -160,9 +157,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.EntityFramework.Identity.Repositor
 
         public virtual async Task<(IdentityResult identityResult, TKey roleId)> UpdateRoleAsync(TRole role)
         {
-            var existingRole = await RoleManager.FindByIdAsync(role.Id.ToString());
-            Mapper.Map(role, existingRole);
-            var identityResult = await RoleManager.UpdateAsync(existingRole);
+            var identityResult = await RoleManager.UpdateAsync(role);
 
             return (identityResult, role.Id);
         }
@@ -193,9 +188,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.EntityFramework.Identity.Repositor
 
         public virtual async Task<(IdentityResult identityResult, TKey userId)> UpdateUserAsync(TUser user)
         {
-            var userIdentity = await UserManager.FindByIdAsync(user.Id.ToString());
-            Mapper.Map(user, userIdentity);
-            var identityResult = await UserManager.UpdateAsync(userIdentity);
+            var identityResult = await UserManager.UpdateAsync(user);
 
             return (identityResult, user.Id);
         }

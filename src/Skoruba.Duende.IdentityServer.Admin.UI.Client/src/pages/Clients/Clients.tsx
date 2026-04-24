@@ -1,6 +1,6 @@
 import React from "react";
 import useSearch from "@/hooks/useSearch";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { getClients } from "@/services/ClientServices";
 import { Button } from "@/components/ui/button";
 import Page from "@/components/Page/Page";
@@ -31,11 +31,12 @@ const Clients: React.FC = () => {
     },
   });
 
-  const clients = useQuery(
-    [queryKeys.clients, pagination, searchTerm],
-    () => getClients(searchTerm, pagination.pageIndex, pagination.pageSize),
-    { keepPreviousData: true }
-  );
+  const clients = useQuery({
+    queryKey: [queryKeys.clients, pagination, searchTerm],
+    queryFn: () =>
+      getClients(searchTerm, pagination.pageIndex, pagination.pageSize),
+    placeholderData: (previousData) => previousData,
+  });
 
   const headerActions = (
     <div className="flex flex-col space-y-3 md:flex-row md:items-center md:space-x-3 md:space-y-0">

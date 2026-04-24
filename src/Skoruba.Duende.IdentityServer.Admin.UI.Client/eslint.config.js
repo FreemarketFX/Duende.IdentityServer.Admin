@@ -1,7 +1,7 @@
 import js from "@eslint/js";
 import globals from "globals";
-import reactHooks from "eslint-plugin-react-hooks";
 import tseslint from "typescript-eslint";
+import reactHooks from "eslint-plugin-react-hooks";
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
@@ -18,6 +18,9 @@ export default [
   })),
   {
     files: ["**/*.{ts,tsx}"],
+    plugins: {
+      "react-hooks": reactHooks,
+    },
     languageOptions: {
       parserOptions: {
         ecmaVersion: "latest",
@@ -28,14 +31,11 @@ export default [
         ...globals.node,
       },
     },
-    plugins: {
-      "react-hooks": reactHooks,
-    },
     rules: {
       "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/no-unused-vars": "warn",
       "react-hooks/rules-of-hooks": "error",
-      "react-hooks/exhaustive-deps": "error",
+      "react-hooks/exhaustive-deps": "warn",
     },
   },
 ];

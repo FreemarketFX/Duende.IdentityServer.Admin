@@ -1,6 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { useQuery, useMutation, useQueryClient } from "react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { client } from "@skoruba/duende.identityserver.admin.api.client";
 import {
   Dialog,
@@ -37,35 +37,37 @@ const ConfigurationRuleModal: React.FC<ConfigurationRuleModalProps> = ({
   const isEditMode = !!rule;
   const queryClient = useQueryClient();
 
-  const { data: metadata, isLoading: metadataLoading } = useQuery(
-    ["configurationRulesMetadata"],
-    getConfigurationRulesMetadata,
-    { enabled: isOpen }
-  );
+  const { data: metadata, isLoading: metadataLoading } = useQuery({
+    queryKey: ["configurationRulesMetadata"],
+    queryFn: getConfigurationRulesMetadata,
+    enabled: isOpen,
+  });
 
-  const saveMutation = useMutation(
-    async (data: client.ConfigurationRuleDto) => {
+  const saveMutation = useMutation({
+    mutationFn: async (data: client.ConfigurationRuleDto) => {
       if (isEditMode && rule) {
         await updateConfigurationRule(rule.id, data);
       } else {
         await createConfigurationRule(data);
       }
     },
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries([queryKeys.configurationIssues]);
-        queryClient.invalidateQueries([queryKeys.configurationIssuesSummary]);
-        onSuccess();
-      },
-      onError: () => {
-        toast({
-          variant: "destructive",
-          title: t("ConfigurationRules.SaveFailed"),
-          description: t("ConfigurationRules.GenericError"),
-        });
-      },
-    }
-  );
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.configurationIssues],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [queryKeys.configurationIssuesSummary],
+      });
+      onSuccess();
+    },
+    onError: () => {
+      toast({
+        variant: "destructive",
+        title: t("ConfigurationRules.SaveFailed"),
+        description: t("ConfigurationRules.GenericError"),
+      });
+    },
+  });
 
   const handleFormSubmit = (data: client.ConfigurationRuleDto) => {
     saveMutation.mutate(data);

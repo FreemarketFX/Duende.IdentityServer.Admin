@@ -1,3 +1,4 @@
+import React from "react";
 import { AlertTriangle, Info, XCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { client } from "@skoruba/duende.identityserver.admin.api.client";
@@ -15,8 +16,8 @@ export function IssueTypeBadge({ type, label }: Props) {
     String(type) === "Warning" ||
     type === client.ConfigurationIssueTypeView.Warning;
 
-  let colorClasses = "";
-  let icon = null;
+  let colorClasses: string;
+  let icon: React.ReactNode;
 
   if (isError) {
     colorClasses =

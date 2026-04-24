@@ -6,17 +6,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using AutoMapper;
 
 namespace Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Mappers.Converters
 {
-    public class AllowedSigningAlgorithmsConverter :
-        IValueConverter<List<string>, string>,
-        IValueConverter<string, List<string>>
+    public class AllowedSigningAlgorithmsConverter
     {
-        public static AllowedSigningAlgorithmsConverter Converter = new AllowedSigningAlgorithmsConverter();
+        public static AllowedSigningAlgorithmsConverter Converter { get; } = new AllowedSigningAlgorithmsConverter();
 
-        public string Convert(List<string> sourceMember, ResolutionContext context)
+        public string Convert(List<string> sourceMember, object _ = null)
         {
             if (sourceMember == null || !sourceMember.Any())
             {
@@ -25,10 +22,10 @@ namespace Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Mappers.Converters
             return sourceMember.Aggregate((x, y) => $"{x},{y}");
         }
 
-        public List<string> Convert(string sourceMember, ResolutionContext context)
+        public List<string> Convert(string sourceMember, object _ = null)
         {
             var list = new List<string>();
-            if (!String.IsNullOrWhiteSpace(sourceMember))
+            if (!string.IsNullOrWhiteSpace(sourceMember))
             {
                 sourceMember = sourceMember.Trim();
                 foreach (var item in sourceMember.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Distinct())

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import Page from "@/components/Page/Page";
 import Loading from "@/components/Loading/Loading";
@@ -18,11 +18,11 @@ const ConfigurationRules: React.FC = () => {
   const [selectedRule, setSelectedRule] =
     useState<client.ConfigurationRuleDto | null>(null);
 
-  const rules = useQuery(
-    [queryKeys.configurationRules],
-    () => getConfigurationRules(),
-    { keepPreviousData: true }
-  );
+  const rules = useQuery({
+    queryKey: [queryKeys.configurationRules],
+    queryFn: () => getConfigurationRules(),
+    placeholderData: (previousData) => previousData,
+  });
 
   const handleAddNew = () => {
     setSelectedRule(null);

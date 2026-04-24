@@ -50,7 +50,8 @@ export enum View {
 const ClientSummaryStep = () => {
   const { formData, onHandleBack, resetForm } =
     useFormState<ClientWizardFormSummaryData>();
-  const { mutate: createClientAction, isLoading } = useCreateClient();
+  const { mutate: createClientAction, isPending: isLoading } =
+    useCreateClient();
   const [view, setView] = useState<View>(View.Tree);
   const { t } = useTranslation();
 
@@ -92,7 +93,7 @@ const ClientSummaryStep = () => {
 
     return mapFormDataToCreateClient(
       filteredFormData,
-      additionData?.grantTypes ?? []
+      additionData?.grantTypes ?? [],
     );
   };
 
@@ -124,7 +125,7 @@ const ClientSummaryStep = () => {
 
             navigate(ClientEditUrl.replace(":clientId", String(data.id)));
           },
-        }
+        },
       );
     } catch {
       toast({

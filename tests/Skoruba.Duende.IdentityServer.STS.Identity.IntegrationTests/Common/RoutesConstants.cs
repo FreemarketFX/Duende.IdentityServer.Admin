@@ -16,6 +16,7 @@ namespace Skoruba.Duende.IdentityServer.STS.Identity.IntegrationTests.Common
                 "PersonalData",
                 "DeletePersonalData",
                 "ExternalLogins",
+                "Passkeys",
                 "TwoFactorAuthentication",
                 "ResetAuthenticatorWarning",
                 "EnableAuthenticator"
