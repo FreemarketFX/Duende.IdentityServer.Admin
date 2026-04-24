@@ -18,7 +18,7 @@ using Skoruba.Duende.IdentityServer.Admin.EntityFramework.Interfaces;
 
 namespace Skoruba.Duende.IdentityServer.Admin.EntityFramework.Identity.Repositories
 {
-public class PersistedGrantAspNetIdentityRepository<TIdentityDbContext, TPersistedGrantDbContext, TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken, TUserPasskey> : IPersistedGrantAspNetIdentityRepository
+    public class PersistedGrantAspNetIdentityRepository<TIdentityDbContext, TPersistedGrantDbContext, TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken, TUserPasskey> : IPersistedGrantAspNetIdentityRepository
         where TIdentityDbContext : IdentityDbContext<TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken, TUserPasskey>
         where TPersistedGrantDbContext : DbContext, IAdminPersistedGrantDbContext
         where TUser : IdentityUser<TKey>
