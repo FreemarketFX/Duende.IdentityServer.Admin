@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using AutoMapper;
 using IdentityModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -16,6 +15,7 @@ using Skoruba.Duende.IdentityServer.Admin.UI.Api.Dtos.Roles;
 using Skoruba.Duende.IdentityServer.Admin.UI.Api.Dtos.Users;
 using Skoruba.Duende.IdentityServer.Admin.UI.Api.ExceptionHandling;
 using Skoruba.Duende.IdentityServer.Admin.UI.Api.Helpers.Localization;
+using Skoruba.Duende.IdentityServer.Admin.UI.Api.Mappers;
 using Skoruba.Duende.IdentityServer.Admin.UI.Api.Resources;
 
 namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
@@ -56,7 +56,6 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
             TUsersDto, TRolesDto, TUserRolesDto, TUserClaimsDto,
             TUserProviderDto, TUserProvidersDto, TUserChangePasswordDto, TRoleClaimsDto, TUserClaimDto, TRoleClaimDto>> _localizer;
 
-        private readonly IMapper _mapper;
         private readonly IApiErrorResources _errorResources;
 
         public UsersController(IIdentityService<TUserDto, TRoleDto, TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken,
@@ -64,11 +63,10 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
                 TUserProviderDto, TUserProvidersDto, TUserChangePasswordDto, TRoleClaimsDto, TUserClaimDto, TRoleClaimDto> identityService,
             IGenericControllerLocalizer<UsersController<TUserDto, TRoleDto, TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken,
                 TUsersDto, TRolesDto, TUserRolesDto, TUserClaimsDto,
-                TUserProviderDto, TUserProvidersDto, TUserChangePasswordDto, TRoleClaimsDto, TUserClaimDto, TRoleClaimDto>> localizer, IMapper mapper, IApiErrorResources errorResources)
+                TUserProviderDto, TUserProvidersDto, TUserChangePasswordDto, TRoleClaimsDto, TUserClaimDto, TRoleClaimDto>> localizer, IApiErrorResources errorResources)
         {
             _identityService = identityService;
             _localizer = localizer;
-            _mapper = mapper;
             _errorResources = errorResources;
         }
 
@@ -143,7 +141,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
         public async Task<ActionResult<UserRolesApiDto<TRoleDto>>> GetUserRoles(TKey id, int page = 1, int pageSize = 10)
         {
             var userRoles = await _identityService.GetUserRolesAsync(id.ToString(), page, pageSize);
-            var userRolesApiDto = _mapper.Map<UserRolesApiDto<TRoleDto>>(userRoles);
+            var userRolesApiDto = userRoles.ToUserRolesApiDto<TRoleDto, TKey>();
 
             return Ok(userRolesApiDto);
         }
@@ -154,7 +152,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> PostUserRoles([FromBody] UserRoleApiDto<TKey> role)
         {
-            var userRolesDto = _mapper.Map<TUserRolesDto>(role);
+            var userRolesDto = role.ToUserRolesDto<TUserRolesDto, TKey>();
 
             await _identityService.GetUserAsync(userRolesDto.UserId.ToString());
             await _identityService.GetRoleAsync(userRolesDto.RoleId.ToString());
@@ -169,7 +167,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> DeleteUserRoles([FromBody] UserRoleApiDto<TKey> role)
         {
-            var userRolesDto = _mapper.Map<TUserRolesDto>(role);
+            var userRolesDto = role.ToUserRolesDto<TUserRolesDto, TKey>();
 
             await _identityService.GetUserAsync(userRolesDto.UserId.ToString());
             await _identityService.GetRoleAsync(userRolesDto.RoleId.ToString());
@@ -184,7 +182,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
         {
             var claims = await _identityService.GetUserClaimsAsync(id.ToString(), page, pageSize);
 
-            var userClaimsApiDto = _mapper.Map<UserClaimsApiDto<TKey>>(claims);
+            var userClaimsApiDto = claims.ToUserClaimsApiDto<TUserClaimDto, TKey>();
 
             return Ok(userClaimsApiDto);
         }
@@ -194,7 +192,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> PostUserClaims([FromBody] UserClaimApiDto<TKey> claim)
         {
-            var userClaimDto = _mapper.Map<TUserClaimsDto>(claim);
+            var userClaimDto = claim.ToUserClaimsDto<TUserClaimsDto, TKey>();
 
             if (!userClaimDto.ClaimId.Equals(default))
             {
@@ -211,7 +209,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> PutUserClaims([FromBody] UserClaimApiDto<TKey> claim)
         {
-            var userClaimDto = _mapper.Map<TUserClaimsDto>(claim);
+            var userClaimDto = claim.ToUserClaimsDto<TUserClaimsDto, TKey>();
 
             await _identityService.GetUserClaimAsync(userClaimDto.UserId.ToString(), userClaimDto.ClaimId);
             await _identityService.UpdateUserClaimsAsync(userClaimDto);
@@ -240,7 +238,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
         public async Task<ActionResult<UserProvidersApiDto<TKey>>> GetUserProviders(TKey id)
         {
             var userProvidersDto = await _identityService.GetUserProvidersAsync(id.ToString());
-            var userProvidersApiDto = _mapper.Map<UserProvidersApiDto<TKey>>(userProvidersDto);
+            var userProvidersApiDto = userProvidersDto.ToUserProvidersApiDto<TUserProviderDto, TKey>();
 
             return Ok(userProvidersApiDto);
         }
@@ -250,7 +248,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> DeleteUserProviders([FromBody] UserProviderDeleteApiDto<TKey> provider)
         {
-            var providerDto = _mapper.Map<TUserProviderDto>(provider);
+            var providerDto = provider.ToUserProviderDto<TUserProviderDto, TKey>();
 
             await _identityService.GetUserProviderAsync(providerDto.UserId.ToString(), providerDto.ProviderKey);
             await _identityService.DeleteUserProvidersAsync(providerDto);
@@ -263,7 +261,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> PostChangePassword([FromBody] UserChangePasswordApiDto<TKey> password)
         {
-            var userChangePasswordDto = _mapper.Map<TUserChangePasswordDto>(password);
+            var userChangePasswordDto = password.ToUserChangePasswordDto<TUserChangePasswordDto, TKey>();
 
             await _identityService.UserChangePasswordAsync(userChangePasswordDto);
 
@@ -274,7 +272,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
         public async Task<ActionResult<RoleClaimsApiDto<TKey>>> GetRoleClaims(TKey id, string claimSearchText, int page = 1, int pageSize = 10)
         {
             var roleClaimsDto = await _identityService.GetUserRoleClaimsAsync(id.ToString(), claimSearchText, page, pageSize);
-            var roleClaimsApiDto = _mapper.Map<RoleClaimsApiDto<TKey>>(roleClaimsDto);
+            var roleClaimsApiDto = roleClaimsDto.ToRoleClaimsApiDto<TRoleClaimDto, TKey>();
 
             return Ok(roleClaimsApiDto);
         }

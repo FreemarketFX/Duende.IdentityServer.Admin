@@ -2,9 +2,11 @@
 // Licensed under the Apache License, Version 2.0.
 
 using System.Linq;
+using Duende.IdentityServer.EntityFramework.Entities;
 using FluentAssertions;
 using Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Mappers;
 using Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Mappers.Converters;
+using Skoruba.Duende.IdentityServer.Admin.EntityFramework.Extensions.Common;
 using Skoruba.Duende.IdentityServer.Admin.UnitTests.Mocks;
 using Xunit;
 
@@ -153,6 +155,90 @@ namespace Skoruba.Duende.IdentityServer.Admin.UnitTests.Mappers
 					.Excluding(o => o.Id));
 
 			apiSecret.Id.Should().Be(apiSecretsDto.ApiSecretId);
+		}
+
+		[Fact]
+		public void CanMapApiResourcePropertyToModel()
+		{
+			var apiResourceProperty = ApiResourceMock.GenerateRandomApiResourceProperty(1);
+
+			var apiResourcePropertiesDto = apiResourceProperty.ToModel();
+
+			apiResourcePropertiesDto.Should().NotBeNull();
+			apiResourceProperty.Id.Should().Be(apiResourcePropertiesDto.ApiResourcePropertyId);
+			apiResourcePropertiesDto.Key.Should().Be(apiResourceProperty.Key);
+			apiResourcePropertiesDto.Value.Should().Be(apiResourceProperty.Value);
+		}
+
+		[Fact]
+		public void CanMapApiResourcePropertyDtoToEntity()
+		{
+			var apiResourcePropertiesDto = ApiResourceDtoMock.GenerateRandomApiResourceProperty(1, 1);
+
+			var apiResourceProperty = apiResourcePropertiesDto.ToEntity();
+
+			apiResourceProperty.Should().NotBeNull();
+			apiResourcePropertiesDto.ApiResourcePropertyId.Should().Be(apiResourceProperty.Id);
+			apiResourceProperty.Key.Should().Be(apiResourcePropertiesDto.Key);
+			apiResourceProperty.Value.Should().Be(apiResourcePropertiesDto.Value);
+		}
+
+		[Fact]
+		public void CanMapPagedApiResourcesToModel()
+		{
+			var resources = new PagedList<ApiResource>
+			{
+				TotalCount = 10,
+				PageSize = 5
+			};
+			resources.Data.Add(ApiResourceMock.GenerateRandomApiResource(1));
+			resources.Data.Add(ApiResourceMock.GenerateRandomApiResource(2));
+
+			var resourcesDto = resources.ToModel();
+
+			resourcesDto.Should().NotBeNull();
+			resourcesDto.TotalCount.Should().Be(resources.TotalCount);
+			resourcesDto.PageSize.Should().Be(resources.PageSize);
+			resourcesDto.ApiResources.Should().HaveCount(resources.Data.Count);
+			resourcesDto.ApiResources.Select(x => x.Name).Should().BeEquivalentTo(resources.Data.Select(x => x.Name));
+		}
+
+		[Fact]
+		public void CanMapPagedApiSecretsToModel()
+		{
+			var secrets = new PagedList<ApiResourceSecret>
+			{
+				TotalCount = 6,
+				PageSize = 3
+			};
+			secrets.Data.Add(ApiResourceMock.GenerateRandomApiSecret(1));
+			secrets.Data.Add(ApiResourceMock.GenerateRandomApiSecret(2));
+
+			var secretsDto = secrets.ToModel();
+
+			secretsDto.Should().NotBeNull();
+			secretsDto.TotalCount.Should().Be(secrets.TotalCount);
+			secretsDto.PageSize.Should().Be(secrets.PageSize);
+			secretsDto.ApiSecrets.Should().HaveCount(secrets.Data.Count);
+		}
+
+		[Fact]
+		public void CanMapPagedApiResourcePropertiesToModel()
+		{
+			var properties = new PagedList<ApiResourceProperty>
+			{
+				TotalCount = 4,
+				PageSize = 2
+			};
+			properties.Data.Add(ApiResourceMock.GenerateRandomApiResourceProperty(1));
+			properties.Data.Add(ApiResourceMock.GenerateRandomApiResourceProperty(2));
+
+			var propertiesDto = properties.ToModel();
+
+			propertiesDto.Should().NotBeNull();
+			propertiesDto.TotalCount.Should().Be(properties.TotalCount);
+			propertiesDto.PageSize.Should().Be(properties.PageSize);
+			propertiesDto.ApiResourceProperties.Should().HaveCount(properties.Data.Count);
 		}
 	}
 }

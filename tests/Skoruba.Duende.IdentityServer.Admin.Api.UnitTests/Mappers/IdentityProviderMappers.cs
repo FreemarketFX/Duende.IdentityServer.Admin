@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using FluentAssertions;
 using Skoruba.Duende.IdentityServer.Admin.Api.UnitTests.Mocks;
 using Skoruba.Duende.IdentityServer.Admin.BusinessLogic.Dtos.IdentityProvider;
@@ -16,7 +17,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.UnitTests.Mappers
         {
             var IdentityProviderApiDto = IdentityProviderApiDtoMock.GenerateRandomIdentityProvider(1);
 
-            var IdentityProviderDto = IdentityProviderApiDto.ToIdentityProviderApiModel<IdentityProviderDto>();
+            var IdentityProviderDto = IdentityProviderApiDto.ToIdentityProviderDto();
 
             IdentityProviderDto.Should().NotBeNull();
 
@@ -33,7 +34,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.UnitTests.Mappers
         {
             var IdentityProviderDto = IdentityProviderDtoMock.GenerateRandomIdentityProvider(1);
 
-            var IdentityProviderApiDto = IdentityProviderDto.ToIdentityProviderApiModel<IdentityProviderApiDto>();
+            var IdentityProviderApiDto = IdentityProviderDto.ToIdentityProviderApiDto();
 
             IdentityProviderApiDto.Should().BeEquivalentTo(IdentityProviderDto, options => options
                 .Excluding(x => x.Properties));
@@ -41,6 +42,23 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.UnitTests.Mappers
             IdentityProviderApiDto.IdentityProviderProperties.Should().BeEquivalentTo(
                 IdentityProviderDto.Properties.Values.ToDictionary(p=>p.Name, p=>p.Value));
 
+        }
+
+        [Fact]
+        public void CanMapIdentityProviderDtoToIdentityProviderApiDto_WithInvalidPropertyNames()
+        {
+            var identityProviderDto = IdentityProviderDtoMock.GenerateRandomIdentityProvider(1);
+            identityProviderDto.Properties = new Dictionary<int, IdentityProviderPropertyDto>
+            {
+                [0] = new IdentityProviderPropertyDto { Name = null, Value = "ignored-null-name" },
+                [1] = null,
+                [2] = new IdentityProviderPropertyDto { Name = "valid-name", Value = "valid-value" }
+            };
+
+            var identityProviderApiDto = identityProviderDto.ToIdentityProviderApiDto();
+
+            identityProviderApiDto.IdentityProviderProperties.Should().ContainSingle();
+            identityProviderApiDto.IdentityProviderProperties["valid-name"].Should().Be("valid-value");
         }
 
     }

@@ -6,8 +6,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AutoMapper" Version="14.0.0" />
-		<PackageReference Include="Duende.IdentityServer.EntityFramework" Version="7.4.6" />
+		<PackageReference Include="Duende.IdentityServer.EntityFramework" Version="7.4.7" />
+		<PackageReference Include="Riok.Mapperly" Version="4.3.1" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -74,9 +74,6 @@
 	</ItemGroup>
 
 </Project>
-
-
-
 
 
 

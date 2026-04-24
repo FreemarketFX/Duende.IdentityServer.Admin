@@ -15,7 +15,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.UnitTests.Mappers
         {
             var apiScopeApiDto = ApiScopeApiDtoMock.GenerateRandomApiScope(1);
 
-            var apiScopeDto = apiScopeApiDto.ToApiScopeApiModel<ApiScopeDto>();
+            var apiScopeDto = apiScopeApiDto.ToApiScopeDto();
 
             apiScopeDto.Should().BeEquivalentTo(apiScopeApiDto, options => options.Excluding(x=> x.ApiScopeProperties));
         }
@@ -25,7 +25,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.UnitTests.Mappers
         {
             var apiScopeDto = ApiScopeDtoMock.GenerateRandomApiScope(1);
 
-            var apiScopeApiDto = apiScopeDto.ToApiScopeApiModel<ApiScopeApiDto>();
+            var apiScopeApiDto = apiScopeDto.ToApiScopeApiDto();
 
             apiScopeApiDto.Should().BeEquivalentTo(apiScopeDto, options => options
                 .Excluding(x => x.ApiScopeProperties)
@@ -37,7 +37,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.UnitTests.Mappers
         {
             var apiScopePropertyApiDto = ApiScopeApiDtoMock.GenerateRandomApiScopeProperty(1);
 
-            var apiScopePropertyDto = apiScopePropertyApiDto.ToApiScopeApiModel<ApiScopePropertyDto>();
+            var apiScopePropertyDto = apiScopePropertyApiDto.ToApiScopePropertyDto();
 
             apiScopePropertyDto.Should().BeEquivalentTo(apiScopePropertyApiDto);
         }
@@ -47,7 +47,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.UnitTests.Mappers
         {
             var apiScopePropertyDto = ApiScopeDtoMock.GenerateRandomApiScopeProperty(1,1);
 
-            var apiScopePropertyApiDto = apiScopePropertyDto.ToApiScopeApiModel<ApiScopePropertyApiDto>();
+            var apiScopePropertyApiDto = apiScopePropertyDto.ToApiScopePropertyApiDto();
 
             apiScopePropertyApiDto.Should().BeEquivalentTo(apiScopePropertyDto, options =>
                 options.Excluding(x => x.ApiScopeId)
