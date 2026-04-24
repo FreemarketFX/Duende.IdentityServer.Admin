@@ -18,5 +18,6 @@ namespace SkorubaDuende.IdentityServerAdmin.STS.Identity.Configuration
         public static bool AutomaticRedirectAfterSignOut = false;
 
         public static string InvalidCredentialsErrorMessage = "Invalid username or password";
+        public static string InvalidPasskeyErrorMessage = "Passkey sign-in failed";
     }
 }

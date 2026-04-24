@@ -1,6 +1,7 @@
 @using Microsoft.AspNetCore.Mvc.Localization
 @using SkorubaDuende.IdentityServerAdmin.STS.Identity.Configuration.Interfaces
 @using SkorubaDuende.IdentityServerAdmin.STS.Identity.Helpers.Localization
+@using SkorubaDuende.IdentityServerAdmin.STS.Identity.Passkeys
 @inject IViewLocalizer Localizer
 @model SkorubaDuende.IdentityServerAdmin.STS.Identity.ViewModels.Account.LoginViewModel
 @inject IRootConfiguration RootConfiguration
@@ -82,6 +83,22 @@
                             </button>
                         </div>
 
+                        <div class="relative">
+                            <div class="absolute inset-0 flex items-center">
+                                <span class="w-full border-t border-border"></span>
+                            </div>
+                            <div class="relative flex justify-center text-xs uppercase">
+                                <span class="bg-background px-2 text-muted-foreground">@Localizer["Or"]</span>
+                            </div>
+                        </div>
+
+                        <div class="form-item">
+                            <passkey-submit operation="@PasskeyOperation.Request" name="Passkey" email-name="Username" class="btn-outline w-full" formnovalidate>
+                                <lucideicon name="fingerprint" class="inline-block h-4 w-4 mr-2" />
+                                @Localizer["LoginWithPasskey"]
+                            </passkey-submit>
+                        </div>
+
                         @if (Model.VisibleExternalProviders.Any())
                         {
                             <div class="relative">
@@ -145,3 +162,7 @@
         </div>
     </div>
 </div>
+
+@section scripts {
+    <script src="~/js/passkey-submit.js" asp-append-version="true"></script>
+}

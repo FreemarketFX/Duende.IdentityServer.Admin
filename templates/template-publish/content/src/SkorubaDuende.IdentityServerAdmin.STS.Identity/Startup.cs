@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -16,6 +17,8 @@ using SkorubaDuende.IdentityServerAdmin.STS.Identity.Configuration;
 using SkorubaDuende.IdentityServerAdmin.STS.Identity.Configuration.Constants;
 using SkorubaDuende.IdentityServerAdmin.STS.Identity.Configuration.Interfaces;
 using SkorubaDuende.IdentityServerAdmin.STS.Identity.Helpers;
+using SkorubaDuende.IdentityServerAdmin.STS.Identity.Passkeys;
+using Microsoft.AspNetCore.Identity;
 
 namespace SkorubaDuende.IdentityServerAdmin.STS.Identity
 {
@@ -62,6 +65,20 @@ namespace SkorubaDuende.IdentityServerAdmin.STS.Identity
             // Add authorization policies for MVC
             RegisterAuthorization(services);
 
+            // Add IHttpContextAccessor for Passkey TagHelper
+            services.AddHttpContextAccessor();
+
+            // Configure IdentityPasskeyOptions for development
+            if (Environment.IsDevelopment())
+            {
+                services.Configure<IdentityPasskeyOptions>(options =>
+                {
+                    // Allow localhost origins for development
+                    options.ValidateOrigin = context => ValueTask.FromResult(
+                        context.Origin.StartsWith("https://localhost") || context.Origin.StartsWith("http://localhost"));
+                });
+            }
+
             services.AddIdSHealthChecks<IdentityServerConfigurationDbContext, IdentityServerPersistedGrantDbContext, AdminIdentityDbContext, IdentityServerDataProtectionDbContext>(Configuration);
         }
 
@@ -93,6 +110,9 @@ namespace SkorubaDuende.IdentityServerAdmin.STS.Identity
             app.UseAuthorization();
             app.UseEndpoints(endpoint =>
             {
+                // Map passkey endpoints for passkey authentication
+                endpoint.MapPasskeyEndpoints<UserIdentity>();
+
                 endpoint.MapDefaultControllerRoute();
                 endpoint.MapHealthChecks("/health", new HealthCheckOptions
                 {

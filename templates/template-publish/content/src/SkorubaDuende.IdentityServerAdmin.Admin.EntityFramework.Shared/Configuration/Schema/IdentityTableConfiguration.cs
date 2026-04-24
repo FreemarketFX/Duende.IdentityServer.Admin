@@ -12,5 +12,6 @@ namespace SkorubaDuende.IdentityServerAdmin.Admin.EntityFramework.Shared.Configu
         public string IdentityUserLogins { get; set; } = "UserLogins";
         public string IdentityUserClaims { get; set; } = "UserClaims";
         public string IdentityUserTokens { get; set; } = "UserTokens";
+        public string IdentityUserPasskeys { get; set; } = "UserPasskeys";
     }
 }
