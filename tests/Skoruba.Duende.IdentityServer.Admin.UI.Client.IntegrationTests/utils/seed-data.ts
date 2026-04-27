@@ -5,6 +5,7 @@ export interface E2ESeedData {
   username: string;
   password: string;
   expectedClientId: string;
+  expectedApiResourceName: string;
 }
 
 type JsonObject = Record<string, unknown>;
@@ -214,6 +215,24 @@ function extractClientIds(identityServerDocument: JsonObject): string[] {
     .filter((clientId): clientId is string => Boolean(clientId));
 }
 
+function extractApiResourceNames(identityServerDocument: JsonObject): string[] {
+  const identityServerSection = asObject(
+    getValue(identityServerDocument, ["IdentityServerData", "identityServerData"])
+  );
+
+  return asArray(getValue(identityServerSection, ["ApiResources", "apiResources"]))
+    .map((apiResourceValue) => {
+      const apiResource = asObject(apiResourceValue);
+      if (!apiResource) {
+        return undefined;
+      }
+
+      const name = getValue(apiResource, ["Name", "name"]);
+      return isNonEmptyString(name) ? name : undefined;
+    })
+    .filter((name): name is string => Boolean(name));
+}
+
 export function loadE2ESeedData(): E2ESeedData {
   const repoRoot = findRepoRoot();
   const identityDataPath = resolveIdentityDataPath(repoRoot);
@@ -225,6 +244,7 @@ export function loadE2ESeedData(): E2ESeedData {
   const users = extractUsers(identityDataDocument);
   const roleNames = extractRoleNames(identityDataDocument);
   const clientIds = extractClientIds(identityServerDataDocument);
+  const apiResourceNames = extractApiResourceNames(identityServerDataDocument);
 
   if (users.length === 0) {
     throw new Error(
@@ -238,9 +258,16 @@ export function loadE2ESeedData(): E2ESeedData {
     );
   }
 
+  if (apiResourceNames.length === 0) {
+    throw new Error(
+      `No API resources found in '${identityServerDataPath}'.`
+    );
+  }
+
   const configuredUsername = process.env.E2E_USERNAME;
   const configuredPassword = process.env.E2E_PASSWORD;
   const configuredClientId = process.env.E2E_EXPECTED_CLIENT_ID;
+  const configuredApiResourceName = process.env.E2E_EXPECTED_API_RESOURCE_NAME;
 
   let selectedUser = users[0];
 
@@ -285,9 +312,23 @@ export function loadE2ESeedData(): E2ESeedData {
     );
   }
 
+  const expectedApiResourceName = isNonEmptyString(configuredApiResourceName)
+    ? configuredApiResourceName
+    : apiResourceNames[0];
+
+  if (
+    isNonEmptyString(configuredApiResourceName) &&
+    !apiResourceNames.includes(configuredApiResourceName)
+  ) {
+    throw new Error(
+      `API resource '${expectedApiResourceName}' was not found in '${identityServerDataPath}'.`
+    );
+  }
+
   return {
     username: selectedUser.username,
     password: selectedUser.password,
     expectedClientId,
+    expectedApiResourceName,
   };
 }

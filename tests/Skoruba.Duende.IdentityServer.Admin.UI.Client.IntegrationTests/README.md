@@ -4,24 +4,25 @@ This project contains end-to-end UI tests for the React admin client in `Skoruba
 
 ## Scope
 
-The default test covers the full authentication path:
+The suite covers:
 
-1. Open protected Admin UI route (`/clients`)
-2. Redirect to `/account/login` and then to STS
-3. Sign in using credentials from identity seed JSON
-4. Return to Admin UI and assert clients table is populated
-5. Locate a seeded client by `clientId`
-6. Open client detail page and validate loaded client
+1. Full authentication path (redirect to STS and back)
+2. `Clients` list + seeded client detail
+3. `Clients` create/edit/persistence flow
+4. `ApiResources` list + seeded API resource detail
+5. `ApiResources` create/edit/persistence flow
 
 ## Test Structure
 
 - `tests/clients.spec.ts` - test orchestration only (short entrypoint)
+- `tests/api-resources.spec.ts` - API resources test orchestration
 - `tests/helpers/*` - reusable UI/auth/form helpers
 - `tests/scenarios/client-persistence-flow.ts` - full create/update/reopen persistence scenario
+- `tests/scenarios/api-resource-persistence-flow.ts` - API resource create/update/reopen persistence scenario
 
 ## Default Data Sources
 
-The test reads credentials and expected client from seed files:
+The tests read credentials and expected resources from seed files:
 
 - `src/Skoruba.Duende.IdentityServer.Admin.Api/identitydata.json`
 - `src/Skoruba.Duende.IdentityServer.Admin.Api/identityserverdata.json`
@@ -71,6 +72,7 @@ npm run test:headed
 - `E2E_USERNAME` (optional override)
 - `E2E_PASSWORD` (optional override)
 - `E2E_EXPECTED_CLIENT_ID` (optional override)
+- `E2E_EXPECTED_API_RESOURCE_NAME` (optional override)
 - `E2E_ADMIN_ROLE` (default: `SkorubaIdentityAdminAdministrator`)
 
 ## Reports

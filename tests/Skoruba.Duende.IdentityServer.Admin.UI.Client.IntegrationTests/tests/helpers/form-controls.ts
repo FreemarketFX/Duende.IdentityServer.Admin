@@ -114,6 +114,38 @@ export async function expectSwitchByLabel(
   );
 }
 
+export async function setSwitchByIndex(
+  panel: Locator,
+  index: number,
+  checked: boolean,
+): Promise<void> {
+  const switchControl = panel.getByRole("switch").nth(index);
+
+  await expect(switchControl).toBeVisible();
+  const currentState = (await switchControl.getAttribute("data-state")) === "checked";
+
+  if (currentState !== checked) {
+    await switchControl.click();
+  }
+
+  await expect(switchControl).toHaveAttribute(
+    "data-state",
+    checked ? "checked" : "unchecked",
+  );
+}
+
+export async function expectSwitchByIndex(
+  panel: Locator,
+  index: number,
+  checked: boolean,
+): Promise<void> {
+  const switchControl = panel.getByRole("switch").nth(index);
+  await expect(switchControl).toHaveAttribute(
+    "data-state",
+    checked ? "checked" : "unchecked",
+  );
+}
+
 export async function addInputWithTableItemByLabel(
   panel: Locator,
   label: string,
@@ -159,6 +191,19 @@ export async function setDualListToAllSelected(
   }
 
   await selectAll.click();
+}
+
+export async function getDualListSelectedRowCount(panel: Locator): Promise<number> {
+  const deselectAllButton = panel.getByRole("button", {
+    name: "Deselect All",
+    exact: true,
+  });
+  await expect(deselectAllButton).toBeVisible();
+
+  const selectedColumn = deselectAllButton.locator("xpath=ancestor::div[1]");
+  await expect(selectedColumn.locator("table tbody")).toBeVisible();
+
+  return selectedColumn.locator("tbody tr").count();
 }
 
 export async function selectDifferentOptionByLabel(
