@@ -20,6 +20,11 @@ const nullableOptionalNumberField = z
   .optional()
   .transform((value) => value ?? undefined);
 
+const optionalSelectNumberField = z.preprocess(
+  (value) => (value === "" || value === null || value === undefined ? undefined : value),
+  z.coerce.number().optional(),
+);
+
 export const formSchema = z.object({
   clientId: z.string().min(
     1,
@@ -54,7 +59,7 @@ export const formSchema = z.object({
   allowedIdentityTokenSigningAlgorithms: z.array(z.string()).optional(),
   accessTokenLifetime: z.number().optional(),
   allowAccessTokenViaBrowser: z.boolean().optional(),
-  accessTokenType: z.number().optional(),
+  accessTokenType: optionalSelectNumberField,
   authorizationCodeLifetime: z.number().optional(),
   requireRequestObject: z.boolean().optional(),
   requirePkce: z.boolean().optional(),
@@ -63,8 +68,8 @@ export const formSchema = z.object({
   slidingRefreshTokenLifetime: z.number().optional(),
   cibaLifetime: nullableOptionalNumberField,
   pollingInterval: nullableOptionalNumberField,
-  refreshTokenUsage: z.number().optional(),
-  refreshTokenExpiration: z.number().optional(),
+  refreshTokenUsage: optionalSelectNumberField,
+  refreshTokenExpiration: optionalSelectNumberField,
   updateAccessTokenClaimsOnRefresh: z.boolean().optional(),
   includeJti: z.boolean().optional(),
   alwaysSendClientClaims: z.boolean().optional(),

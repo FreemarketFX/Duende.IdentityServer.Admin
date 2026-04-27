@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.2797697">
+  <PropertyGroup>
+    <StartupCommand>npm run test:headed</StartupCommand>
+    <JavaScriptTestRoot>tests\</JavaScriptTestRoot>
+    <JavaScriptTestFramework>Playwright</JavaScriptTestFramework>
+    <ShouldRunBuildScript>false</ShouldRunBuildScript>
+    <BuildOutputFolder>$(MSBuildProjectDirectory)\playwright-report</BuildOutputFolder>
+  </PropertyGroup>
+</Project>

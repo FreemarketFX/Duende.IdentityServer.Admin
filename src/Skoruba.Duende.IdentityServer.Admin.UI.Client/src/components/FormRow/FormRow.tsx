@@ -273,20 +273,24 @@ const TextareaField: React.FC<TextareaFieldProps> = ({
 
 const SelectField: React.FC<SelectFieldProps> = ({ field, options }) => {
   const { t } = useTranslation();
+  const selectValue =
+    field.value === null || field.value === undefined
+      ? ""
+      : String(field.value);
 
   return (
     <FormControl>
       <Select
         onValueChange={field.onChange}
-        defaultValue={typeof field.value === "string" ? field.value : undefined}
-        value={typeof field.value === "string" ? field.value : ""}
+        defaultValue={selectValue || undefined}
+        value={selectValue}
       >
         <SelectTrigger>
           <SelectValue placeholder={t("Components.FormRow.SelectOption")} />
         </SelectTrigger>
         <SelectContent>
           {options.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
+            <SelectItem key={String(option.value)} value={String(option.value)}>
               {option.label}
             </SelectItem>
           ))}
@@ -559,7 +563,10 @@ export const FormRow = <T extends FieldValues>({
                   <TextareaField field={field} placeholder={placeholder} />
                 )}
                 {type === "select" && (
-                  <SelectField field={field} options={options!} />
+                  <SelectField
+                    field={field}
+                    options={options!}
+                  />
                 )}
                 {type === "dualList" && (
                   <DualListField

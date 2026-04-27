@@ -676,6 +676,33 @@ The solution contains **unit and integration tests** for all major components.
 - `Skoruba.Duende.IdentityServer.Admin.UnitTests` – Unit tests
 - `Skoruba.Duende.IdentityServer.Admin.Api.IntegrationTests` – API integration tests
 - `Skoruba.Duende.IdentityServer.STS.IntegrationTests` – STS integration tests
+- `Skoruba.Duende.IdentityServer.Admin.UI.Client.IntegrationTests` – Playwright UI integration tests (OIDC login flow + Admin UI assertions)
+
+### UI Integration Tests (Playwright)
+
+The UI E2E test project is located in:
+
+- `tests/Skoruba.Duende.IdentityServer.Admin.UI.Client.IntegrationTests`
+
+To run it:
+
+```sh
+cd tests/Skoruba.Duende.IdentityServer.Admin.UI.Client.IntegrationTests
+npm install
+npx playwright install chromium
+npm test
+```
+
+Default expected runtime services:
+
+- STS: `https://localhost:44310`
+- Admin API: `https://localhost:44302`
+- Admin UI host: `https://localhost:7127`
+
+The tests load credentials and expected client data from seed files:
+
+- `src/Skoruba.Duende.IdentityServer.Admin.Api/identitydata.json`
+- `src/Skoruba.Duende.IdentityServer.Admin.Api/identityserverdata.json`
 
 ---
 
