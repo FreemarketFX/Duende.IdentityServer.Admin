@@ -22,6 +22,8 @@ import {
   setDualListToAllSelected,
   setSwitchByLabel,
 } from "../helpers/form-controls";
+import { clickPageSave } from "../helpers/ui-navigation";
+import { UI_TEXT } from "../helpers/ui-texts";
 
 export async function runCreateUpdateAndVerifyClientPersistence(
   page: Page,
@@ -501,11 +503,7 @@ export async function runCreateUpdateAndVerifyClientPersistence(
 
     await Promise.all([
       page.waitForURL(/\/clients(?:[/?#]|$)/i, { timeout: 60_000 }),
-      page
-        .locator('button[type="submit"]')
-        .filter({ hasText: "Save" })
-        .first()
-        .click(),
+      clickPageSave(page),
     ]);
 
     await openClientDetailFromClients(page, updatedClientId, credentials);
@@ -583,7 +581,10 @@ export async function runCreateUpdateAndVerifyClientPersistence(
       exact: true,
     });
     await expect(
-      reopenedScopesPanel.getByRole("button", { name: "Select All", exact: true }),
+      reopenedScopesPanel.getByRole("button", {
+        name: UI_TEXT.actions.selectAll,
+        exact: true,
+      }),
     ).toBeVisible();
 
     await page.getByRole("tab", { name: "Secrets", exact: true }).click();
@@ -608,7 +609,10 @@ export async function runCreateUpdateAndVerifyClientPersistence(
       exact: true,
     });
     await expect(
-      reopenedAdvancedPanel.getByRole("button", { name: "Select All", exact: true }),
+      reopenedAdvancedPanel.getByRole("button", {
+        name: UI_TEXT.actions.selectAll,
+        exact: true,
+      }),
     ).toBeVisible();
 
     await page.getByRole("tab", { name: "Authentication", exact: true }).click();

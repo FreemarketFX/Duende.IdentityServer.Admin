@@ -13,27 +13,14 @@ import {
   setDualListToAllSelected,
   setSwitchByIndex,
 } from "../helpers/form-controls";
-
-async function openTabAndWait(
-  page: Page,
-  tabName: RegExp,
-) {
-  await page.getByRole("tab", { name: tabName }).click();
-  const panel = page.getByRole("tabpanel", { name: tabName });
-  await expect(panel).toBeVisible();
-  return panel;
-}
+import { createDebugLogger } from "../helpers/debug-log";
+import { clickPageSave, openTabAndWait } from "../helpers/ui-navigation";
 
 export async function runCreateUpdateAndVerifyApiResourcePersistence(
   page: Page,
   credentials: LoginCredentials,
 ): Promise<void> {
-  const shouldLogSteps = process.env.E2E_DEBUG_LOGS === "1";
-  const logStep = (message: string) => {
-    if (shouldLogSteps) {
-      console.log(`[api-resource-flow] ${message}`);
-    }
-  };
+  const logStep = createDebugLogger("api-resource-flow");
 
   const marker = faker.string.alphanumeric({ length: 10, casing: "lower" });
 
@@ -157,7 +144,7 @@ export async function runCreateUpdateAndVerifyApiResourcePersistence(
 
   await Promise.all([
     page.waitForURL(/\/api-resources(?:[/?#]|$)/i, { timeout: 60_000 }),
-    page.locator('button[type="submit"]').filter({ hasText: "Save" }).first().click(),
+    clickPageSave(page),
   ]);
   logStep("saved API resource updates");
 

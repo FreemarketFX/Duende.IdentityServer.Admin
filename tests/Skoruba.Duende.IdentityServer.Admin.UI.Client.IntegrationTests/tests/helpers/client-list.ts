@@ -3,30 +3,22 @@ import {
   ensureLoggedInAndOpenClients,
   type LoginCredentials,
 } from "./auth";
+import { findSingleRowBySearch } from "./list-page";
 
 export async function findClientRow(
   page: Page,
   clientId: string,
 ): Promise<Locator> {
-  const searchInput = page.locator("input[type='text']").first();
-  const searchButton = page.getByRole("button", { name: "Search" });
   const targetRow = page.locator("table tbody tr", {
     has: page.locator("code", { hasText: clientId }),
   });
-  const timeoutAt = Date.now() + 90_000;
 
-  while (Date.now() < timeoutAt) {
-    await searchInput.fill(clientId);
-    await searchButton.click();
-
-    if ((await targetRow.count()) === 1) {
-      return targetRow;
-    }
-
-    await page.waitForTimeout(500);
-  }
-
-  throw new Error(`Client '${clientId}' was not found in Clients list.`);
+  return findSingleRowBySearch({
+    page,
+    searchTerm: clientId,
+    rowLocator: targetRow,
+    entityName: "Client",
+  });
 }
 
 export async function openClientDetailFromClients(

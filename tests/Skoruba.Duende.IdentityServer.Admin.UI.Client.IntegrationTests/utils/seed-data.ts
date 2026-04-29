@@ -4,8 +4,12 @@ import path from "node:path";
 export interface E2ESeedData {
   username: string;
   password: string;
+  expectedUserName: string;
+  expectedRoleName: string;
   expectedClientId: string;
   expectedApiResourceName: string;
+  expectedIdentityResourceName: string;
+  expectedApiScopeName: string;
 }
 
 type JsonObject = Record<string, unknown>;
@@ -233,6 +237,44 @@ function extractApiResourceNames(identityServerDocument: JsonObject): string[] {
     .filter((name): name is string => Boolean(name));
 }
 
+function extractIdentityResourceNames(identityServerDocument: JsonObject): string[] {
+  const identityServerSection = asObject(
+    getValue(identityServerDocument, ["IdentityServerData", "identityServerData"])
+  );
+
+  return asArray(
+    getValue(identityServerSection, ["IdentityResources", "identityResources"])
+  )
+    .map((identityResourceValue) => {
+      const identityResource = asObject(identityResourceValue);
+      if (!identityResource) {
+        return undefined;
+      }
+
+      const name = getValue(identityResource, ["Name", "name"]);
+      return isNonEmptyString(name) ? name : undefined;
+    })
+    .filter((name): name is string => Boolean(name));
+}
+
+function extractApiScopeNames(identityServerDocument: JsonObject): string[] {
+  const identityServerSection = asObject(
+    getValue(identityServerDocument, ["IdentityServerData", "identityServerData"])
+  );
+
+  return asArray(getValue(identityServerSection, ["ApiScopes", "apiScopes"]))
+    .map((apiScopeValue) => {
+      const apiScope = asObject(apiScopeValue);
+      if (!apiScope) {
+        return undefined;
+      }
+
+      const name = getValue(apiScope, ["Name", "name"]);
+      return isNonEmptyString(name) ? name : undefined;
+    })
+    .filter((name): name is string => Boolean(name));
+}
+
 export function loadE2ESeedData(): E2ESeedData {
   const repoRoot = findRepoRoot();
   const identityDataPath = resolveIdentityDataPath(repoRoot);
@@ -242,13 +284,24 @@ export function loadE2ESeedData(): E2ESeedData {
   const identityServerDataDocument = readJsonFile(identityServerDataPath);
 
   const users = extractUsers(identityDataDocument);
+  const userNames = users.map((user) => user.username);
   const roleNames = extractRoleNames(identityDataDocument);
   const clientIds = extractClientIds(identityServerDataDocument);
   const apiResourceNames = extractApiResourceNames(identityServerDataDocument);
+  const identityResourceNames = extractIdentityResourceNames(
+    identityServerDataDocument
+  );
+  const apiScopeNames = extractApiScopeNames(identityServerDataDocument);
 
   if (users.length === 0) {
     throw new Error(
       `No users with credentials found in '${identityDataPath}'.`
+    );
+  }
+
+  if (roleNames.length === 0) {
+    throw new Error(
+      `No roles found in '${identityDataPath}'.`
     );
   }
 
@@ -264,10 +317,27 @@ export function loadE2ESeedData(): E2ESeedData {
     );
   }
 
+  if (identityResourceNames.length === 0) {
+    throw new Error(
+      `No identity resources found in '${identityServerDataPath}'.`
+    );
+  }
+
+  if (apiScopeNames.length === 0) {
+    throw new Error(
+      `No API scopes found in '${identityServerDataPath}'.`
+    );
+  }
+
   const configuredUsername = process.env.E2E_USERNAME;
   const configuredPassword = process.env.E2E_PASSWORD;
+  const configuredExpectedUserName = process.env.E2E_EXPECTED_USER_NAME;
+  const configuredExpectedRoleName = process.env.E2E_EXPECTED_ROLE_NAME;
   const configuredClientId = process.env.E2E_EXPECTED_CLIENT_ID;
   const configuredApiResourceName = process.env.E2E_EXPECTED_API_RESOURCE_NAME;
+  const configuredIdentityResourceName =
+    process.env.E2E_EXPECTED_IDENTITY_RESOURCE_NAME;
+  const configuredApiScopeName = process.env.E2E_EXPECTED_API_SCOPE_NAME;
 
   let selectedUser = users[0];
 
@@ -303,6 +373,32 @@ export function loadE2ESeedData(): E2ESeedData {
     ? configuredClientId
     : clientIds[0];
 
+  const expectedUserName = isNonEmptyString(configuredExpectedUserName)
+    ? configuredExpectedUserName
+    : userNames[0];
+
+  const expectedRoleName = isNonEmptyString(configuredExpectedRoleName)
+    ? configuredExpectedRoleName
+    : selectedUser.roles[0] ?? roleNames[0];
+
+  if (
+    isNonEmptyString(configuredExpectedUserName) &&
+    !userNames.includes(configuredExpectedUserName)
+  ) {
+    throw new Error(
+      `User '${expectedUserName}' was not found in '${identityDataPath}'.`
+    );
+  }
+
+  if (
+    isNonEmptyString(configuredExpectedRoleName) &&
+    !roleNames.includes(configuredExpectedRoleName)
+  ) {
+    throw new Error(
+      `Role '${expectedRoleName}' was not found in '${identityDataPath}'.`
+    );
+  }
+
   if (
     isNonEmptyString(configuredClientId) &&
     !clientIds.includes(configuredClientId)
@@ -325,10 +421,42 @@ export function loadE2ESeedData(): E2ESeedData {
     );
   }
 
+  const expectedIdentityResourceName = isNonEmptyString(
+    configuredIdentityResourceName
+  )
+    ? configuredIdentityResourceName
+    : identityResourceNames[0];
+
+  if (
+    isNonEmptyString(configuredIdentityResourceName) &&
+    !identityResourceNames.includes(configuredIdentityResourceName)
+  ) {
+    throw new Error(
+      `Identity resource '${expectedIdentityResourceName}' was not found in '${identityServerDataPath}'.`
+    );
+  }
+
+  const expectedApiScopeName = isNonEmptyString(configuredApiScopeName)
+    ? configuredApiScopeName
+    : apiScopeNames[0];
+
+  if (
+    isNonEmptyString(configuredApiScopeName) &&
+    !apiScopeNames.includes(configuredApiScopeName)
+  ) {
+    throw new Error(
+      `API scope '${expectedApiScopeName}' was not found in '${identityServerDataPath}'.`
+    );
+  }
+
   return {
     username: selectedUser.username,
     password: selectedUser.password,
+    expectedUserName,
+    expectedRoleName,
     expectedClientId,
     expectedApiResourceName,
+    expectedIdentityResourceName,
+    expectedApiScopeName,
   };
 }

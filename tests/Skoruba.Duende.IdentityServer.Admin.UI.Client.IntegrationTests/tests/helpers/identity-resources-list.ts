@@ -5,18 +5,18 @@ import {
   findSingleRowBySearch,
 } from "./list-page";
 
-export async function ensureLoggedInAndOpenApiResources(
+export async function ensureLoggedInAndOpenIdentityResources(
   page: Page,
   credentials: LoginCredentials,
 ): Promise<void> {
   await ensureLoggedInAndOpenListPage(
     page,
     credentials,
-    "/api-resources",
+    "/identity-resources",
   );
 }
 
-export async function findApiResourceRow(
+export async function findIdentityResourceRow(
   page: Page,
   resourceName: string,
 ): Promise<Locator> {
@@ -28,17 +28,17 @@ export async function findApiResourceRow(
     page,
     searchTerm: resourceName,
     rowLocator: targetRow,
-    entityName: "API resource",
+    entityName: "Identity resource",
   });
 }
 
-export async function openApiResourceDetailFromList(
+export async function openIdentityResourceDetailFromList(
   page: Page,
   resourceName: string,
   credentials: LoginCredentials,
 ): Promise<void> {
-  await ensureLoggedInAndOpenApiResources(page, credentials);
-  const targetRow = await findApiResourceRow(page, resourceName);
+  await ensureLoggedInAndOpenIdentityResources(page, credentials);
+  const targetRow = await findIdentityResourceRow(page, resourceName);
   await targetRow.getByRole("link", { name: resourceName, exact: true }).click();
-  await expect(page).toHaveURL(/\/api-resource\/\d+(?:[/?#]|$)/i);
+  await expect(page).toHaveURL(/\/identity-resource\/\d+(?:[/?#]|$)/i);
 }

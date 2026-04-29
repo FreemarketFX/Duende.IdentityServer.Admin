@@ -1,4 +1,5 @@
 import { expect, type Locator, type Page } from "@playwright/test";
+import { UI_TEXT } from "./ui-texts";
 
 const textInputNameByLabel: Record<string, string> = {
   "Front Channel Logout Uri": "frontChannelLogoutUri",
@@ -150,10 +151,13 @@ export async function addInputWithTableItemByLabel(
   panel: Locator,
   label: string,
   value: string,
-  placeholder: "Enter item" | "Search" = "Enter item",
+  placeholder: "Enter item" | "Search" = UI_TEXT.placeholders.enterItem,
 ): Promise<void> {
   const inputs = panel.getByPlaceholder(placeholder);
-  const addButtons = panel.getByRole("button", { name: "Add Item", exact: true });
+  const addButtons = panel.getByRole("button", {
+    name: UI_TEXT.actions.addItem,
+    exact: true,
+  });
   const inputCount = await inputs.count();
   const index = inputCount > 1 && /post\s+logout/i.test(label) ? 1 : 0;
 
@@ -177,11 +181,11 @@ export async function setDualListToAllSelected(
   _label: string,
 ): Promise<void> {
   const deselectAll = panel.getByRole("button", {
-    name: "Deselect All",
+    name: UI_TEXT.actions.deselectAll,
     exact: true,
   }).first();
   const selectAll = panel
-    .getByRole("button", { name: "Select All", exact: true })
+    .getByRole("button", { name: UI_TEXT.actions.selectAll, exact: true })
     .first();
 
   await expect(selectAll).toBeVisible();
@@ -195,7 +199,7 @@ export async function setDualListToAllSelected(
 
 export async function getDualListSelectedRowCount(panel: Locator): Promise<number> {
   const deselectAllButton = panel.getByRole("button", {
-    name: "Deselect All",
+    name: UI_TEXT.actions.deselectAll,
     exact: true,
   });
   await expect(deselectAllButton).toBeVisible();
