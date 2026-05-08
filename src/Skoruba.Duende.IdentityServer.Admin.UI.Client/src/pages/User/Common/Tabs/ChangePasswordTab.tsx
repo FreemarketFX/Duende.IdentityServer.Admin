@@ -74,7 +74,7 @@ const ChangePasswordTab: React.FC<Props> = ({ userId }) => {
       icon={KeyRound}
     >
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <div className="space-y-4">
           <FormRow
             name="password"
             label={t("User.ChangePassword.NewPassword_Label")}
@@ -92,11 +92,15 @@ const ChangePasswordTab: React.FC<Props> = ({ userId }) => {
             required
           />
           <div className="flex justify-start pt-2">
-            <Button type="submit" disabled={changePasswordMutation.isPending}>
+            <Button
+              type="button"
+              onClick={form.handleSubmit(onSubmit)}
+              disabled={changePasswordMutation.isPending}
+            >
               {t("User.ChangePassword.Submit")}
             </Button>
           </div>
-        </form>
+        </div>
       </Form>
     </CardWrapper>
   );

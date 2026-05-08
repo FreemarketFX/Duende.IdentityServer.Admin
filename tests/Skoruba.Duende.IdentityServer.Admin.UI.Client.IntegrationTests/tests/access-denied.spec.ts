@@ -28,6 +28,6 @@ test.describe("Access Denied page", () => {
     const goHomeLink = page.getByRole("link", { name: /Go to Home/i });
     await expect(goHomeLink).toBeVisible();
     await goHomeLink.click();
-    await expect(page).toHaveURL(/^\/?(?:[?#]|$)/);
+    await expect(page).toHaveURL("/");
   });
 });
