@@ -120,4 +120,7 @@
   <data name="CannotSetId" xml:space="preserve">
     <value>Cannot set ID when creating a new entity</value>
   </data>
+  <data name="IdRequiredForUpdate" xml:space="preserve">
+    <value>ID is required when updating an existing entity</value>
+  </data>
 </root>

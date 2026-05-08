@@ -15,5 +15,14 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Resources
                 Description = ApiErrorResource.CannotSetId
             };
         }
+
+        public virtual ApiError IdRequiredForUpdate()
+        {
+            return new ApiError
+            {
+                Code = nameof(IdRequiredForUpdate),
+                Description = ApiErrorResource.IdRequiredForUpdate
+            };
+        }
     }
 }

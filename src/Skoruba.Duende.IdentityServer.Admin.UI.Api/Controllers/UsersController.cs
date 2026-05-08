@@ -206,12 +206,17 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
 
         [HttpPut("Claims")]
         [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         public async Task<IActionResult> PutUserClaims([FromBody] UserClaimApiDto<TKey> claim)
         {
             var userClaimDto = claim.ToUserClaimsDto<TUserClaimsDto, TKey>();
 
-            await _identityService.GetUserClaimAsync(userClaimDto.UserId.ToString(), userClaimDto.ClaimId);
+            if (userClaimDto.ClaimId.Equals(default))
+            {
+                return BadRequest(_errorResources.IdRequiredForUpdate());
+            }
+
             await _identityService.UpdateUserClaimsAsync(userClaimDto);
 
             return NoContent();

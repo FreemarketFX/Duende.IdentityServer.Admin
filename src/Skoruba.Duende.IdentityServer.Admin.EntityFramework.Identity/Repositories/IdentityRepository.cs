@@ -15,6 +15,7 @@ using Skoruba.Duende.IdentityServer.Admin.EntityFramework.Extensions.Common;
 using Skoruba.Duende.IdentityServer.Admin.EntityFramework.Extensions.Enums;
 using Skoruba.Duende.IdentityServer.Admin.EntityFramework.Extensions.Extensions;
 using Skoruba.Duende.IdentityServer.Admin.EntityFramework.Identity.Repositories.Interfaces;
+using Skoruba.Duende.IdentityServer.Admin.EntityFramework.Identity.Resources;
 
 namespace Skoruba.Duende.IdentityServer.Admin.EntityFramework.Identity.Repositories
 {
@@ -307,7 +308,18 @@ namespace Skoruba.Duende.IdentityServer.Admin.EntityFramework.Identity.Repositor
         public virtual async Task<IdentityResult> UpdateUserClaimsAsync(TUserClaim claims)
         {
             var user = await UserManager.FindByIdAsync(claims.UserId.ToString());
-            var userClaim = await DbContext.Set<TUserClaim>().Where(x => x.Id == claims.Id).SingleOrDefaultAsync();
+            if (user == null)
+            {
+                return IdentityResult.Failed(IdentityRepositoryErrors.UserDoesNotExist(claims.UserId));
+            }
+
+            var userClaim = await DbContext.Set<TUserClaim>()
+                .Where(x => x.UserId.Equals(claims.UserId) && x.Id == claims.Id)
+                .SingleOrDefaultAsync();
+            if (userClaim == null)
+            {
+                return IdentityResult.Failed(IdentityRepositoryErrors.UserClaimDoesNotExist(claims.Id));
+            }
 
             await UserManager.RemoveClaimAsync(user, new Claim(userClaim.ClaimType, userClaim.ClaimValue));
 
@@ -323,9 +335,20 @@ namespace Skoruba.Duende.IdentityServer.Admin.EntityFramework.Identity.Repositor
         public virtual async Task<IdentityResult> UpdateRoleClaimsAsync(TRoleClaim claims)
         {
             var role = await RoleManager.FindByIdAsync(claims.RoleId.ToString());
-            var userClaim = await DbContext.Set<TUserClaim>().Where(x => x.Id == claims.Id).SingleOrDefaultAsync();
+            if (role == null)
+            {
+                return IdentityResult.Failed(IdentityRepositoryErrors.RoleDoesNotExist(claims.RoleId));
+            }
 
-            await RoleManager.RemoveClaimAsync(role, new Claim(userClaim.ClaimType, userClaim.ClaimValue));
+            var roleClaim = await DbContext.Set<TRoleClaim>()
+                .Where(x => x.RoleId.Equals(claims.RoleId) && x.Id == claims.Id)
+                .SingleOrDefaultAsync();
+            if (roleClaim == null)
+            {
+                return IdentityResult.Failed(IdentityRepositoryErrors.RoleClaimDoesNotExist(claims.Id));
+            }
+
+            await RoleManager.RemoveClaimAsync(role, new Claim(roleClaim.ClaimType, roleClaim.ClaimValue));
 
             return await RoleManager.AddClaimAsync(role, new Claim(claims.ClaimType, claims.ClaimValue));
         }

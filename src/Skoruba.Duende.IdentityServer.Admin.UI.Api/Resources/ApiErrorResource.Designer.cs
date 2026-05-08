@@ -36,7 +36,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Resources {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Skoruba.Duende.IdentityServer.Admin.Api.Resources.ApiErrorResource", typeof(ApiErrorResource).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Skoruba.Duende.IdentityServer.Admin.UI.Api.Resources.ApiErrorResource", typeof(ApiErrorResource).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -63,6 +63,15 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Resources {
         internal static string CannotSetId {
             get {
                 return ResourceManager.GetString("CannotSetId", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ID is required when updating an existing entity.
+        /// </summary>
+        internal static string IdRequiredForUpdate {
+            get {
+                return ResourceManager.GetString("IdRequiredForUpdate", resourceCulture);
             }
         }
     }

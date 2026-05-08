@@ -51,7 +51,13 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: src/Skoruba.Duende.IdentityServer.Admin.UI.Client/package-lock.json
+          cache-dependency-path: |
+            tests/Skoruba.Duende.IdentityServer.STS.Identity.ClientTests/package-lock.json
+            src/Skoruba.Duende.IdentityServer.Admin.UI.Client/package-lock.json
+
+      - name: STS JS tests
+        working-directory: tests/Skoruba.Duende.IdentityServer.STS.Identity.ClientTests
+        run: npm ci && npm test
 
       - name: UI lint+build
         working-directory: src/Skoruba.Duende.IdentityServer.Admin.UI.Client
