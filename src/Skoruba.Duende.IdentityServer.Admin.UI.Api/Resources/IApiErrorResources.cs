@@ -8,5 +8,6 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Resources
     public interface IApiErrorResources
     {
         ApiError CannotSetId();
+        ApiError IdRequiredForUpdate();
     }
 }

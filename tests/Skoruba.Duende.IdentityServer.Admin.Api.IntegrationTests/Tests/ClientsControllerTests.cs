@@ -40,13 +40,6 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.IntegrationTests.Tests
         {
         }
 
-        private static List<string> DistinctStrings(List<string> values)
-        {
-            return values?
-                .Where(x => !string.IsNullOrWhiteSpace(x))
-                .Distinct(StringComparer.Ordinal)
-                .ToList() ?? new List<string>();
-        }
 
         private static List<ClientClaimApiDto> DistinctClaims(List<ClientClaimApiDto> values)
         {

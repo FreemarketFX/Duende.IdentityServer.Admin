@@ -211,6 +211,11 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
         {
             var userClaimDto = claim.ToUserClaimsDto<TUserClaimsDto, TKey>();
 
+            if (userClaimDto.ClaimId.Equals(default))
+            {
+                return BadRequest(_errorResources.IdRequiredForUpdate());
+            }
+
             await _identityService.GetUserClaimAsync(userClaimDto.UserId.ToString(), userClaimDto.ClaimId);
             await _identityService.UpdateUserClaimsAsync(userClaimDto);
 

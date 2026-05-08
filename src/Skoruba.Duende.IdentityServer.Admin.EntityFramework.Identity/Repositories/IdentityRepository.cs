@@ -15,6 +15,7 @@ using Skoruba.Duende.IdentityServer.Admin.EntityFramework.Extensions.Common;
 using Skoruba.Duende.IdentityServer.Admin.EntityFramework.Extensions.Enums;
 using Skoruba.Duende.IdentityServer.Admin.EntityFramework.Extensions.Extensions;
 using Skoruba.Duende.IdentityServer.Admin.EntityFramework.Identity.Repositories.Interfaces;
+using Skoruba.Duende.IdentityServer.Admin.EntityFramework.Identity.Resources;
 
 namespace Skoruba.Duende.IdentityServer.Admin.EntityFramework.Identity.Repositories
 {
@@ -325,7 +326,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.EntityFramework.Identity.Repositor
             var role = await RoleManager.FindByIdAsync(claims.RoleId.ToString());
             if (role == null)
             {
-                return IdentityResult.Failed(RoleManager.ErrorDescriber.DefaultError());
+                return IdentityResult.Failed(IdentityRepositoryErrors.RoleDoesNotExist(claims.RoleId));
             }
 
             var roleClaim = await DbContext.Set<TRoleClaim>()
@@ -333,7 +334,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.EntityFramework.Identity.Repositor
                 .SingleOrDefaultAsync();
             if (roleClaim == null)
             {
-                return IdentityResult.Failed(RoleManager.ErrorDescriber.DefaultError());
+                return IdentityResult.Failed(IdentityRepositoryErrors.RoleClaimDoesNotExist(claims.Id));
             }
 
             await RoleManager.RemoveClaimAsync(role, new Claim(roleClaim.ClaimType, roleClaim.ClaimValue));

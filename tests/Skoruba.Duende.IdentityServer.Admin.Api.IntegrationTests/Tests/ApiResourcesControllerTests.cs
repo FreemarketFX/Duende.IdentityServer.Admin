@@ -35,14 +35,6 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.IntegrationTests.Tests
 
         }
 
-        private static List<string> DistinctStrings(List<string> values)
-        {
-            return values?
-                .Where(x => !string.IsNullOrWhiteSpace(x))
-                .Distinct(StringComparer.Ordinal)
-                .ToList() ?? new List<string>();
-        }
-
         private static ApiResourceApiDto BuildApiResourceCreatePayload(string name)
         {
             var payload = ApiResourceApiDtoMock.GenerateRandomApiResource(0);

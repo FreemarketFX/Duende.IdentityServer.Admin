@@ -33,14 +33,6 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.IntegrationTests.Tests
         {
         }
 
-        private static List<string> DistinctStrings(List<string> values)
-        {
-            return values?
-                .Where(x => !string.IsNullOrWhiteSpace(x))
-                .Distinct(StringComparer.Ordinal)
-                .ToList() ?? new List<string>();
-        }
-
         private static ApiScopeApiDto BuildApiScopeCreatePayload(string name)
         {
             var payload = ApiScopeApiDtoMock.GenerateRandomApiScope(0);

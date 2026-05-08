@@ -7,7 +7,6 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Bogus;
 using FluentAssertions;
 using IdentityModel;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,10 +22,6 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.IntegrationTests.Tests
 {
     public class UsersControllerTests : AdminApiTestBase
     {
-        private const string UsersRoute = "api/users";
-        private const string RolesRoute = "api/roles";
-        private const string RoleClaimsRoute = "api/roles/claims";
-        private const string UserRolesRoute = "api/users/roles";
         private const string UsersRolesRouteSuffix = "roles";
         private const string UsersClaimsRouteSuffix = "claims";
         private const string UsersProvidersRouteSuffix = "providers";
@@ -36,30 +31,14 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.IntegrationTests.Tests
         private const string ClaimValueRouteSegment = "claimvalue";
         private const string RolesUsersRouteSuffix = "users";
         private const string UsersSearchParameter = "searchText";
-        private const string RoleNamePrefix = "role_integration";
-        private const string UserNamePrefix = "user_integration";
         private const string UserClaimTypePrefix = "user_claim_type";
         private const string UserClaimValuePrefix = "user_claim_value";
         private const string RoleClaimTypePrefix = "role_claim_type";
         private const string RoleClaimValuePrefix = "role_claim_value";
-        private const string UserEmailDomain = "example.com";
-        private const string UserPhonePrefix = "+420";
         private const string UpdatedPhonePrefix = "+421";
         private const string StrongPassword = "Password123!abc";
         private const string UserIdPrefix = "user_id";
         private const int NonDefaultClaimId = 1;
-
-        private static readonly Faker<IdentityRoleDto> RoleCreateFaker = new Faker<IdentityRoleDto>()
-            .RuleFor(x => x.Name, f => $"{RoleNamePrefix}_{f.Random.AlphaNumeric(12).ToLowerInvariant()}_{Guid.NewGuid():N}");
-
-        private static readonly Faker<IdentityUserDto> UserCreateFaker = new Faker<IdentityUserDto>()
-            .RuleFor(x => x.UserName, f => $"{UserNamePrefix}_{f.Random.AlphaNumeric(12).ToLowerInvariant()}")
-            .RuleFor(x => x.Email, (f, u) => $"{u.UserName}@{UserEmailDomain}")
-            .RuleFor(x => x.EmailConfirmed, false)
-            .RuleFor(x => x.PhoneNumber, f => $"{UserPhonePrefix}{f.Random.ReplaceNumbers("#########")}")
-            .RuleFor(x => x.PhoneNumberConfirmed, false)
-            .RuleFor(x => x.LockoutEnabled, false)
-            .RuleFor(x => x.TwoFactorEnabled, false);
 
         public UsersControllerTests(TestFixture fixture) : base(fixture)
         {
@@ -87,48 +66,6 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.IntegrationTests.Tests
                 tokenValue);
         }
 
-        private async Task<IdentityUserDto> CreateUserAsync()
-        {
-            var createRequest = UserCreateFaker.Generate();
-
-            var createResponse = await Client.PostAsJsonAsync(UsersRoute, createRequest);
-            createResponse.StatusCode.Should().Be(HttpStatusCode.Created);
-
-            var createdUser = await createResponse.Content.ReadFromJsonAsync<IdentityUserDto>();
-            createdUser.Should().NotBeNull();
-            createdUser!.Id.Should().NotBeNullOrWhiteSpace();
-            createdUser.UserName.Should().Be(createRequest.UserName);
-            createdUser.Email.Should().Be(createRequest.Email);
-            createdUser.PhoneNumber.Should().Be(createRequest.PhoneNumber);
-            return createdUser;
-        }
-
-        private async Task<IdentityRoleDto> CreateRoleAsync(string roleName)
-        {
-            var createRequest = RoleCreateFaker.Generate();
-            createRequest.Name = roleName;
-
-            var createResponse = await Client.PostAsJsonAsync(RolesRoute, createRequest);
-            createResponse.StatusCode.Should().Be(HttpStatusCode.Created);
-
-            var createdRole = await createResponse.Content.ReadFromJsonAsync<IdentityRoleDto>();
-            createdRole.Should().NotBeNull();
-            createdRole!.Id.Should().NotBeNullOrWhiteSpace();
-            createdRole.Name.Should().Be(roleName);
-            return createdRole;
-        }
-
-        private async Task DeleteUserRoleAsync(string userId, string roleId)
-        {
-            var response = await DeleteBodyAsync(UserRolesRoute, new UserRoleApiDto<string>
-            {
-                UserId = userId,
-                RoleId = roleId
-            });
-
-            response.StatusCode.Should().Be(HttpStatusCode.NoContent);
-        }
-
         private async Task<UserClaimApiDto<string>> CreateUserClaimAsync(string userId, string claimType, string claimValue)
         {
             var createClaimResponse = await Client.PostAsJsonAsync($"{UsersRoute}/{UsersClaimsRouteSuffix}", new UserClaimApiDto<string>
@@ -145,29 +82,6 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.IntegrationTests.Tests
             claimsResponse.EnsureSuccessStatusCode();
 
             var claims = await claimsResponse.Content.ReadFromJsonAsync<UserClaimsApiDto<string>>();
-            claims.Should().NotBeNull();
-            var createdClaim = claims!.Claims.Find(x => x.ClaimType == claimType && x.ClaimValue == claimValue);
-            createdClaim.Should().NotBeNull();
-
-            return createdClaim!;
-        }
-
-        private async Task<RoleClaimApiDto<string>> CreateRoleClaimAsync(string roleId, string claimType, string claimValue)
-        {
-            var addClaimResponse = await Client.PostAsJsonAsync(RoleClaimsRoute, new RoleClaimApiDto<string>
-            {
-                ClaimId = 0,
-                RoleId = roleId,
-                ClaimType = claimType,
-                ClaimValue = claimValue
-            });
-            addClaimResponse.StatusCode.Should().Be(HttpStatusCode.Created);
-
-            var roleClaimsRoute = $"{ById(RolesRoute, roleId)}/claims";
-            var claimsResponse = await Client.GetAsync($"{roleClaimsRoute}?page={DefaultPage}&pageSize={ClaimsPageSize}");
-            claimsResponse.EnsureSuccessStatusCode();
-
-            var claims = await claimsResponse.Content.ReadFromJsonAsync<RoleClaimsApiDto<string>>();
             claims.Should().NotBeNull();
             var createdClaim = claims!.Claims.Find(x => x.ClaimType == claimType && x.ClaimValue == claimValue);
             createdClaim.Should().NotBeNull();
@@ -304,8 +218,8 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.IntegrationTests.Tests
                 userDetail!.UserName.Should().Be(createdUser.UserName);
                 userDetail.Email.Should().Be(createdUser.Email);
 
-                var updatedEmail = $"updated_{UserCreateFaker.Generate().UserName}@{UserEmailDomain}";
-                var updatedPhone = $"{UpdatedPhonePrefix}{new Faker().Random.ReplaceNumbers("#########")}";
+                var updatedEmail = $"updated_{UserCreateFaker.Generate().UserName}@example.com";
+                var updatedPhone = $"{UpdatedPhonePrefix}{TestDataFaker.Random.ReplaceNumbers("#########")}";
 
                 userDetail.Email = updatedEmail;
                 userDetail.PhoneNumber = updatedPhone;
@@ -504,6 +418,37 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.IntegrationTests.Tests
 
                 var deleteClaimResponse = await Client.DeleteAsync($"{userClaimsRoute}?claimId={updatedClaim!.ClaimId}");
                 deleteClaimResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
+            }
+            finally
+            {
+                SetupAdminAuthorization();
+                await SafeDeleteAsync(UsersRoute, createdUserId);
+            }
+        }
+
+        [Fact]
+        public async Task UserClaimsUpdateWithDefaultClaimIdReturnsBadRequest()
+        {
+            SetupAdminAuthorization();
+
+            var claimType = UniqueValue(UserClaimTypePrefix);
+            var claimValue = UniqueValue(UserClaimValuePrefix);
+            string createdUserId = null;
+
+            try
+            {
+                var createdUser = await CreateUserAsync();
+                createdUserId = createdUser.Id;
+
+                var response = await Client.PutAsJsonAsync($"{UsersRoute}/{UsersClaimsRouteSuffix}", new UserClaimApiDto<string>
+                {
+                    ClaimId = 0,
+                    UserId = createdUserId,
+                    ClaimType = claimType,
+                    ClaimValue = claimValue
+                });
+
+                response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
             }
             finally
             {

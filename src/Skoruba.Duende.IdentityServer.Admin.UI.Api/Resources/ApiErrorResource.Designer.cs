@@ -65,5 +65,14 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Resources {
                 return ResourceManager.GetString("CannotSetId", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ID is required when updating an existing entity.
+        /// </summary>
+        internal static string IdRequiredForUpdate {
+            get {
+                return ResourceManager.GetString("IdRequiredForUpdate", resourceCulture);
+            }
+        }
     }
 }

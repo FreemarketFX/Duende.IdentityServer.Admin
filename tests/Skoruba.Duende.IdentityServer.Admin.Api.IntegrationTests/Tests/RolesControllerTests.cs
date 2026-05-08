@@ -6,7 +6,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-using Bogus;
 using FluentAssertions;
 using Skoruba.Duende.IdentityServer.Admin.Api.IntegrationTests.Tests.Base;
 using Skoruba.Duende.IdentityServer.Admin.UI.Api.Dtos.Roles;
@@ -18,102 +17,17 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.IntegrationTests.Tests
 {
     public class RolesControllerTests : AdminApiTestBase
     {
-        private const string RolesRoute = "api/roles";
-        private const string UsersRoute = "api/users";
-        private const string UserRolesRoute = "api/users/roles";
-        private const string RoleClaimsRoute = "api/roles/claims";
         private const string RoleSearchParameter = "searchText";
         private const string RolesUsersRouteSuffix = "users";
         private const string RolesClaimsRouteSuffix = "claims";
-        private const string RoleNamePrefix = "role_integration";
-        private const string UserNamePrefix = "user_integration";
-        private const string UserEmailDomain = "example.com";
-        private const string UserPhonePrefix = "+420";
         private const string UpdatedSuffix = "_updated";
         private const string RoleIdPrefix = "role_id";
         private const string ClaimTypePrefix = "role_claim_type";
         private const string ClaimValuePrefix = "role_claim_value";
         private const int NonDefaultClaimId = 1;
 
-        private static readonly Faker<IdentityRoleDto> RoleCreateFaker = new Faker<IdentityRoleDto>()
-            .RuleFor(x => x.Name, f => $"{RoleNamePrefix}_{f.Random.AlphaNumeric(12).ToLowerInvariant()}_{Guid.NewGuid():N}");
-
-        private static readonly Faker<IdentityUserDto> UserCreateFaker = new Faker<IdentityUserDto>()
-            .RuleFor(x => x.UserName, f => $"{UserNamePrefix}_{f.Random.AlphaNumeric(12).ToLowerInvariant()}")
-            .RuleFor(x => x.Email, (f, u) => $"{u.UserName}@{UserEmailDomain}")
-            .RuleFor(x => x.EmailConfirmed, false)
-            .RuleFor(x => x.PhoneNumber, f => $"{UserPhonePrefix}{f.Random.ReplaceNumbers("#########")}")
-            .RuleFor(x => x.PhoneNumberConfirmed, false)
-            .RuleFor(x => x.LockoutEnabled, false)
-            .RuleFor(x => x.TwoFactorEnabled, false);
-
         public RolesControllerTests(TestFixture fixture) : base(fixture)
         {
-        }
-
-        private async Task<IdentityRoleDto> CreateRoleAsync(string roleName)
-        {
-            var createRequest = RoleCreateFaker.Generate();
-            createRequest.Name = roleName;
-
-            var createResponse = await Client.PostAsJsonAsync(RolesRoute, createRequest);
-            createResponse.StatusCode.Should().Be(HttpStatusCode.Created);
-
-            var createdRole = await createResponse.Content.ReadFromJsonAsync<IdentityRoleDto>();
-            createdRole.Should().NotBeNull();
-            createdRole!.Id.Should().NotBeNullOrWhiteSpace();
-            createdRole.Name.Should().Be(roleName);
-            return createdRole;
-        }
-
-        private async Task<IdentityUserDto> CreateUserAsync()
-        {
-            var createRequest = UserCreateFaker.Generate();
-
-            var createResponse = await Client.PostAsJsonAsync(UsersRoute, createRequest);
-            createResponse.StatusCode.Should().Be(HttpStatusCode.Created);
-
-            var createdUser = await createResponse.Content.ReadFromJsonAsync<IdentityUserDto>();
-            createdUser.Should().NotBeNull();
-            createdUser!.Id.Should().NotBeNullOrWhiteSpace();
-            createdUser.UserName.Should().Be(createRequest.UserName);
-            createdUser.Email.Should().Be(createRequest.Email);
-            return createdUser;
-        }
-
-        private async Task DeleteUserRoleAsync(string userId, string roleId)
-        {
-            var response = await DeleteBodyAsync(UserRolesRoute, new UserRoleApiDto<string>
-            {
-                UserId = userId,
-                RoleId = roleId
-            });
-
-            response.StatusCode.Should().Be(HttpStatusCode.NoContent);
-        }
-
-        private async Task<RoleClaimApiDto<string>> CreateRoleClaimAsync(string roleId, string claimType, string claimValue)
-        {
-            var addClaimResponse = await Client.PostAsJsonAsync(RoleClaimsRoute, new RoleClaimApiDto<string>
-            {
-                ClaimId = 0,
-                RoleId = roleId,
-                ClaimType = claimType,
-                ClaimValue = claimValue
-            });
-            addClaimResponse.StatusCode.Should().Be(HttpStatusCode.Created);
-
-            var roleClaimsRoute = $"{ById(RolesRoute, roleId)}/{RolesClaimsRouteSuffix}";
-            var claimsResponse = await Client.GetAsync($"{roleClaimsRoute}?page={DefaultPage}&pageSize={ClaimsPageSize}");
-            claimsResponse.EnsureSuccessStatusCode();
-
-            var claims = await claimsResponse.Content.ReadFromJsonAsync<RoleClaimsApiDto<string>>();
-            claims.Should().NotBeNull();
-
-            var createdClaim = claims!.Claims.FirstOrDefault(x => x.ClaimType == claimType && x.ClaimValue == claimValue);
-            createdClaim.Should().NotBeNull();
-
-            return createdClaim!;
         }
 
         [Fact]
@@ -187,6 +101,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.IntegrationTests.Tests
             }
             finally
             {
+                SetupAdminAuthorization();
                 await SafeDeleteAsync(RolesRoute, createdRoleId);
             }
         }
@@ -214,6 +129,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.IntegrationTests.Tests
             }
             finally
             {
+                SetupAdminAuthorization();
                 await SafeDeleteAsync(RolesRoute, createdRoleId);
             }
         }
@@ -257,6 +173,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.IntegrationTests.Tests
             }
             finally
             {
+                SetupAdminAuthorization();
                 await SafeDeleteAsync(RolesRoute, createdRoleId);
             }
         }
@@ -308,6 +225,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.IntegrationTests.Tests
             }
             finally
             {
+                SetupAdminAuthorization();
                 await SafeDeleteAsync(RolesRoute, createdRoleId);
             }
         }
@@ -351,6 +269,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.IntegrationTests.Tests
             }
             finally
             {
+                SetupAdminAuthorization();
                 await SafeDeleteAsync(RolesRoute, createdRoleId);
             }
         }
@@ -380,6 +299,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.IntegrationTests.Tests
             }
             finally
             {
+                SetupAdminAuthorization();
                 await SafeDeleteAsync(RolesRoute, createdRoleId);
             }
         }
@@ -409,6 +329,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.IntegrationTests.Tests
             }
             finally
             {
+                SetupAdminAuthorization();
                 await SafeDeleteAsync(RolesRoute, createdRoleId);
             }
         }
@@ -450,6 +371,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.Api.IntegrationTests.Tests
             }
             finally
             {
+                SetupAdminAuthorization();
                 await SafeDeleteAsync(UsersRoute, createdUserId);
                 await SafeDeleteAsync(RolesRoute, createdRoleId);
             }
