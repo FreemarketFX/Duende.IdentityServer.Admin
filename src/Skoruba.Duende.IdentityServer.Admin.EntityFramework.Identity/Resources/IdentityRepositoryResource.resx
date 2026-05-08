@@ -18,4 +18,10 @@
   <data name="RoleDoesNotExist" xml:space="preserve">
     <value>Role with id {0} doesn't exist</value>
   </data>
+  <data name="UserClaimDoesNotExist" xml:space="preserve">
+    <value>User claim with id {0} doesn't exist</value>
+  </data>
+  <data name="UserDoesNotExist" xml:space="preserve">
+    <value>User with id {0} doesn't exist</value>
+  </data>
 </root>

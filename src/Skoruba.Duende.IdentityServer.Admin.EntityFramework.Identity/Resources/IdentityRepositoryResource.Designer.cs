@@ -55,5 +55,17 @@ namespace Skoruba.Duende.IdentityServer.Admin.EntityFramework.Identity.Resources
                 return ResourceManager.GetString("RoleDoesNotExist", resourceCulture);
             }
         }
+
+        internal static string UserClaimDoesNotExist {
+            get {
+                return ResourceManager.GetString("UserClaimDoesNotExist", resourceCulture);
+            }
+        }
+
+        internal static string UserDoesNotExist {
+            get {
+                return ResourceManager.GetString("UserDoesNotExist", resourceCulture);
+            }
+        }
     }
 }

@@ -216,7 +216,6 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
                 return BadRequest(_errorResources.IdRequiredForUpdate());
             }
 
-            await _identityService.GetUserClaimAsync(userClaimDto.UserId.ToString(), userClaimDto.ClaimId);
             await _identityService.UpdateUserClaimsAsync(userClaimDto);
 
             return NoContent();

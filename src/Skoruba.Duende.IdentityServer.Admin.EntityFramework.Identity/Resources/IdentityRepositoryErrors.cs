@@ -9,6 +9,26 @@ namespace Skoruba.Duende.IdentityServer.Admin.EntityFramework.Identity.Resources
 {
     internal static class IdentityRepositoryErrors
     {
+        internal static IdentityError UserDoesNotExist(object userId)
+        {
+            return CreateError(
+                nameof(UserDoesNotExist),
+                string.Format(
+                    CultureInfo.InvariantCulture,
+                    IdentityRepositoryResource.UserDoesNotExist,
+                    Convert.ToString(userId, CultureInfo.InvariantCulture)));
+        }
+
+        internal static IdentityError UserClaimDoesNotExist(int claimId)
+        {
+            return CreateError(
+                nameof(UserClaimDoesNotExist),
+                string.Format(
+                    CultureInfo.InvariantCulture,
+                    IdentityRepositoryResource.UserClaimDoesNotExist,
+                    claimId));
+        }
+
         internal static IdentityError RoleDoesNotExist(object roleId)
         {
             return CreateError(

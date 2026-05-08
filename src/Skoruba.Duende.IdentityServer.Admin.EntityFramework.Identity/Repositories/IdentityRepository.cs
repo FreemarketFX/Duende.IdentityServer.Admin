@@ -308,7 +308,18 @@ namespace Skoruba.Duende.IdentityServer.Admin.EntityFramework.Identity.Repositor
         public virtual async Task<IdentityResult> UpdateUserClaimsAsync(TUserClaim claims)
         {
             var user = await UserManager.FindByIdAsync(claims.UserId.ToString());
-            var userClaim = await DbContext.Set<TUserClaim>().Where(x => x.Id == claims.Id).SingleOrDefaultAsync();
+            if (user == null)
+            {
+                return IdentityResult.Failed(IdentityRepositoryErrors.UserDoesNotExist(claims.UserId));
+            }
+
+            var userClaim = await DbContext.Set<TUserClaim>()
+                .Where(x => x.UserId.Equals(claims.UserId) && x.Id == claims.Id)
+                .SingleOrDefaultAsync();
+            if (userClaim == null)
+            {
+                return IdentityResult.Failed(IdentityRepositoryErrors.UserClaimDoesNotExist(claims.Id));
+            }
 
             await UserManager.RemoveClaimAsync(user, new Claim(userClaim.ClaimType, userClaim.ClaimValue));
 

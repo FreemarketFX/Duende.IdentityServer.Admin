@@ -4,16 +4,37 @@ const path = require("node:path");
 const test = require("node:test");
 const { JSDOM } = require("jsdom");
 
-const scriptPath = path.join(
-  __dirname,
-  "..",
-  "..",
-  "src",
-  "Skoruba.Duende.IdentityServer.STS.Identity",
-  "wwwroot",
-  "js",
-  "passkey-submit.js",
-);
+function resolvePasskeySubmitScriptPath() {
+  const repoRootCandidates = [
+    path.resolve(__dirname, "..", ".."),
+    process.cwd(),
+  ];
+
+  const checkedPaths = [];
+
+  for (const repoRoot of repoRootCandidates) {
+    const candidate = path.join(
+      repoRoot,
+      "src",
+      "Skoruba.Duende.IdentityServer.STS.Identity",
+      "wwwroot",
+      "js",
+      "passkey-submit.js",
+    );
+
+    checkedPaths.push(candidate);
+
+    if (fs.existsSync(candidate)) {
+      return candidate;
+    }
+  }
+
+  throw new Error(
+    `Could not locate passkey-submit.js. Checked: ${checkedPaths.join(", ")}`,
+  );
+}
+
+const scriptPath = resolvePasskeySubmitScriptPath();
 const scriptContent = fs.readFileSync(scriptPath, "utf8");
 
 function createHarness(options = {}) {
