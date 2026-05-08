@@ -147,6 +147,12 @@
   <data name="LoginDescription" xml:space="preserve">
     <value>Sign in to your account</value>
   </data>
+  <data name="Register" xml:space="preserve">
+    <value>Register</value>
+  </data>
+  <data name="RegisterDescription" xml:space="preserve">
+    <value>Create a new account</value>
+  </data>
   <data name="ManagePersonalData" xml:space="preserve">
     <value>My personal data</value>
   </data>

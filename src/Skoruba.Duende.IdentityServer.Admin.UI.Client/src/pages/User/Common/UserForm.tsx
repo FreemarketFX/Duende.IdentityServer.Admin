@@ -15,11 +15,12 @@ import UserClaimsTab from "./Tabs/UserClaimsTab";
 import UserRolesTab from "./Tabs/UserRolesTab";
 import ExternalApplicationsTab from "./Tabs/ExternalApplicationsTab";
 import UserPersistedGrantsTab from "./Tabs/UserPersistedGrantsTab";
+import ChangePasswordTab from "./Tabs/ChangePasswordTab";
 import { queryKeys } from "@/services/QueryKeys";
 import Hoorey from "@/components/Hoorey/Hoorey";
 import useModal from "@/hooks/modalHooks";
 import UserDeleteDialog from "./UserDeleteDialog";
-import { Trash2, Info, Tag, Users, Globe, KeySquare } from "lucide-react";
+import { Trash2, Info, Tag, Users, Globe, KeySquare, ShieldCheck } from "lucide-react";
 import {
   useConfirmUnsavedChanges,
   useNavigateWithBlocker,
@@ -121,6 +122,13 @@ const UserForm: React.FC<Props> = ({ mode, userId, defaultValues }) => {
                     <KeySquare className="h-4 w-4" />
                     {t("User.Tabs.PersistedGrants")}
                   </TabsTrigger>
+                  <TabsTrigger
+                    value="password"
+                    className="flex items-center gap-2"
+                  >
+                    <ShieldCheck className="h-4 w-4" />
+                    {t("User.Tabs.Password")}
+                  </TabsTrigger>
                 </TabsList>
 
                 <div className="inline-flex">
@@ -151,6 +159,9 @@ const UserForm: React.FC<Props> = ({ mode, userId, defaultValues }) => {
               </TabsContent>
               <TabsContent value="persistedgrants">
                 <UserPersistedGrantsTab userId={userId!} />
+              </TabsContent>
+              <TabsContent value="password">
+                <ChangePasswordTab userId={userId!} />
               </TabsContent>
             </Tabs>
           ) : (

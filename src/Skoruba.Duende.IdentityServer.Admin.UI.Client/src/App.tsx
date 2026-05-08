@@ -6,13 +6,10 @@ import { router } from "./routing/Router";
 import Loading from "./components/Loading/Loading";
 import { DirtyGuardProvider } from "./contexts/DirtyGuardContext";
 import { useTranslation } from "react-i18next";
-import { useDocumentTitle } from "./hooks/useDocumentTitle";
 
 const App = () => {
   const { isLoading, isAuthenticated, login } = useAuth();
   const { t } = useTranslation();
-
-  useDocumentTitle();
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {

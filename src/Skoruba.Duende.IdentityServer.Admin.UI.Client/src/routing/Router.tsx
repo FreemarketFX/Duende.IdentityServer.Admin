@@ -8,28 +8,51 @@ const Clients = lazy(() => import("@/pages/Clients/Clients"));
 const ClientEdit = lazy(() => import("@/pages/Client/Edit/ClientEdit"));
 const ClientClone = lazy(() => import("@/pages/Client/Clone/ClientClone"));
 const ApiResources = lazy(() => import("@/pages/ApiResources/ApiResources"));
-const ApiResourceCreate = lazy(() => import("@/pages/ApiResource/Create/ApiResourceCreate"));
-const ApiResourceEdit = lazy(() => import("@/pages/ApiResource/Edit/ApiResourceEdit"));
+const ApiResourceCreate = lazy(
+  () => import("@/pages/ApiResource/Create/ApiResourceCreate"),
+);
+const ApiResourceEdit = lazy(
+  () => import("@/pages/ApiResource/Edit/ApiResourceEdit"),
+);
 const ApiScopes = lazy(() => import("@/pages/ApiScopes/ApiScopes"));
-const ApiScopeCreate = lazy(() => import("@/pages/ApiScope/Create/ApiScopeCreate"));
+const ApiScopeCreate = lazy(
+  () => import("@/pages/ApiScope/Create/ApiScopeCreate"),
+);
 const ApiScopeEdit = lazy(() => import("@/pages/ApiScope/Edit/ApiScopeEdit"));
-const IdentityResources = lazy(() => import("@/pages/IdentityResources/IdentityResources"));
-const IdentityResourceCreate = lazy(() => import("@/pages/IdentityResource/Create/IdentityResourceCreate"));
-const IdentityResourceEdit = lazy(() => import("@/pages/IdentityResource/Edit/IdentityResourceEdit"));
+const IdentityResources = lazy(
+  () => import("@/pages/IdentityResources/IdentityResources"),
+);
+const IdentityResourceCreate = lazy(
+  () => import("@/pages/IdentityResource/Create/IdentityResourceCreate"),
+);
+const IdentityResourceEdit = lazy(
+  () => import("@/pages/IdentityResource/Edit/IdentityResourceEdit"),
+);
 const Users = lazy(() => import("@/pages/Users/Users"));
 const Roles = lazy(() => import("@/pages/Roles/Roles"));
 const RoleEdit = lazy(() => import("@/pages/Role/Edit/RoleEdit"));
 const RoleCreate = lazy(() => import("@/pages/Role/Create/RoleCreate"));
 const UserCreate = lazy(() => import("@/pages/User/Create/UserCreate"));
 const UserEdit = lazy(() => import("@/pages/User/Edit/UserEdit"));
-const IdentityProviders = lazy(() => import("@/pages/IdentityProviders/IdentityProviders"));
-const IdentityProviderCreate = lazy(() => import("@/pages/IdentityProvider/Create/IdentityProviderCreate"));
-const IdentityProviderEdit = lazy(() => import("@/pages/IdentityProvider/Edit/IdentityProviderEdit"));
+const IdentityProviders = lazy(
+  () => import("@/pages/IdentityProviders/IdentityProviders"),
+);
+const IdentityProviderCreate = lazy(
+  () => import("@/pages/IdentityProvider/Create/IdentityProviderCreate"),
+);
+const IdentityProviderEdit = lazy(
+  () => import("@/pages/IdentityProvider/Edit/IdentityProviderEdit"),
+);
 const Keys = lazy(() => import("@/pages/Keys/Keys"));
-const ConfigurationIssues = lazy(() => import("@/pages/ConfigurationIssues/ConfigurationIssues"));
-const ConfigurationRules = lazy(() => import("@/pages/ConfigurationRules/ConfigurationRules"));
+const ConfigurationIssues = lazy(
+  () => import("@/pages/ConfigurationIssues/ConfigurationIssues"),
+);
+const ConfigurationRules = lazy(
+  () => import("@/pages/ConfigurationRules/ConfigurationRules"),
+);
 const AuditLogs = lazy(() => import("@/pages/AuditLogs/AuditLogs"));
 const RoleUsers = lazy(() => import("@/pages/RoleUsers/RoleUsers"));
+const AccessDenied = lazy(() => import("@/pages/AccessDenied/AccessDenied"));
 import { getBaseHref } from "@/lib/utils";
 import {
   HomeUrl,
@@ -60,9 +83,11 @@ import {
   AuditLogsUrl,
   RoleUsersUrl,
   NotFoundUrl,
+  AccessDeniedUrl,
 } from "./Urls";
 import ProtectedRoute from "./ProtectedRoute";
 import { useAuth } from "@/contexts/AuthContext";
+import MinimalLayout from "@/components/Layout/MinimalLayout";
 
 const baseHref = getBaseHref();
 
@@ -305,8 +330,16 @@ export const router = createBrowserRouter(
         { path: NotFoundUrl, element: <div>404</div> },
       ],
     },
+    {
+      path: AccessDeniedUrl,
+      element: (
+        <MinimalLayout>
+          <AccessDenied />
+        </MinimalLayout>
+      ),
+    },
   ],
   {
     basename: baseHref,
-  }
+  },
 );

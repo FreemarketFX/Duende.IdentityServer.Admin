@@ -6,6 +6,7 @@ import {
   findUserRow,
 } from "./helpers/users-list";
 import { runCreateUpdateAndVerifyUserPersistence } from "./scenarios/user-persistence-flow";
+import { runChangePasswordFlow } from "./scenarios/change-password-flow";
 
 const seedData = loadE2ESeedData();
 const credentials: LoginCredentials = {
@@ -40,5 +41,12 @@ test.describe("Admin UI Users", () => {
   }) => {
     test.setTimeout(180_000);
     await runCreateUpdateAndVerifyUserPersistence(page, credentials);
+  });
+
+  test("change password tab validates and submits correctly", async ({
+    page,
+  }) => {
+    test.setTimeout(120_000);
+    await runChangePasswordFlow(page, credentials);
   });
 });

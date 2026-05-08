@@ -152,7 +152,10 @@
     "Required": "This field is required",
     "FieldRequired": "{{field}} is required.",
     "AtLeastOneItem": "At least one item is required",
-    "AtLeastOneItemField": "At least one item is required for {{field}}."
+    "AtLeastOneItemField": "At least one item is required for {{field}}.",
+    "PasswordRequired": "Password is required.",
+    "PasswordMinLength": "Password must be at least {{min}} characters.",
+    "PasswordsMustMatch": "Passwords do not match."
   },
   "Actions": {
     "Actions": "Actions",
@@ -784,7 +787,19 @@
       "ExternalApplications": "External Applications",
       "ExternalApplicationsDescription": "Manage the external applications linked to the user.",
       "PersistedGrants": "Persisted Grants",
-      "PersistedGrantsDescription": "Manage the persisted grants associated with the user."
+      "PersistedGrantsDescription": "Manage the persisted grants associated with the user.",
+      "Password": "Password",
+      "PasswordDescription": "Change the password for this user."
+    },
+    "ChangePassword": {
+      "Title": "Change Password",
+      "Description": "Set a new password for this user. The change takes effect immediately.",
+      "NewPassword_Label": "New Password",
+      "NewPassword_Info": "Enter the new password",
+      "ConfirmPassword_Label": "Confirm Password",
+      "ConfirmPassword_Info": "Re-enter the new password to confirm",
+      "Submit": "Change Password",
+      "Success": "Password changed successfully"
     },
     "Section": {
       "Label": {
@@ -934,6 +949,13 @@
     "WeeklyAverage_one": "{{count}} op/week avg",
     "WeeklyAverage_other": "{{count}} ops/week avg",
     "CurrentWeek": "Current week"
+  },
+  "Pages": {
+    "AccessDenied": {
+      "Title": "Access Denied",
+      "Description": "You don't have permission to view this resource. Contact your administrator if you believe this is a mistake.",
+      "GoHome": "Go to Home"
+    }
   },
   "Footer": {
     "Version": "Version",

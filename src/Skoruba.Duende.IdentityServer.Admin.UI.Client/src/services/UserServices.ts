@@ -358,3 +358,26 @@ export const useDeleteAllPersistedGrantsForUser = () => {
     },
   });
 };
+
+export const useChangeUserPassword = () => {
+  return useMutation({
+    mutationFn: async ({
+      userId,
+      password,
+      confirmPassword,
+    }: {
+      userId: string;
+      password: string;
+      confirmPassword: string;
+    }) => {
+      const usersClient = getClient();
+      await usersClient.postChangePassword(
+        new client.UserChangePasswordApiDtoOfString({
+          userId,
+          password,
+          confirmPassword,
+        }),
+      );
+    },
+  });
+};

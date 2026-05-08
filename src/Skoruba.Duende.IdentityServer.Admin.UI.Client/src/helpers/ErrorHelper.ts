@@ -8,6 +8,8 @@ import {
 } from "@tanstack/react-query";
 import { isProblemDetails, isSwaggerError } from "@/lib/type-guards";
 import i18next from "@/i18n/config";
+import { router } from "@/routing/Router";
+import { AccessDeniedUrl } from "@/routing/Urls";
 
 const ERROR_MESSAGES = {
   UNEXPECTED: () => String(i18next.t("Errors.Unexpected")),
@@ -52,7 +54,7 @@ const tryParseJson = <T = unknown>(text: string): T | null => {
 const flattenErrors = (errors: ProblemDetails["errors"]): string => {
   if (!errors) return "";
   const values = Object.values(errors).flatMap((v) =>
-    Array.isArray(v) ? v : [v]
+    Array.isArray(v) ? v : [v],
   );
   return values.join(", ");
 };
@@ -77,7 +79,7 @@ const isNetworkError = (error: unknown): boolean =>
     error.message.includes("Load failed"));
 
 export const extractValidationMessageFromProblemDetails = (
-  error: unknown
+  error: unknown,
 ): string => {
   if (!isProblemDetails(error)) return ERROR_MESSAGES.UNEXPECTED();
   if (error.errors && typeof error.errors === "object") {
@@ -88,7 +90,7 @@ export const extractValidationMessageFromProblemDetails = (
 };
 
 export const extractValidationMessageFromSwaggerError = (
-  error: unknown
+  error: unknown,
 ): string => {
   if (error instanceof client.SwaggerException || isSwaggerErrorShape(error)) {
     const payload =
@@ -140,11 +142,15 @@ const getErrorMessage = (error: unknown): string => {
 
 function handleGlobalError(
   error: unknown,
-  title: string = ERROR_MESSAGES.DEFAULT_TITLE()
+  title: string = ERROR_MESSAGES.DEFAULT_TITLE(),
 ) {
   const description = getErrorMessage(error);
   const status = getStatusCode(error);
   if (status === 401) return;
+  if (status === 403) {
+    router.navigate(AccessDeniedUrl);
+    return;
+  }
   const variant =
     typeof status === "number" && (status === 400 || status >= 500)
       ? "destructive"
@@ -164,7 +170,12 @@ const defaultOptions: DefaultOptions = {
   queries: {
     retry: (failureCount, error) => {
       const status = getStatusCode(error);
-      if (status === 400 || status === 401 || status === 403 || status === 404) {
+      if (
+        status === 400 ||
+        status === 401 ||
+        status === 403 ||
+        status === 404
+      ) {
         return false;
       }
       return failureCount < DEFAULT_RETRY_COUNT;
