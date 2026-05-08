@@ -20,7 +20,15 @@ import { queryKeys } from "@/services/QueryKeys";
 import Hoorey from "@/components/Hoorey/Hoorey";
 import useModal from "@/hooks/modalHooks";
 import UserDeleteDialog from "./UserDeleteDialog";
-import { Trash2, Info, Tag, Users, Globe, KeySquare, ShieldCheck } from "lucide-react";
+import {
+  Trash2,
+  Info,
+  Tag,
+  Users,
+  Globe,
+  KeySquare,
+  ShieldCheck,
+} from "lucide-react";
 import {
   useConfirmUnsavedChanges,
   useNavigateWithBlocker,

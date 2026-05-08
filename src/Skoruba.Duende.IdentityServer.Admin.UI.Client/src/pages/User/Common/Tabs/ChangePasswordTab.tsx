@@ -50,7 +50,11 @@ const ChangePasswordTab: React.FC<Props> = ({ userId }) => {
 
   const onSubmit = (data: ChangePasswordFormData) => {
     changePasswordMutation.mutate(
-      { userId, password: data.password, confirmPassword: data.confirmPassword },
+      {
+        userId,
+        password: data.password,
+        confirmPassword: data.confirmPassword,
+      },
       {
         onSuccess: () => {
           form.reset();

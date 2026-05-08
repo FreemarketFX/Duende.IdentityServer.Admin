@@ -22,9 +22,7 @@ test.describe("Access Denied page", () => {
     await expect(
       page.getByRole("heading", { name: /Access Denied/i }),
     ).toBeVisible();
-    await expect(
-      page.getByText(/permission|forbidden/i).first(),
-    ).toBeVisible();
+    await expect(page.getByText(/permission|forbidden/i).first()).toBeVisible();
 
     // Go home link should navigate back to root
     const goHomeLink = page.getByRole("link", { name: /Go to Home/i });

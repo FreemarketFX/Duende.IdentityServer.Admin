@@ -1,10 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { loadE2ESeedData } from "../utils/seed-data";
 import { type LoginCredentials } from "./helpers/auth";
-import {
-  ensureLoggedInAndOpenUsers,
-  findUserRow,
-} from "./helpers/users-list";
+import { ensureLoggedInAndOpenUsers, findUserRow } from "./helpers/users-list";
 import { runCreateUpdateAndVerifyUserPersistence } from "./scenarios/user-persistence-flow";
 import { runChangePasswordFlow } from "./scenarios/change-password-flow";
 
@@ -18,7 +15,9 @@ test.describe("Admin UI Users", () => {
   test("opens users list and seeded user detail", async ({ page }) => {
     await ensureLoggedInAndOpenUsers(page, credentials);
 
-    const userLinks = page.locator('table tbody tr td a[href*="/user-profile/"]');
+    const userLinks = page.locator(
+      'table tbody tr td a[href*="/user-profile/"]',
+    );
     await expect(userLinks.first()).toBeVisible();
     expect(await userLinks.count()).toBeGreaterThan(0);
 

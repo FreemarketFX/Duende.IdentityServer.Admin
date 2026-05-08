@@ -14,8 +14,16 @@ export async function runChangePasswordFlow(
 ): Promise<void> {
   const logStep = createDebugLogger("change-password-flow");
 
-  const strongPassword = faker.internet.password({ length: 16, memorable: false, prefix: "Aa1!" });
-  const mismatchPassword = faker.internet.password({ length: 16, memorable: false, prefix: "Bb2@" });
+  const strongPassword = faker.internet.password({
+    length: 16,
+    memorable: false,
+    prefix: "Aa1!",
+  });
+  const mismatchPassword = faker.internet.password({
+    length: 16,
+    memorable: false,
+    prefix: "Bb2@",
+  });
 
   const marker = faker.string.alphanumeric({ length: 10, casing: "lower" });
   const userName = `ui_cpwd_${marker}`;
@@ -40,21 +48,35 @@ export async function runChangePasswordFlow(
   });
   logStep("opened password tab");
 
-  await expect(passwordPanel.locator('input[type="password"]').first()).toBeVisible();
-  await expect(passwordPanel.locator('input[type="password"]').last()).toBeVisible();
+  await expect(
+    passwordPanel.locator('input[type="password"]').first(),
+  ).toBeVisible();
+  await expect(
+    passwordPanel.locator('input[type="password"]').last(),
+  ).toBeVisible();
 
   // Test validation: mismatched passwords
-  await passwordPanel.locator('input[type="password"]').first().fill(strongPassword);
-  await passwordPanel.locator('input[type="password"]').last().fill(mismatchPassword);
+  await passwordPanel
+    .locator('input[type="password"]')
+    .first()
+    .fill(strongPassword);
+  await passwordPanel
+    .locator('input[type="password"]')
+    .last()
+    .fill(mismatchPassword);
   await passwordPanel.getByRole("button", { name: /Change Password/i }).click();
-  await expect(
-    passwordPanel.getByText(/do not match/i),
-  ).toBeVisible();
+  await expect(passwordPanel.getByText(/do not match/i)).toBeVisible();
   logStep("verified mismatch validation");
 
   // Test successful password change
-  await passwordPanel.locator('input[type="password"]').first().fill(strongPassword);
-  await passwordPanel.locator('input[type="password"]').last().fill(strongPassword);
+  await passwordPanel
+    .locator('input[type="password"]')
+    .first()
+    .fill(strongPassword);
+  await passwordPanel
+    .locator('input[type="password"]')
+    .last()
+    .fill(strongPassword);
   await passwordPanel.getByRole("button", { name: /Change Password/i }).click();
 
   // Expect success toast (Hooray!)
