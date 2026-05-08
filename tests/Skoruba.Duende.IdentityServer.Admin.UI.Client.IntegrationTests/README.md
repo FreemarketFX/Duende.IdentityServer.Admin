@@ -61,11 +61,17 @@ Run these services before executing tests:
 - `Skoruba.Duende.IdentityServer.Admin.Api`
 - `Skoruba.Duende.IdentityServer.Admin`
 
-Default URLs expected by tests:
+Default URLs used during local test runs:
 
-- Admin UI: `https://localhost:7127`
+- Admin backend (`Skoruba.Duende.IdentityServer.Admin`): `https://localhost:7127`
+- Admin UI under test (`E2E_ADMIN_URL`, Vite dev server): `https://localhost:50445`
 - STS: `https://localhost:44310`
 - Admin API: `https://localhost:44302`
+
+> Note: Playwright targets the Vite dev server on `https://localhost:50445` by
+> default. That frontend dev server proxies API/backend traffic to the Admin
+> application running on `https://localhost:7127`, which is why both ports
+> appear in the setup.
 
 ## Install
 

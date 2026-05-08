@@ -11,7 +11,10 @@ function escapeForRegex(value: string): string {
 }
 
 function getStsLoginUrlPattern(): RegExp {
-  const stsUrl = process.env.E2E_STS_URL ?? "https://localhost:44310";
+  const stsUrl = (process.env.E2E_STS_URL ?? "https://localhost:44310").replace(
+    /\/+$/g,
+    "",
+  );
   return new RegExp(
     `${escapeForRegex(stsUrl)}/Account/Login(?:[/?#]|$)`,
     "i",

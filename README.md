@@ -697,7 +697,16 @@ Default expected runtime services:
 
 - STS: `https://localhost:44310`
 - Admin API: `https://localhost:44302`
-- Admin UI host: `https://localhost:7127`
+- Admin UI host:
+  - Kestrel-hosted app: `https://localhost:7127`
+  - Vite dev server / default `E2E_ADMIN_URL` for Playwright: `https://localhost:50445`
+
+> **Important:** The seeded OIDC client redirect URIs and CORS origins in
+> `src/Skoruba.Duende.IdentityServer.Admin.Api/identityserverdata.json` use
+> `https://localhost:50445` by default. If you run the Admin UI on
+> `https://localhost:7127` instead, update the client configuration (or the
+> Playwright `E2E_ADMIN_URL`) so redirects and CORS validation continue to
+> work.
 
 The tests load credentials and expected client data from seed files:
 
