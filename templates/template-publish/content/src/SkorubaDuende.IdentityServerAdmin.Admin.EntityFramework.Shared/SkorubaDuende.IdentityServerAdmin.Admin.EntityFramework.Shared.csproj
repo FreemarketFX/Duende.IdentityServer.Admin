@@ -8,8 +8,8 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="10.0.7" />
 		<PackageReference Include="Skoruba.AuditLogging.EntityFramework" Version="3.0.0" />
-		<PackageReference Include="Skoruba.Duende.IdentityServer.Admin.EntityFramework.Admin.Storage" Version="3.0.0-preview.24" />
-		<PackageReference Include="Skoruba.Duende.IdentityServer.Admin.EntityFramework.Configuration" Version="3.0.0-preview.24" />
+		<PackageReference Include="Skoruba.Duende.IdentityServer.Admin.EntityFramework.Admin.Storage" Version="3.0.0-rc2" />
+		<PackageReference Include="Skoruba.Duende.IdentityServer.Admin.EntityFramework.Configuration" Version="3.0.0-rc2" />
 	</ItemGroup>
 </Project>
 

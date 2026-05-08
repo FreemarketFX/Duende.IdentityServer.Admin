@@ -143,6 +143,13 @@
                         <lucideicon name="log-in" class="h-4 w-4" />
                         @Localizer["Login"]
                     </a>
+                    @if (RootConfiguration.RegisterConfiguration.Enabled)
+                    {
+                        <a class="btn-outline inline-flex items-center gap-2" asp-action="Register" asp-controller="Account">
+                            <lucideicon name="user-plus" class="h-4 w-4" />
+                            @Localizer["Register"]
+                        </a>
+                    }
                 }
                 <button id="theme-toggle" class="btn-ghost btn-icon" aria-label="Toggle theme">
                     <span id="theme-toggle-dark-icon" class="hidden">
@@ -196,6 +203,13 @@
                             <lucideicon name="log-in" class="h-4 w-4" />
                             @Localizer["Login"]
                         </a>
+                        @if (RootConfiguration.RegisterConfiguration.Enabled)
+                        {
+                            <a class="btn-outline inline-flex items-center gap-2" asp-action="Register" asp-controller="Account">
+                                <lucideicon name="user-plus" class="h-4 w-4" />
+                                @Localizer["Register"]
+                            </a>
+                        }
                     }
                     <button id="theme-toggle-mobile" class="btn-ghost btn-icon" aria-label="Toggle theme">
                         <span id="theme-toggle-dark-icon-mobile" class="hidden">
