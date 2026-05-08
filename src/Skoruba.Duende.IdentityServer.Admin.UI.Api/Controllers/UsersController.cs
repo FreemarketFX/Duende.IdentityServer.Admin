@@ -206,6 +206,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
 
         [HttpPut("Claims")]
         [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         public async Task<IActionResult> PutUserClaims([FromBody] UserClaimApiDto<TKey> claim)
         {
