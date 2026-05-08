@@ -166,11 +166,7 @@ namespace Skoruba.Duende.IdentityServer.Admin.UI.Api.Controllers
         {
             var roleClaimsDto = roleClaims.ToRoleClaimsDto<TRoleClaimsDto, TKey>();
 
-            if (!roleClaimsDto.ClaimId.Equals(default))
-            {
-                return BadRequest(_errorResources.CannotSetId());
-            }
-
+            await _identityService.GetRoleClaimAsync(roleClaimsDto.RoleId.ToString(), roleClaimsDto.ClaimId);
             await _identityService.UpdateRoleClaimsAsync(roleClaimsDto);
 
             return NoContent();

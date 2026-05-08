@@ -323,9 +323,20 @@ namespace Skoruba.Duende.IdentityServer.Admin.EntityFramework.Identity.Repositor
         public virtual async Task<IdentityResult> UpdateRoleClaimsAsync(TRoleClaim claims)
         {
             var role = await RoleManager.FindByIdAsync(claims.RoleId.ToString());
-            var userClaim = await DbContext.Set<TUserClaim>().Where(x => x.Id == claims.Id).SingleOrDefaultAsync();
+            if (role == null)
+            {
+                return IdentityResult.Failed(RoleManager.ErrorDescriber.DefaultError());
+            }
 
-            await RoleManager.RemoveClaimAsync(role, new Claim(userClaim.ClaimType, userClaim.ClaimValue));
+            var roleClaim = await DbContext.Set<TRoleClaim>()
+                .Where(x => x.RoleId.Equals(claims.RoleId) && x.Id == claims.Id)
+                .SingleOrDefaultAsync();
+            if (roleClaim == null)
+            {
+                return IdentityResult.Failed(RoleManager.ErrorDescriber.DefaultError());
+            }
+
+            await RoleManager.RemoveClaimAsync(role, new Claim(roleClaim.ClaimType, roleClaim.ClaimValue));
 
             return await RoleManager.AddClaimAsync(role, new Claim(claims.ClaimType, claims.ClaimValue));
         }
