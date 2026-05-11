@@ -50,3 +50,20 @@ US-006 Prepare branch for PR                            — PENDING
   - Upstream `release/3.0.0-rc1` branch already had `<Version>3.0.0-rc2</Version>` internally — branch name and version are mismatched in upstream; only one line to change.
   - `dotnet test Skoruba.Duende.IdentityServer.Admin.sln` (solution-level) runs all 4 test projects in parallel; must specify the .sln file explicitly when multiple .sln files exist in /tmp/build.
 ---
+
+## 2026-05-11T02:00:00 - US-003
+- Created `.github/workflows/nuget_publish.yml` targeting `https://nuget.pkg.github.com/FreemarketFX/index.json`
+- Secret used: `ADMIN_PUBLISH_NUGET_TOKEN` (mirrors old `main` workflow)
+- Triggers: push to `main` + `feature/rebase-onto-3.0.0-rc1`, `release: published`, `workflow_dispatch`
+- No `release/*` upstream branches in triggers (per AC)
+- Uses `dotnet pack` on solution with `--output ./nupkgs`, then `dotnet nuget push ./nupkgs/*.nupkg --skip-duplicate`
+- Switched from old Windows/hardcoded-path runner to `ubuntu-latest` with glob push
+- Build and tests unchanged (YAML-only change); verified green from US-002
+- Files changed: `.github/workflows/nuget_publish.yml` (new file)
+- Context usage: ~30k tokens
+- **Learnings for future iterations:**
+  - Old main workflow used `ADMIN_PUBLISH_NUGET_TOKEN` (publish) and `ADMIN_READ_NUGET_TOKEN` (read during build). Build restore does not need GitHub Packages auth (only NuGet.org deps).
+  - `Admin.UI.Spa` uses `Microsoft.NET.Sdk.Razor` and packs static web assets — it IS a published package.
+  - `Admin`, `Admin.Api`, `STS.Identity` use `Microsoft.NET.Sdk.Web` — not packable by default.
+  - `dotnet pack` on the solution packs all class libraries; `--skip-duplicate` prevents re-publish errors on re-runs.
+---

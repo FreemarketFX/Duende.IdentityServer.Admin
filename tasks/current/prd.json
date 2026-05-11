@@ -54,8 +54,8 @@
         "Tests pass"
       ],
       "priority": 3,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Verified 2026-05-11: Created .github/workflows/nuget_publish.yml targeting https://nuget.pkg.github.com/FreemarketFX/index.json using ADMIN_PUBLISH_NUGET_TOKEN (mirroring old main workflow). Triggers on push to main/feature/rebase-onto-3.0.0-rc1, release published, and workflow_dispatch. No release/* upstream branches in triggers. Uses dotnet pack on solution + glob push with --skip-duplicate."
     },
     {
       "id": "US-004",

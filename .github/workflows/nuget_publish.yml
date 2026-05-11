@@ -1,0 +1,52 @@
+name: Publish NuGet Packages to FreemarketFX
+
+on:
+  push:
+    branches:
+      - main
+      - feature/rebase-onto-3.0.0-rc1
+  release:
+    types: [published]
+  workflow_dispatch:
+
+concurrency:
+  group: nuget-publish-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+          cache: true
+          cache-dependency-path: |
+            **/*.csproj
+            **/*.props
+            **/*.targets
+            global.json
+            Directory.Packages.props
+
+      - name: Restore
+        run: dotnet restore Skoruba.Duende.IdentityServer.Admin.sln
+
+      - name: Build
+        run: dotnet build Skoruba.Duende.IdentityServer.Admin.sln --configuration Release --no-restore
+
+      - name: Pack
+        run: dotnet pack Skoruba.Duende.IdentityServer.Admin.sln --configuration Release --no-build --output ./nupkgs
+
+      - name: Push to FreemarketFX GitHub Packages
+        run: |
+          dotnet nuget push ./nupkgs/*.nupkg \
+            --source https://nuget.pkg.github.com/FreemarketFX/index.json \
+            --api-key ${{ secrets.ADMIN_PUBLISH_NUGET_TOKEN }} \
+            --skip-duplicate
