@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "deny": [
+      "Bash(curl *)",
+      "Bash(wget *)",
+      "Bash(nc *)",
+      "Bash(ncat *)",
+      "Bash(telnet *)",
+      "Bash(ssh *)",
+      "Bash(scp *)",
+      "Bash(sftp *)",
+      "Bash(nslookup *)",
+      "Bash(dig *)",
+      "Bash(python -c *)",
+      "Bash(python3 -c *)",
+      "Bash(node -e *)",
+      "Bash(* | curl *)",
+      "Bash(* | wget *)",
+      "Bash(* | nc *)",
+      "Bash(az *)"
+    ],
+    "allow": [
+      "Bash",
+      "Write",
+      "Edit",
+      "Read",
+      "Glob",
+      "Grep",
+      "mcp__playwright__*",
+      "mcp__datadog__*"
+    ]
+  },
+  "enabledMcpjsonServers": [
+    "playwright",
+    "datadog"
+  ]
+}

@@ -7,13 +7,34 @@ Started: 2026-05-11
 
 ## Story Status
 
-US-001 Verify clean upstream build on .NET 10 SDK       — PENDING
+US-001 Verify clean upstream build on .NET 10 SDK       — DONE
 US-002 Bump fork version to 3.0.0-FMFX.1                — PENDING
 US-003 Update publish workflow to FMFX GitHub Packages  — PENDING
 US-004 Re-enable CodeQL workflow                        — PENDING
 US-005 Update README with new baseline                  — PENDING
 US-006 Prepare branch for PR                            — PENDING
 
+## Codebase Patterns
+
+- Solution file is at repo root `Skoruba.Duende.IdentityServer.Admin.sln`, NOT at `src/`. PRD references `src/Skoruba...sln` which does not exist.
+- Test projects are in `tests/` with actual names: `Skoruba.Duende.IdentityServer.Admin.UnitTests`, `Skoruba.Duende.IdentityServer.Admin.Api.UnitTests`, `Skoruba.Duende.IdentityServer.Admin.Api.IntegrationTests`, `Skoruba.Duende.IdentityServer.STS.Identity.IntegrationTests`.
+- Integration tests use in-memory EF databases via `RegisterDbContextsStaging` — no external SQL Server required.
+- dotnet build triggers `npm install` for the SPA project automatically via `Directory.Build.targets`. `npm ci` standalone cannot reach the registry from sandbox (network blocked). Use `npm run build:spa` from `node_modules` that dotnet build populated.
+- SPA build script (`scripts/build-and-copy.js`) must be run via `npm run build:spa`, not `node scripts/build-and-copy.js` directly — npm run adds `node_modules/.bin/` to PATH (needed for `vite`).
+- Working tree shows mass CRLF noise on checkout in this sandbox (no `.gitattributes`). Always run `git checkout -- .` at session start to clean.
+
 ## Iteration Log
 
-(Ralph appends notes here per iteration.)
+## 2026-05-11T00:00:00 - US-001
+- Created `global.json` at repo root pinning .NET 10.0.203 SDK with `rollForward: latestPatch`
+- Verified: dotnet build passes (0 errors, 0 warnings), Build time ~2m 7s
+- Verified: 174 admin unit tests pass, 39 API unit tests pass
+- Verified: 78 API integration tests pass, 23 STS integration tests pass (314 total)
+- Verified: npm run build:spa succeeds, output copied to Admin.UI.Spa/wwwroot/
+- Files changed: `global.json` (new file)
+- Context usage: ~70k tokens
+- **Learnings for future iterations:**
+  - Solution file is at repo root, not `src/`. Use `dotnet build /tmp/build/Skoruba.Duende.IdentityServer.Admin.sln`.
+  - `npm ci` is blocked by sandbox network proxy; `npm install` via dotnet build target works fine.
+  - All integration tests use in-memory DBs — fast and no external dependencies.
+---

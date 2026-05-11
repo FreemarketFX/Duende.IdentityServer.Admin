@@ -19,8 +19,8 @@
         "Typecheck passes (dotnet build with no errors)"
       ],
       "priority": 1,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Verified 2026-05-11: .NET 10.0.203 SDK, global.json created at repo root, dotnet build succeeded (0 errors, 0 warnings), npm restore + build:spa both green, all tests pass (174 unit + 39 API unit + 78 API integration + 23 STS integration = 314 total). Solution at repo root, not src/."
     },
     {
       "id": "US-002",
