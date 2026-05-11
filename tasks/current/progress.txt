@@ -67,3 +67,19 @@ US-006 Prepare branch for PR                            — PENDING
   - `Admin`, `Admin.Api`, `STS.Identity` use `Microsoft.NET.Sdk.Web` — not packable by default.
   - `dotnet pack` on the solution packs all class libraries; `--skip-duplicate` prevents re-publish errors on re-runs.
 ---
+
+## 2026-05-11T03:00:00 - US-004
+- Created `.github/workflows/codeql.yml`
+- Triggers: push + pull_request targeting `main` and `feature/rebase-onto-3.0.0-rc1`; weekly schedule (Monday 01:30 UTC)
+- Matrix: `csharp` and `javascript-typescript`
+- C# language branch: sets up .NET 10 SDK explicitly, runs `dotnet restore` + `dotnet build --no-restore`
+- JS/TS language branch: CodeQL autobuild (no explicit build step needed for JS/TS)
+- No CodeQL config file — avoids risk of broken globs
+- YAML-only change; build and tests are unchanged from US-003 baseline (all 314 tests pass)
+- Files changed: `.github/workflows/codeql.yml` (new file)
+- Context usage: ~25k tokens
+- **Learnings for future iterations:**
+  - CodeQL v3 actions (`github/codeql-action/init@v3`, `analyze@v3`) are current as of 2026-05.
+  - For csharp CodeQL, explicit .NET setup + manual build is more reliable than autobuild in non-standard SDK environments (e.g. .NET 10).
+  - `javascript-typescript` language in CodeQL matrix requires no manual build step — CodeQL infers JS/TS automatically.
+---

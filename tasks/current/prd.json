@@ -72,8 +72,8 @@
         "Tests pass"
       ],
       "priority": 4,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Verified 2026-05-11: Created .github/workflows/codeql.yml with push/pull_request triggers on main and feature/rebase-onto-3.0.0-rc1, matrix scanning csharp and javascript-typescript, explicit .NET 10 setup + build step for csharp language. No CodeQL config file used (no broken globs). YAML-only change; build/tests unchanged from US-003."
     },
     {
       "id": "US-005",
