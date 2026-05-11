@@ -11,6 +11,20 @@ Modern admin UI for **Duende IdentityServer** and **ASP.NET Core Identity**.
 
 ---
 
+## Freemarket Fork
+
+> This is a **FreemarketFX fork** of [skoruba/Duende.IdentityServer.Admin](https://github.com/skoruba/Duende.IdentityServer.Admin).
+
+| | |
+|---|---|
+| **Upstream baseline** | [`skoruba/Duende.IdentityServer.Admin@release/3.0.0-rc1`](https://github.com/skoruba/Duende.IdentityServer.Admin/tree/release/3.0.0-rc1) |
+| **Active branch** | `feature/rebase-onto-3.0.0-rc1` — becomes `main` once the rebase epic completes |
+| **Package versioning** | `3.0.0-FMFX.N` (e.g. `3.0.0-FMFX.1`), published to the FreemarketFX GitHub Packages feed |
+| **Re-base plan** | Re-base onto stable `3.0.0` once Skoruba tags it |
+| **Repo guidance** | [`CLAUDE.md`](CLAUDE.md) in this repo; epic-level plan in `Freemarket.Identity/CLEANUP-PLAN.md` |
+
+---
+
 ## Versions
 
 - ✅ **Stable (production): v2.7.0**  

@@ -92,8 +92,8 @@
         "Tests pass"
       ],
       "priority": 5,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Verified 2026-05-11: Added '## Freemarket Fork' section to README.md immediately after the badges, before the Versions section. Section states upstream baseline, active branch, package versioning (3.0.0-FMFX.N), re-base plan, and links to CLAUDE.md and Freemarket.Identity/CLEANUP-PLAN.md. No upstream content removed. Build/tests unchanged from US-004 (README-only change, no source files modified)."
     },
     {
       "id": "US-006",

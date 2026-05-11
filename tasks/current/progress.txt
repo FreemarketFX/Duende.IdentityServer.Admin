@@ -83,3 +83,12 @@ US-006 Prepare branch for PR                            — PENDING
   - For csharp CodeQL, explicit .NET setup + manual build is more reliable than autobuild in non-standard SDK environments (e.g. .NET 10).
   - `javascript-typescript` language in CodeQL matrix requires no manual build step — CodeQL infers JS/TS automatically.
 ---
+
+## 2026-05-11T04:00:00 - US-005
+- Added `## Freemarket Fork` section to `README.md` immediately after badges, before the upstream `## Versions` section
+- Section states: upstream baseline (`skoruba/Duende.IdentityServer.Admin@release/3.0.0-rc1`), active branch (`feature/rebase-onto-3.0.0-rc1`), package versioning (`3.0.0-FMFX.N`), re-base plan, links to `CLAUDE.md` and `Freemarket.Identity/CLEANUP-PLAN.md`
+- No upstream README content removed
+- Files changed: `README.md`, `tasks/current/prd.json`, `tasks/current/progress.txt`
+- Build/tests: unchanged from US-004 baseline — README.md is not a compiled artifact; no source files modified
+- Context usage: ~30k tokens
+---
