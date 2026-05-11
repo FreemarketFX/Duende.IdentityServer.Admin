@@ -1,0 +1,12 @@
+{
+  "name": "freemarket-claude-skills",
+  "version": "1.27.2",
+  "description": "PRD generation, Jira CSV export, ticket validation, plan-to-ticket conversion, Ralph autonomous agent, post-ralph archival, ralph-log-doctor postmortem analysis, unarchive-prd restore, PR risk assessment, PR feedback, self-code-review, security-champion contextual security reviews, tool-security-analysis for proposed MCP servers/skills/plugins/hooks, infrastructure update, test-sonar semantic coverage analysis, CLAUDE.md sync, SDK adoption tools, ADR scaffolding tools, stylecop pre-check, architecture test scaffolding, question-me design interviewer, handover session context handoff, conversation-recall for searching and learning from past Claude Code sessions, prompt injection defender hooks, elevation-guard PreToolUse hook, bash-command-guard PreToolUse hook, version-check SessionStart hook, and freemarket-monolith-hooks (12 codebase-invariant + workflow guardrails for the modular monolith stack)",
+  "author": {
+    "name": "Freemarket"
+  },
+  "repository": "https://github.com/FreemarketFX/claude-shared",
+  "license": "MIT",
+  "keywords": ["prd", "jira-csv", "ticket-validation", "plan-ticket", "autonomous-agent", "risk-assessment", "pr-feedback", "self-code-review", "security-champion", "tool-security-analysis", "infrastructure-update", "sync-claude-md", "post-ralph", "ralph-log-doctor", "unarchive-prd", "test-sonar", "adopt-user-roles-sdk", "adr", "prompt-defender", "stylecop-precheck", "architecture-test", "question-me", "handover", "conversation-recall", "elevation-guard", "bash-command-guard", "version-check", "freemarket-monolith-hooks"],
+  "skills": "./skills/"
+}

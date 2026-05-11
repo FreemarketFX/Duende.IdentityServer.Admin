@@ -1,0 +1,41 @@
+# Progress: Telerik NuGet Credentials for Ralph Sandbox
+Branch: add-telerik-auth
+
+## Codebase Patterns
+- GitHub PAT is read from GITHUB_TOKEN env var in ralph-sandbox.ps1 (~line 306-317)
+- New-NuGetConfig function generates nuget.config with here-string template (~line 34-60)
+- Staged nuget.config is cleaned up in finally block (~line 336)
+- nuget.telerik.com is already in the network allow-list (~line 395)
+- Telerik NuGet uses username 'api-key' with an API key as the password
+
+---
+
+## 2026-03-05 - US-001, US-002, US-003
+- Implemented all three stories together as they are tightly coupled
+- US-001: Added TELERIK_PASSWORD env var reading (~line 338-344), no interactive prompt, skips silently if not set
+- US-002: Updated New-NuGetConfig to accept optional TelerikPassword param; conditionally adds Telerik package source, credentials, and package source mapping
+- US-003: Wired TelerikPassword through to New-NuGetConfig call at ~line 352
+- Files changed: ralph-sandbox/ralph-sandbox.ps1, tasks/current/prd.json, tasks/current/progress.txt
+- **Learnings for future iterations:**
+  - PowerShell here-strings (@"..."@) don't support conditional sections natively; used string variables built conditionally before the here-string
+  - The backtick-n (`n) and backtick-quote (`") escapes are needed inside double-quoted strings for newlines and quotes
+---
+
+## 2026-03-05 - US-004
+- Added upfront prompt at ~line 339 asking if user needs Telerik NuGet feed
+- Defaults to No (only proceeds if user types y/Y)
+- If user says no, $TelerikPassword stays $null — Telerik is completely skipped
+- If user says yes, existing TELERIK_PASSWORD env var logic runs
+- Files changed: ralph-sandbox/ralph-sandbox.ps1, tasks/current/prd.json, tasks/current/progress.txt
+- **Learnings for future iterations:**
+  - PowerShell Read-Host always returns a string; matching with -match '^[Yy]' is a clean way to default to No
+---
+
+## 2026-03-05 - US-005
+- Added interactive fallback prompt for Telerik password when TELERIK_PASSWORD env var is not set
+- Follows same pattern as GitHub PAT prompt (Read-Host with descriptive message)
+- If user provides a password, it's used; if they skip (empty input), Telerik is skipped gracefully ($null)
+- Files changed: ralph-sandbox/ralph-sandbox.ps1, tasks/current/prd.json, tasks/current/progress.txt
+- **Learnings for future iterations:**
+  - Keep interactive fallback patterns consistent across credential types for maintainability
+---

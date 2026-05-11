@@ -1,0 +1,28 @@
+# bash-command-guard warn list
+#
+# One regex per line. Same format as blocklist.txt. Matches log a Datadog
+# warning but DO NOT block the command — used to trial new restrictions.
+#
+# Promote a pattern to blocklist.txt once Datadog shows the false-positive
+# rate is acceptable.
+
+# SSH key management — legitimate during setup, suspicious mid-session
+\bssh-keygen\b
+\bssh-add\b
+
+# Environment dumping — common for debugging, but a known exfil pattern
+\bprintenv\b
+\benv\s*\|
+Get-ChildItem\s+env:
+gci\s+env:
+
+# Recon
+\bnetstat\b
+
+# AWS / GCP identity probes — usually benign but worth a baseline
+get-caller-identity
+print-identity-token
+
+# Atlassian CLI — agents reaching Jira/Confluence often = PII / ticket-content
+# exfil risk. Tightened left boundary to avoid `local-acli-tools` etc.
+(^|[^[:alnum:]_-])acli\b

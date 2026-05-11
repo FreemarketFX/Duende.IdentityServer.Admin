@@ -1,0 +1,3 @@
+export NUGET_FEED_PASSWORD=keeper://3QVbYwgMucMinhiLYL3tdw/field/PAT
+export DD_API_KEY=keeper://_AiyXIODqCx0daVi_9XeNQ/field/PAT
+export DD_APPLICATION_KEY=keeper://ofXjXnTgzalBnJZ9dOG90A/field/PAT

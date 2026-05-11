@@ -1,0 +1,27 @@
+# Skill Scanner Security Gate
+#
+# Calls the reusable skill-scanner workflow from gha-shared-workflows to scan
+# all skill files under skills/ for prompt injection, data exfiltration, and
+# other malicious patterns.
+#
+# Runs on every PR targeting main, every push to main, and on-demand via
+# workflow_dispatch. The build fails on any finding (info severity or above).
+
+name: Skill Scanner
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  skill-scanner:
+    uses: FreemarketFX/gha-shared-workflows/.github/workflows/skill-scanner.yml@main
+    with:
+      skills_path: skills/
+      fail_on_severity: info
