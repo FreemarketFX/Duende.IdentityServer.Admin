@@ -1,0 +1,81 @@
+{
+  "project": "claude-shared",
+  "jiraTicket": "",
+  "branchName": "remove-telerik-references",
+  "description": "Remove all Telerik references from the Ralph sandbox — revert PR #43 code changes, remove network allow-host, clean up docs and task files",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Revert New-NuGetConfig to pre-Telerik state",
+      "description": "As a developer, I want the New-NuGetConfig function restored to its original signature (before PR #43) so there is no Telerik-related code in the NuGet config generation.",
+      "acceptanceCriteria": [
+        "New-NuGetConfig signature is ($OutputPath, $GitHubPat) — no $TelerikPassword parameter",
+        "All Telerik conditional XML generation is removed ($telerikSource, $telerikCredentials, $telerikMapping variables)",
+        "The $safePat XML-escaping of $GitHubPat is kept — this is a useful security improvement",
+        "The generated nuget.config template has no Telerik interpolations",
+        "The nuget.config output contains only nuget.org and GitHub-FreemarketFX sources",
+        "Build passes"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "Keep [System.Security.SecurityElement]::Escape($GitHubPat) — it was added in PR #43 but is a good security fix. Only revert the Telerik-specific additions."
+    },
+    {
+      "id": "US-002",
+      "title": "Remove Telerik credential resolution block",
+      "description": "As a developer, I want the Telerik token environment variable check and interactive prompt removed from the main script flow.",
+      "acceptanceCriteria": [
+        "The $TelerikPassword variable assignment block (~lines 376-383) is completely removed",
+        "The $env:TELERIK_TOKEN check is removed",
+        "The Read-Host prompt for Telerik NuGet token is removed",
+        "The -TelerikPassword $TelerikPassword argument is removed from the New-NuGetConfig call",
+        "Build passes"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": "The New-NuGetConfig call should become: New-NuGetConfig -OutputPath $nugetStaged -GitHubPat $GitHubPat"
+    },
+    {
+      "id": "US-003",
+      "title": "Remove Telerik from network allow-list and comments",
+      "description": "As a developer, I want nuget.telerik.com removed from the sandbox network policy since no traffic should go to Telerik.",
+      "acceptanceCriteria": [
+        "--allow-host \"nuget.telerik.com\" is removed from the network proxy command",
+        "The bypass-host comment referencing nuget.telerik.com is removed from the escape-hatch comments",
+        "The 'Common bypass candidates' list no longer mentions nuget.telerik.com",
+        "Build passes"
+      ],
+      "priority": 3,
+      "passes": true,
+      "notes": "Lines ~452-456 have comments mentioning nuget.telerik.com as a bypass candidate. Line ~473 has the actual --allow-host."
+    },
+    {
+      "id": "US-004",
+      "title": "Clean up Telerik references in documentation",
+      "description": "As a developer, I want Telerik references removed from README.md and Dockerfile comments so documentation reflects current state.",
+      "acceptanceCriteria": [
+        "ralph-sandbox/README.md: nuget.telerik.com removed from the network allow-list docs",
+        "ralph-sandbox/README.md: nuget.telerik.com bypass-host example removed or replaced with another example",
+        "ralph-sandbox/docker/Dockerfile.sandbox: comment updated from 'NuGet feeds (GitHub Packages, Telerik, etc.)' to 'NuGet feeds (GitHub Packages)'",
+        "Build passes"
+      ],
+      "priority": 4,
+      "passes": true,
+      "notes": "README line ~74 lists nuget.telerik.com in the allow-list. Line ~106 shows it as a bypass-host example."
+    },
+    {
+      "id": "US-005",
+      "title": "Clean up Telerik-related task files",
+      "description": "As a developer, I want Telerik-related PRD files archived or deleted so the tasks directory reflects current work.",
+      "acceptanceCriteria": [
+        "tasks/prd-telerik-nuget-credentials.md is deleted",
+        "tasks/prd-sandbox-network-policies.md: Telerik-specific references removed (NuGet Telerik line, Telerik in test criteria)",
+        "tasks/archive/add-telerik-auth/ is left untouched (historical record)",
+        "Build passes"
+      ],
+      "priority": 5,
+      "passes": true,
+      "notes": "prd-sandbox-network-policies.md line ~25 mentions 'NuGet (Telerik): nuget.telerik.com' and line ~81 mentions Telerik in NuGet restore test criteria."
+    }
+  ]
+}

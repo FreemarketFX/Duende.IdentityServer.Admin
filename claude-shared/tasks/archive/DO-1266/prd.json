@@ -1,0 +1,78 @@
+{
+  "project": "claude-shared",
+  "jiraTicket": "DO-1266",
+  "branchName": "feat_DO-1266_lasso_security",
+  "description": "PowerShell Prompt Injection Defender Hook — port the Python PostToolUse defender to PowerShell with powershell-yaml dependency, sharing the same patterns.yaml config",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Create PowerShell PostToolUse defender script",
+      "description": "As a Windows developer using Claude Code, I want a PowerShell prompt injection defender hook so that I don't need Python/uv installed to protect against prompt injection in tool outputs.",
+      "acceptanceCriteria": [
+        "post-tool-defender.ps1 reads JSON from stdin with tool_name, tool_input, and tool_response fields",
+        "Loads patterns from patterns.yaml using powershell-yaml module (ConvertFrom-Yaml)",
+        "Searches for patterns.yaml in 3-location priority order: script directory, ../patterns.yaml (hooks/ sibling), $env:CLAUDE_PROJECT_DIR/.claude/hooks/prompt-injection-defender/patterns.yaml",
+        "Monitors same tool set: Read, WebFetch, Bash, Grep, Glob, Task, and mcp__/mcp_ prefixed tools",
+        "Skips scanning for non-monitored tools (exit 0 silently)",
+        "Skips scanning when extracted text is empty or fewer than 10 characters",
+        "Scans extracted text against all 4 pattern categories using .NET regex with IgnoreCase and Multiline options",
+        "Outputs {\"decision\":\"block\",\"reason\":\"...\"} JSON to stdout when detections are found",
+        "Outputs nothing and exits 0 when no detections are found",
+        "Fails open (exit 0, no output) on any error (missing YAML module, bad input, etc.)",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "Implemented and tested - all acceptance criteria verified in sandbox"
+    },
+    {
+      "id": "US-002",
+      "title": "Implement text extraction for all tool output formats",
+      "description": "As the defender hook, I need to extract text content from various tool result formats so that all monitored tool outputs are scanned consistently.",
+      "acceptanceCriteria": [
+        "Handles string results directly",
+        "Extracts from object fields in order: content, output, result, text, file_content, stdout, data",
+        "Handles content arrays (list of content blocks with text fields)",
+        "Handles nested file.content structure (Read tool)",
+        "Falls back to JSON serialization of the entire object",
+        "Handles array results by recursively extracting and joining",
+        "Returns empty string for null/missing results",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": "Verified with 26 tests covering all acceptance criteria — string, object fields, content arrays, nested file.content, JSON fallback, arrays, null/missing, edge cases. Typecheck passes."
+    },
+    {
+      "id": "US-003",
+      "title": "Implement source info extraction and warning formatting",
+      "description": "As Claude receiving a warning, I need clear source information and severity-grouped detections so I can assess the threat appropriately.",
+      "acceptanceCriteria": [
+        "Extracts source info per tool type: Read (file_path), WebFetch (url), Bash (command truncated at 60 chars), Grep (pattern + path), Glob (pattern), Task (description first 40 chars), MCP tools (tool name)",
+        "Groups detections by severity: HIGH, MEDIUM, LOW",
+        "Warning format matches Python version exactly (separator lines, header, severity sections, recommended actions footer)",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": true,
+      "notes": "Verified with 40 tests covering all acceptance criteria — source info extraction for all 7 tool types plus null/unknown, severity grouping (HIGH/MEDIUM/LOW), line-by-line format match with Python reference, conditional severity sections. Typecheck passes (0 parse errors)."
+    },
+    {
+      "id": "US-004",
+      "title": "Port the interactive test suite to PowerShell",
+      "description": "As a developer maintaining the defender, I want a PowerShell test script so I can validate pattern detection without switching to Python.",
+      "acceptanceCriteria": [
+        "test-defender.ps1 provides interactive mode, file testing, direct text testing, and sample batch testing",
+        "Contains the same sample injection texts across all 5 categories (instruction_override, role_playing_dan, encoding_obfuscation, context_manipulation, benign)",
+        "Reports detection accuracy as pass/fail with percentage summary",
+        "Shows false negatives and false positives",
+        "Supports -Interactive, -File, -Text, -Samples, -Verbose parameters",
+        "Dot-sources post-tool-defender.ps1 to import its functions",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": true,
+      "notes": "Verified with all 5 modes: -Interactive, -File, -Text, -Samples, -ShowVerbose. Same 5 sample categories as Python (23 tests, 91.3% accuracy). Dot-sources post-tool-defender.ps1. Typecheck passes (0 parse errors)."
+    }
+  ]
+}

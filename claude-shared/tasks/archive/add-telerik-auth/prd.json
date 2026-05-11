@@ -1,0 +1,84 @@
+{
+  "project": "claude-shared",
+  "jiraTicket": "",
+  "branchName": "add-telerik-auth",
+  "description": "Add optional Telerik NuGet credential support to the Ralph sandbox, following the same pattern as the GitHub PAT",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Read Telerik password from environment variable",
+      "description": "As a developer, I want the sandbox script to read TELERIK_PASSWORD from the environment so I can provide Telerik NuGet credentials without interactive prompts.",
+      "acceptanceCriteria": [
+        "Script reads TELERIK_PASSWORD environment variable",
+        "When TELERIK_PASSWORD is set, logs 'Using TELERIK_PASSWORD from environment'",
+        "When TELERIK_PASSWORD is not set, no prompt is shown and no error or warning is logged",
+        "Username is hardcoded to 'api-key'",
+        "Build passes"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "Mirror the $GitHubPat pattern in ralph-sandbox.ps1 lines 306-317, but without the interactive fallback prompt — just skip silently if not set."
+    },
+    {
+      "id": "US-002",
+      "title": "Include Telerik feed in generated nuget.config when credentials are provided",
+      "description": "As a developer, I want the generated nuget.config to include the Telerik NuGet feed and credentials when TELERIK_PASSWORD is set, so dotnet restore can pull Telerik packages inside the sandbox.",
+      "acceptanceCriteria": [
+        "New-NuGetConfig accepts an optional TelerikPassword parameter",
+        "When TelerikPassword is provided, nuget.config includes package source for https://nuget.telerik.com/v3/index.json with key 'Telerik'",
+        "Credentials section includes username 'api-key' and ClearTextPassword from the parameter",
+        "Package source mapping includes '<package pattern=\"Telerik.*\" />' for the Telerik source",
+        "When TelerikPassword is NOT provided, nuget.config output is identical to current behavior",
+        "Build passes"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": "The New-NuGetConfig function at line ~34 of ralph-sandbox.ps1 uses a here-string template. Conditionally build the Telerik XML sections only when the password is provided."
+    },
+    {
+      "id": "US-003",
+      "title": "Pass Telerik password through to nuget.config generation",
+      "description": "As a developer, I want the main script flow to wire the TELERIK_PASSWORD value into the New-NuGetConfig call so the credential is embedded in the container's nuget.config.",
+      "acceptanceCriteria": [
+        "The New-NuGetConfig call at ~line 320 passes TelerikPassword when available",
+        "No changes needed to the Dockerfile — existing nuget.config copy mechanism handles this",
+        "No changes needed to network policy — nuget.telerik.com is already in the allow-list",
+        "Staged nuget.config cleanup in the finally block still works correctly",
+        "Build passes"
+      ],
+      "priority": 3,
+      "passes": true,
+      "notes": "Small wiring change — just pass the $TelerikPassword variable to the New-NuGetConfig call alongside $GitHubPat."
+    },
+    {
+      "id": "US-004",
+      "title": "Add upfront prompt asking if user needs Telerik NuGet feed",
+      "description": "As a developer, I want the script to ask me at the beginning whether I need Telerik NuGet support, so the Telerik source is only added when actually needed.",
+      "acceptanceCriteria": [
+        "Script prompts user early (before sandbox creation) whether they need Telerik NuGet feed",
+        "If user says no, Telerik is completely skipped (no env check, no credential prompt, no nuget.config changes)",
+        "If user says yes, proceed with Telerik credential resolution (US-005)",
+        "Prompt is clear and defaults to 'No' if user just presses Enter",
+        "Build passes"
+      ],
+      "priority": 4,
+      "passes": true,
+      "notes": "PR comment by @vas-pashkov-freemarket: Should we ask the user in the beginning of the script if they need Telerik and only add it if they need it?"
+    },
+    {
+      "id": "US-005",
+      "title": "Add interactive fallback prompt for Telerik password",
+      "description": "As a developer, I want the script to prompt me for my Telerik password if it's not set as an environment variable, following the same pattern as the GitHub PAT.",
+      "acceptanceCriteria": [
+        "When user opted in to Telerik (US-004) and TELERIK_PASSWORD env var is not set, script prompts user to enter the password interactively",
+        "Interactive prompt follows the same pattern as the Git PAT prompt (Read-Host)",
+        "If user provides a password interactively, it is used for nuget.config generation",
+        "If user skips/cancels the prompt, Telerik is skipped gracefully",
+        "Build passes"
+      ],
+      "priority": 5,
+      "passes": true,
+      "notes": "PR comment by @vas-pashkov-freemarket: here we should follow the pattern for the Git PAT, if its not set on env level we should ask the user to provide the password"
+    }
+  ]
+}

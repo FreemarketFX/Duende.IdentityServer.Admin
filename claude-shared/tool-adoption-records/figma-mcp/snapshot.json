@@ -1,0 +1,238 @@
+{
+  "schema_version": "1",
+  "slug": "figma-mcp",
+  "name": "Figma Remote MCP Server",
+  "type": "mcp-server",
+  "source": "https://help.figma.com/hc/en-us/articles/35281350665623-Figma-MCP-collection-How-to-set-up-the-Figma-remote-MCP-server-preferred",
+  "version_or_path": "https://mcp.figma.com/mcp",
+  "vendor": "Figma",
+  "official_vendor": true,
+  "transport": "https",
+  "auth": {
+    "method": "oauth2",
+    "scopes": [],
+    "notes": "OAuth flow handled entirely by Figma's MCP server; scopes are not exposed to or configurable by the client. PAT auth is explicitly unsupported. Only MCP clients on Figma's catalog (Claude Code, Cursor, VS Code, Codex) can complete the OAuth handshake."
+  },
+  "tools": [
+    {
+      "name": "add_code_connect_map",
+      "description": "Adds a mapping between a Figma node ID and its corresponding code component.",
+      "mutates": true,
+      "toolset": "code-connect"
+    },
+    {
+      "name": "create_design_system_rules",
+      "description": "Creates a rule file that provides agents with the right context for design-to-code.",
+      "mutates": true,
+      "toolset": "design-system"
+    },
+    {
+      "name": "create_new_file",
+      "description": "Creates a new blank Figma Design or FigJam file in the authenticated user's drafts.",
+      "mutates": true,
+      "toolset": "files"
+    },
+    {
+      "name": "generate_diagram",
+      "description": "Generates a FigJam diagram from Mermaid syntax or natural-language descriptions.",
+      "mutates": true,
+      "toolset": "figjam"
+    },
+    {
+      "name": "generate_figma_design",
+      "description": "Generates Figma Design layers from interfaces / live UI passed in by the model.",
+      "mutates": true,
+      "toolset": "design"
+    },
+    {
+      "name": "get_code_connect_map",
+      "description": "Retrieves the existing mapping between Figma node IDs and code components.",
+      "mutates": false,
+      "toolset": "code-connect"
+    },
+    {
+      "name": "get_code_connect_suggestions",
+      "description": "Detects and suggests component-to-code mappings for the current selection.",
+      "mutates": false,
+      "toolset": "code-connect"
+    },
+    {
+      "name": "get_design_context",
+      "description": "Returns a structured React + Tailwind representation of the current Figma selection.",
+      "mutates": false,
+      "toolset": "design"
+    },
+    {
+      "name": "get_figjam",
+      "description": "Converts a FigJam diagram into an XML representation.",
+      "mutates": false,
+      "toolset": "figjam"
+    },
+    {
+      "name": "get_metadata",
+      "description": "Returns a sparse XML representation of the current selection with basic properties.",
+      "mutates": false,
+      "toolset": "design"
+    },
+    {
+      "name": "get_screenshot",
+      "description": "Captures a visual representation of selected design elements.",
+      "mutates": false,
+      "toolset": "design"
+    },
+    {
+      "name": "get_variable_defs",
+      "description": "Returns the variables and styles used in the current Figma selection.",
+      "mutates": false,
+      "toolset": "design"
+    },
+    {
+      "name": "search_design_system",
+      "description": "Searches across all connected design libraries for components, variables, and styles.",
+      "mutates": false,
+      "toolset": "design-system"
+    },
+    {
+      "name": "send_code_connect_mappings",
+      "description": "Confirms / persists Code Connect mapping suggestions.",
+      "mutates": true,
+      "toolset": "code-connect"
+    },
+    {
+      "name": "use_figma",
+      "description": "General-purpose write tool — creates, edits, deletes, or inspects any object in a Figma Design file or FigJam board.",
+      "mutates": true,
+      "toolset": "design"
+    },
+    {
+      "name": "whoami",
+      "description": "Returns the identity of the user authenticated to Figma.",
+      "mutates": false,
+      "toolset": "account"
+    }
+  ],
+  "network_egress": [
+    "figma.com",
+    "mcp.figma.com",
+    "www.figma.com"
+  ],
+  "dependencies": [],
+  "license": "Proprietary-SaaS",
+  "maintainer": "Figma, Inc.",
+  "cves": [],
+  "retention": "Vendor-side retention not documented in the public help articles. Figma retains design-file contents per the user's plan and Figma's master ToS / DPA; MCP-specific request/response retention is unverified.",
+  "zdr_eligible": false,
+  "data_classes": ["confidential"],
+  "is_section_3_2_source": false,
+  "risk_level": "medium",
+  "tier": "elevated",
+  "compensating_controls": [
+    "Managed settings.json denies every mutating tool except use_figma (create_new_file, generate_figma_design, generate_diagram, add_code_connect_map, send_code_connect_mappings, create_design_system_rules all denied).",
+    "Acceptable-use guidelines are the load-bearing control on the prompt-injection-to-mutation path: internal-only canvases, no community imports, resolve external comment threads before MCP use, operate on duplicates of canonical files, human-in-the-loop approval on every use_figma call, narrow prompts only, exclude Restricted content from any MCP-touched file. See adoption-record Decision section.",
+    "Prompt-injection PostToolUse defender (hooks/prompt-defender-pwsh, shipped via the claude-shared / freemarket-claude-skills plugin) scans tool output for known indirect-prompt-injection signatures and warns Claude when matches fire. Registered against the mcp__.* PostToolUse matcher in hooks/hooks.json as of 11 May 2026, so every mcp__claude_ai_Figma__* invocation is in scope. Defence-in-depth layer behind the acceptable-use guidelines; warning fires also emit Datadog telemetry for observability.",
+    "OAuth identity is per-user and personal — revocation is one click in Figma's user settings (Settings > Security > Authorized apps), realistic time-to-revoke ~5 minutes.",
+    "Figma MCP only accepts approved client identifiers (Claude Code, Cursor, VS Code, Codex); rogue MCP clients cannot complete the OAuth handshake.",
+    "Only HTTPS transport to a single Figma-controlled hostname (mcp.figma.com); no local subprocess, no host filesystem access.",
+    "Figma file version history provides the recovery path for any use_figma edit, hostile or accidental.",
+    "Re-review trigger on any new mutating tool added upstream — Figma's tool catalog is an active beta and the surface can grow."
+  ],
+  "reviewed_by": {
+    "name": "Rob Taylor",
+    "email": "rob.taylor@wearefreemarket.com"
+  },
+  "reviewed_on": "2026-05-11",
+  "review_due": "2026-08-09",
+  "research_gaps": [
+    {
+      "field": "auth.scopes",
+      "reason": "Figma's MCP OAuth handshake does not expose user-configurable scopes; the mcp:connect scope is internal and not documented externally. Recorded as empty array with notes."
+    },
+    {
+      "field": "retention",
+      "reason": "MCP-specific request/response retention is not stated in the public help articles or developer docs as of 08 May 2026. General Figma file retention applies but is not MCP-specific."
+    },
+    {
+      "field": "compliance.sub_processors",
+      "reason": "Figma's general sub-processor list (https://www.figma.com/legal/sub-processors/) covers the platform; whether the remote MCP introduces additional sub-processors is not separately documented."
+    },
+    {
+      "field": "compliance.data_residency",
+      "reason": "MCP endpoint region routing not documented separately from Figma's general data-residency posture; assumed US-based per Figma's primary infrastructure but unverified for the MCP endpoint specifically."
+    },
+    {
+      "field": "observability.vendor_audit_log_retention",
+      "reason": "Figma's enterprise audit-log retention applies to file-level events; whether MCP tool invocations appear in the audit log, and at what granularity, is not documented."
+    },
+    {
+      "field": "supply_chain.signed_release",
+      "reason": "n/a for vendor-hosted remote service; no artifact published to a registry that could be signed."
+    },
+    {
+      "field": "compensating_controls.enforcement",
+      "reason": "The acceptable-use guidelines that gate use_figma (internal-only canvases, resolve external comments, work on duplicates, human-in-the-loop approval, narrow prompts) are behavioural conditions on end users, not technical controls. There is no automated enforcement layer that detects an external commenter on a touched file or blocks broad prompts. Compliance relies on the user and the per-call approval prompt."
+    }
+  ],
+  "mcp_specific": {
+    "description_scan_clean": true,
+    "suspicious_descriptions": [],
+    "bundled_executor_tools": [],
+    "name_collision_notes": "No clash with sibling adoption records (datadog-mcp uses search_*/get_*/aggregate_*; playwright-mcp uses browser_*). search_design_system overlaps verb-prefix-wise with datadog-mcp's search_* family, but Claude Code namespaces tool calls as mcp__<server>__<tool> so the model cannot conflate them in practice. Re-evaluate if a future MCP exposes get_design_* or use_* tools."
+  },
+  "supply_chain": {
+    "install_method": "remote-http",
+    "postinstall_scripts": false,
+    "pinned_by_hash": false,
+    "signed_release": false,
+    "npm_provenance": false,
+    "sigstore": false,
+    "typosquat_check_performed": true,
+    "similar_packages": [],
+    "maintainer_2fa": "n/a-vendor-hosted"
+  },
+  "credentials": {
+    "storage_location": "OAuth refresh / access tokens are managed by Claude Code's MCP OAuth client; on Windows this is the OS credential manager via Claude Code's secure-storage layer. No FMFX-issued API key.",
+    "oauth_scopes_requested": [],
+    "oauth_scopes_minimum_necessary": false,
+    "revocation_mechanism": "Per-user revocation in Figma > Settings > Security > Authorized apps; admin-level revocation possible via Figma org admin console for org-managed users.",
+    "time_to_revoke_minutes": 5,
+    "identity_binding": "personal"
+  },
+  "local_execution": {
+    "runs_subprocess": false,
+    "eval_or_codegen": false,
+    "filesystem_access_notes": "remote vendor service; no local process or filesystem access."
+  },
+  "observability": {
+    "vendor_audit_log_available": true,
+    "vendor_audit_log_retention": "Figma enterprise audit log applies (file-level events); MCP-tool-invocation granularity unverified — see research_gaps.",
+    "tool_ships_telemetry": false,
+    "telemetry_destinations": [],
+    "indirect_injection_vectors": [
+      "get_design_context — text in design layers (frame names, text nodes, component descriptions) is author-controllable and reflected back to the model; a hostile shared library could embed instructions.",
+      "get_figjam — sticky notes and shapes on a shared FigJam board are author-controllable.",
+      "get_metadata — node names and properties are author-controllable.",
+      "search_design_system — library component names / descriptions are author-controllable.",
+      "get_screenshot — image content can carry vision-model-targeted instructions."
+    ]
+  },
+  "compliance": {
+    "sub_processors": [],
+    "data_residency": "Figma global infrastructure (primarily US); MCP endpoint region routing unverified — see research_gaps.",
+    "license_compatibility": "proprietary-saas",
+    "vendor_incidents": [
+      {
+        "date": "2023-08-09",
+        "summary": "Figma incident: dev-mode-related performance degradation affecting authenticated sessions; not a data-disclosure event but documented vendor incident on record.",
+        "url": "https://status.figma.com/"
+      }
+    ]
+  },
+  "stride": {
+    "spoofing": "Stolen OAuth refresh token in the developer's OS credential store grants the attacker the authenticated user's full Figma org access until the user notices and revokes.",
+    "tampering": "A hostile element in a file the user reads via the MCP (frame name, comment thread, sticky note, library component description) steers use_figma into modifying a production design file or design-system library; bounded by the internal-only-canvas guideline and the human-in-the-loop approval on every use_figma call, but the injection-to-mutation path is architecturally present.",
+    "repudiation": "Figma's audit log granularity for MCP tool invocations is unverified, so a misuse via MCP may not be distinguishable from regular UI activity attributable to the same user.",
+    "info_disclosure": "A read tool (get_design_context, get_screenshot, search_design_system) exfiltrates Confidential design IP from FMFX libraries into the chat transcript and onward to the API provider.",
+    "denial": "Figma rate-limits or OAuth-token revocation interrupts every developer using the MCP simultaneously; impact is loss-of-productivity, not data loss.",
+    "elevation": "OAuth scope creep — Figma silently widening the scope set granted to the MCP client at a future consent screen — could grant write/admin capabilities the adoption record did not anticipate; the personal identity binding caps blast radius at the consenting user's permissions."
+  }
+}

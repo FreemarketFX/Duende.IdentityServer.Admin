@@ -1,0 +1,51 @@
+services:
+
+  # ---------------------------------------------------------------------------
+  # Playwright MCP — browser automation
+  # ---------------------------------------------------------------------------
+  # Debugging
+  # Uncomment DEBUG= environment variables
+  # Launch the container with `claude-shared/ralph-sandbox/mcp/mcp-startup.ps1`
+  # Tail container logs `docker logs -f --tail 0 playwright`
+  # Teardown the container with `claude-shared/ralph-sandbox/mcp/mcp-startup.ps1 -Down`
+  # ---------------------------------------------------------------------------
+  playwright:
+    image: mcr.microsoft.com/playwright/mcp:v0.0.75@sha256:d238ec7bc98cc4e22df0696d6031dad5b8a4b46781f4f0abaa3bfadeedb43b9a
+    container_name: playwright
+    restart: on-failure:5
+    user: root
+    ports:
+      - "8931:8931"
+    environment:
+      - PLAYWRIGHT_MCP_ALLOWED_ORIGINS=${PLAYWRIGHT_MCP_ALLOWED_ORIGINS:-}
+      - PLAYWRIGHT_MCP_ALLOWED_HOSTS=localhost:8931,127.0.0.1:8931
+    #  - DEBUG=pw:mcp*,pw:browser*,mcp:*
+    #  - DEBUG_COLORS=0
+    #  - FORCE_COLOR=0
+    command: >
+      --host 0.0.0.0
+      --port 8931
+      --headless
+      --no-sandbox
+      --isolated
+      --ignore-https-errors
+      --output-dir /data/playwright/output
+    networks:
+      - playwright-net
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/localhost/8931' 2>/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - playwright-data:/data/playwright
+
+volumes:
+  playwright-data:
+
+networks:
+  playwright-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/24

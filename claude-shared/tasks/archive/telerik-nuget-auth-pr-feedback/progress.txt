@@ -1,0 +1,14 @@
+# Ralph Progress Log
+Started: 2026-03-05
+---
+
+## 2026-03-05 - US-001
+- Replaced Telerik interactive opt-in prompt with env-var-first pattern matching GitHubPat
+- Removed the "Do you need the Telerik NuGet feed? (y/N)" question
+- Now checks $env:TELERIK_TOKEN first, falls back to Read-Host prompt (Enter to skip)
+- Renamed env var from TELERIK_PASSWORD to TELERIK_TOKEN
+- Files changed: ralph-sandbox/ralph-sandbox.ps1
+- **Learnings for future iterations:**
+  - The New-NuGetConfig function already handles null TelerikPassword gracefully — no changes needed there
+  - Archive files reference old env var name (TELERIK_PASSWORD) but those are historical records, not code
+---

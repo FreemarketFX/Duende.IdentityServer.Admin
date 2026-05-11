@@ -1,0 +1,22 @@
+{
+  "title": "Telerik NuGet Auth - PR Feedback Fixes",
+  "branchName": "add-telerik-auth",
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Replace Telerik interactive prompt with env-var-only pattern",
+      "description": "PR feedback: Remove the 'Do you need Telerik NuGet feed? (y/N)' opt-in question. Replace with the same pattern used for GitHubPat: check $env:TELERIK_TOKEN first, if not set prompt the user (they can press Enter to skip). Users who set TELERIK_TOKEN in their terminal profile are never prompted.",
+      "acceptanceCriteria": [
+        "The 'Do you need the Telerik NuGet feed? (y/N)' opt-in question is removed",
+        "Telerik credential handling follows the exact same pattern as GitHubPat: check $env:TELERIK_TOKEN, else Read-Host prompt",
+        "If user provides a token (via env var or prompt), Telerik NuGet source, credentials, and package mapping are added to nuget.config",
+        "If user presses Enter at the prompt (empty input), Telerik is skipped with no error",
+        "A log message indicates when TELERIK_TOKEN is being used from environment",
+        "Env var name is TELERIK_TOKEN (matching Rob's suggestion)"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "PR comment by @rob-freemarket: 'This will add friction to be prompted each time we run the sandbox. Perhaps follow the pattern used for the GitHubPat... $TelerikPat = if ($env:TELERIK_TOKEN) { ... }. Then those who don't want to be prompted each time can update their terminal profile.'"
+    }
+  ]
+}

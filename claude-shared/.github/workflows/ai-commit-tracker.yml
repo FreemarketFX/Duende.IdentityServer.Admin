@@ -1,0 +1,17 @@
+# Caller workflow: add this to each repo at .github/workflows/ai-commit-tracker.yml
+# Calls the reusable workflow hosted in gha-shared-workflows repo.
+
+name: Track AI-Assisted Commits
+
+on:
+  push:
+    branches: ['**']
+
+permissions:
+  contents: read
+
+jobs:
+  track:
+    uses: FreemarketFX/gha-shared-workflows/.github/workflows/ai-commit-tracker.yml@main
+    secrets:
+      DD_API_KEY: ${{ secrets.DD_API_KEY }}
