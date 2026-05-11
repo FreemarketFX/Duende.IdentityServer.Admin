@@ -1,0 +1,19 @@
+# Ralph Progress Log
+
+Project: Duende.IdentityServer.Admin.FMFX
+Jira: FMFX-16232
+Branch: feature/rebase-onto-3.0.0-rc1
+Started: 2026-05-11
+
+## Story Status
+
+US-001 Verify clean upstream build on .NET 10 SDK       — PENDING
+US-002 Bump fork version to 3.0.0-FMFX.1                — PENDING
+US-003 Update publish workflow to FMFX GitHub Packages  — PENDING
+US-004 Re-enable CodeQL workflow                        — PENDING
+US-005 Update README with new baseline                  — PENDING
+US-006 Prepare branch for PR                            — PENDING
+
+## Iteration Log
+
+(Ralph appends notes here per iteration.)

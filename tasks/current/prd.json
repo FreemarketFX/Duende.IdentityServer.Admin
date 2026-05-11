@@ -1,0 +1,117 @@
+{
+  "project": "Duende.IdentityServer.Admin.FMFX",
+  "jiraTicket": "FMFX-16232",
+  "branchName": "feature/rebase-onto-3.0.0-rc1",
+  "description": "FMFX fork rebase — Skoruba 3.0.0-rc1 baseline (Story 1). Re-baseline the fork onto upstream release/3.0.0-rc1 with no FMFX customisations applied; later stories port bespoke FMFX code.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Verify clean upstream build on .NET 10 SDK",
+      "description": "As a developer, I want a documented, reproducible green build of upstream release/3.0.0-rc1 from the new working tree so we have a known-good baseline before applying any FMFX changes.",
+      "acceptanceCriteria": [
+        "`dotnet --version` reports a `10.0.x` SDK; if a `global.json` exists at repo root it pins a .NET 10 SDK version, otherwise the SDK version used is documented in `README.md` setup instructions",
+        "`npm ci` succeeds in `src/Skoruba.Duende.IdentityServer.Admin.UI.Client/`",
+        "`npm run build:spa` succeeds in `src/Skoruba.Duende.IdentityServer.Admin.UI.Client/` and produces output under `src/Skoruba.Duende.IdentityServer.Admin.UI.Spa/wwwroot/`",
+        "`dotnet build src/Skoruba.Duende.IdentityServer.Admin.sln --configuration Release` succeeds with zero errors",
+        "`dotnet test tests/Skoruba.Duende.IdentityServer.Admin.UnitTests` passes",
+        "`dotnet test tests/Skoruba.Duende.IdentityServer.Admin.IntegrationTests` passes (matches upstream rc1 green state)",
+        "`dotnet test tests/Skoruba.Duende.IdentityServer.STS.IntegrationTests` passes (matches upstream rc1 green state)",
+        "Typecheck passes (dotnet build with no errors)"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Bump fork version to 3.0.0-FMFX.1",
+      "description": "As a downstream consumer, I want fork-published packages to carry a 3.0.0-FMFX.1 version so I can identify them as Freemarket's rebase-baseline build, distinct from upstream 3.0.0-preview.N and from the legacy 2.3.0-FMFX.N line.",
+      "acceptanceCriteria": [
+        "`Directory.Build.props` `<Version>` element is set to `3.0.0-FMFX.1`",
+        "No other version-bearing files diverge from upstream `release/3.0.0-rc1` in this story (verify via `git diff upstream/release/3.0.0-rc1 -- '**/*.csproj' '**/Directory.Build.props' '**/*.props' '**/package.json'`)",
+        "`dotnet build src/Skoruba.Duende.IdentityServer.Admin.sln --configuration Release` succeeds with no new warnings beyond upstream rc1 baseline",
+        "All `tests/*` test projects pass (`dotnet test` on UnitTests, IntegrationTests, STS.IntegrationTests)",
+        "Typecheck passes (dotnet build with no errors)",
+        "Tests pass"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Update publish workflow to target FreemarketFX GitHub Packages",
+      "description": "As a release engineer, I want the NuGet publish workflow on the new branch to push to the FreemarketFX GitHub Packages feed (not upstream's destination), so subsequent stories can produce consumable 3.0.0-FMFX.N packages.",
+      "acceptanceCriteria": [
+        "Publish workflow YAML in `.github/workflows/` runs `dotnet pack` and `dotnet nuget push` targeting `https://nuget.pkg.github.com/FreemarketFX/index.json`",
+        "Authentication uses the FreemarketFX GitHub Packages publish secret name mirroring the previous fork's publish workflow on old `main`",
+        "Workflow triggers include push/release for `feature/rebase-onto-3.0.0-rc1` (and `main` once promoted)",
+        "Workflow does NOT push from upstream-tracking branches (no `release/3.0.0-rc1` or `release/*` triggers on the publish job)",
+        "Workflow YAML is syntactically valid (verified via `actionlint` or equivalent, or visual inspection if no linter available)",
+        "`dotnet build src/Skoruba.Duende.IdentityServer.Admin.sln --configuration Release` succeeds",
+        "All `tests/*` test projects pass",
+        "Typecheck passes (dotnet build with no errors)",
+        "Tests pass"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Re-enable CodeQL workflow on the new branch",
+      "description": "As a security owner, I want CodeQL scanning enabled on the new branch from day one so security findings track from the baseline, not from when bespoke code lands.",
+      "acceptanceCriteria": [
+        "A CodeQL workflow file exists in `.github/workflows/` (ported from the previous fork's `chore(FMFX-8682): Setup GitHub Advanced Security` commit if not already present from upstream)",
+        "Workflow triggers on push and pull_request targeting `feature/rebase-onto-3.0.0-rc1`",
+        "Languages list includes both `csharp` and `javascript-typescript` (covers the React SPA)",
+        "CodeQL config file (if used) has no broken globs; YAML is syntactically valid (visual inspection or actionlint)",
+        "`dotnet build src/Skoruba.Duende.IdentityServer.Admin.sln --configuration Release` succeeds",
+        "All `tests/*` test projects pass",
+        "Typecheck passes (dotnet build with no errors)",
+        "Tests pass"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Update README with new baseline and re-base strategy",
+      "description": "As anyone landing on the repo, I want the README to make clear that this is now a fork of upstream release/3.0.0-rc1, that the long-lived branch has changed, and what the re-base plan is, so I don't act on stale assumptions from the old 1.2.0-based code.",
+      "acceptanceCriteria": [
+        "`README.md` has a 'Freemarket fork' section at the top stating: upstream baseline is `skoruba/Duende.IdentityServer.Admin@release/3.0.0-rc1`",
+        "README states the active branch is `feature/rebase-onto-3.0.0-rc1` (will become `main` after the rebase epic completes)",
+        "README states the package versioning convention `3.0.0-FMFX.N`",
+        "README states the re-base plan: re-base onto stable `3.0.0` once Skoruba tags it",
+        "README links to `CLAUDE.md` in this repo and to `Freemarket.Identity/CLEANUP-PLAN.md` for the epic-level plan",
+        "No upstream README content deleted beyond what's needed to avoid direct contradiction with the Freemarket fork section",
+        "`dotnet build src/Skoruba.Duende.IdentityServer.Admin.sln --configuration Release` succeeds",
+        "All `tests/*` test projects pass",
+        "Typecheck passes (dotnet build with no errors)",
+        "Tests pass"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Prepare branch for PR (do not push, do not merge)",
+      "description": "As the developer running this story, I want the branch in a clean, reviewable state with all commits clearly attributable, so the human reviewer can verify each step before pushing or opening a PR.",
+      "acceptanceCriteria": [
+        "`git status` shows a clean working tree on `feature/rebase-onto-3.0.0-rc1`",
+        "`git log feature/rebase-onto-3.0.0-rc1 ^upstream/release/3.0.0-rc1 --oneline` shows only commits from US-001 through US-005 plus the setup commits (claude-shared subtree add + CLAUDE.md + PRD)",
+        "Each commit message in that range follows Conventional Commits (`feat:`, `chore:`, `docs:`, etc.) and ends with the standard `Co-Authored-By: Claude (<model-id>) <noreply@anthropic.com>` trailer",
+        "No `git push` to origin has been executed; no PR has been opened",
+        "`dotnet build src/Skoruba.Duende.IdentityServer.Admin.sln --configuration Release` succeeds",
+        "All `tests/*` test projects pass",
+        "Typecheck passes (dotnet build with no errors)",
+        "Tests pass"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}
