@@ -92,3 +92,14 @@ US-006 Prepare branch for PR                            — PENDING
 - Build/tests: unchanged from US-004 baseline — README.md is not a compiled artifact; no source files modified
 - Context usage: ~30k tokens
 ---
+
+## 2026-05-11T05:00:00 - US-006
+- Verified `git status` clean (restored tasks/current/.iteration-output session artifact to HEAD)
+- Verified all 13 commits ahead of upstream follow Conventional Commits with Co-Authored-By trailers
+- Verified `git log feature/rebase-onto-3.0.0-rc1 ^upstream/release/3.0.0-rc1 --oneline` shows expected setup + story commits only
+- Verified dotnet build succeeded (0 errors, 0 warnings)
+- Verified all 314 tests pass (174 unit + 39 API unit + 78 API integration + 23 STS integration)
+- No push to origin; no PR opened
+- Files changed: `tasks/current/prd.json`, `tasks/current/progress.txt`
+- Context usage: ~20k tokens
+---
