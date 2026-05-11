@@ -46,6 +46,7 @@ Skills are invoked via `/skillname` in Claude Code.
 | `/jira-csv` | "jira csv", "create jira stories", "export to jira" | Generate Jira stories from source material (PRDs, specs, pasted text, URLs) and output a Jira Cloud CSV import file |
 | `/post-ralph` | "post ralph", "archive ralph", "ralph cleanup" | Archive a completed Ralph run and commit artifacts |
 | `/unarchive-prd` | "unarchive prd", "restore prd", "resume ralph" | Restore archived prd.json and progress.txt back to tasks/current/ for another Ralph run |
+| `/open-pr` | "open pr", "create pr", "raise pr", "ship this", "push for review" | Walk from a ready branch to an open PR — hard gates (`tasks/current/`, ralph artifacts, diff-stat noise, drive-by paths), pre-PR skills checklist, commit-strategy selection, standardized FMFX description (Summary / Test plan / Risk Assessment), Conventional Commits + Co-Authored-By trailer, draft PR by default |
 | `/plan-ticket` | "create a ticket", "turn plan into ticket", "generate acceptance criteria" | Generate a Jira ticket (title, description, acceptance criteria) from the current Claude Code plan |
 | `/pr-build-doctor` | "pr build doctor", "fix ci", "why is the build failing" | Watch a PR build, diagnose failures, fetch failed logs, and walk through fixes |
 | `/pr-feedback` | "pr feedback", "address pr feedback" | Extract actionable PR comments and update PRD with required changes for Ralph |
