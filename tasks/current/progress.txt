@@ -8,7 +8,7 @@ Started: 2026-05-11
 ## Story Status
 
 US-001 Verify clean upstream build on .NET 10 SDK       — DONE
-US-002 Bump fork version to 3.0.0-FMFX.1                — PENDING
+US-002 Bump fork version to 3.0.0-FMFX.1                — DONE
 US-003 Update publish workflow to FMFX GitHub Packages  — PENDING
 US-004 Re-enable CodeQL workflow                        — PENDING
 US-005 Update README with new baseline                  — PENDING
@@ -37,4 +37,16 @@ US-006 Prepare branch for PR                            — PENDING
   - Solution file is at repo root, not `src/`. Use `dotnet build /tmp/build/Skoruba.Duende.IdentityServer.Admin.sln`.
   - `npm ci` is blocked by sandbox network proxy; `npm install` via dotnet build target works fine.
   - All integration tests use in-memory DBs — fast and no external dependencies.
+---
+
+## 2026-05-11T01:00:00 - US-002
+- Set `<Version>3.0.0-FMFX.1</Version>` in `Directory.Build.props`
+- Verified: dotnet build passes (0 errors, 0 warnings), build time ~50s (warm)
+- Verified: all 314 tests pass (174 unit + 39 API unit + 78 API integration + 23 STS integration)
+- No other version-bearing files differ from upstream `release/3.0.0-rc1`
+- Files changed: `Directory.Build.props`
+- Context usage: ~25k tokens
+- **Learnings for future iterations:**
+  - Upstream `release/3.0.0-rc1` branch already had `<Version>3.0.0-rc2</Version>` internally — branch name and version are mismatched in upstream; only one line to change.
+  - `dotnet test Skoruba.Duende.IdentityServer.Admin.sln` (solution-level) runs all 4 test projects in parallel; must specify the .sln file explicitly when multiple .sln files exist in /tmp/build.
 ---

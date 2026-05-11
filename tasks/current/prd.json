@@ -35,8 +35,8 @@
         "Tests pass"
       ],
       "priority": 2,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Verified 2026-05-11: Directory.Build.props <Version> set to 3.0.0-FMFX.1. Build succeeded (0 errors, 0 warnings). All 314 tests pass (174 unit + 39 API unit + 78 API integration + 23 STS integration)."
     },
     {
       "id": "US-003",
