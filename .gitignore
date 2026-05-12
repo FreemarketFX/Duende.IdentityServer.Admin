@@ -292,5 +292,11 @@ appsettings.*.json
 # macOS Finder metadata
 .DS_Store
 
-# Per-user Claude Code harness settings (sandbox-specific, not portable)
-.claude/settings.local.json
+# Claude Code harness state — ignore everything under .claude/ by default.
+# Only track files the team has explicitly whitelisted below. Most harness
+# files (settings.local.json, iteration-output, plan files, transcripts,
+# caches) are per-user/per-sandbox and have leaked into commits before.
+.claude/*
+!.claude/settings.json
+!.claude/agents/
+!.claude/hooks/
