@@ -64,8 +64,8 @@ The React SPA (`Admin.UI.Client`) is hosted in-process: Vite builds to `dist/`, 
 ## Build & test
 
 ```powershell
-# Build everything
-dotnet build src/Skoruba.Duende.IdentityServer.Admin.sln --configuration Release
+# Build everything (solution lives at repo root, not under src/)
+dotnet build Skoruba.Duende.IdentityServer.Admin.sln --configuration Release
 
 # Run admin host (.NET side)
 dotnet run --project src/Skoruba.Duende.IdentityServer.Admin
@@ -75,10 +75,13 @@ cd src/Skoruba.Duende.IdentityServer.Admin.UI.Client
 npm ci
 npm run build:spa
 
-# Tests
+# Tests (4 dotnet test projects — JS projects under tests/ are skipped by dotnet test)
 dotnet test tests/Skoruba.Duende.IdentityServer.Admin.UnitTests
-dotnet test tests/Skoruba.Duende.IdentityServer.Admin.IntegrationTests
-dotnet test tests/Skoruba.Duende.IdentityServer.STS.IntegrationTests
+dotnet test tests/Skoruba.Duende.IdentityServer.Admin.Api.UnitTests
+dotnet test tests/Skoruba.Duende.IdentityServer.Admin.Api.IntegrationTests
+dotnet test tests/Skoruba.Duende.IdentityServer.STS.Identity.IntegrationTests
+# Or all at once:
+dotnet test Skoruba.Duende.IdentityServer.Admin.sln
 ```
 
 ## Packaging & publish
