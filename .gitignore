@@ -291,3 +291,6 @@ appsettings.*.json
 
 # macOS Finder metadata
 .DS_Store
+
+# Per-user Claude Code harness settings (sandbox-specific, not portable)
+.claude/settings.local.json
