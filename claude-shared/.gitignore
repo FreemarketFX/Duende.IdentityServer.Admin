@@ -1,0 +1,14 @@
+
+scripts/ralph/.last-branch
+/.claude/settings.local.json
+
+# Ralph logs
+scripts/ralph/*.logtasks/current/*.log
+tasks/current/.last-branch
+tasks/current/.iteration-output
+tasks/current/nuget.config
+.claude/settings.local.json*
+tasks/images/**
+**/keeper.ini
+tasks/current/*.log
+docs/debugging/

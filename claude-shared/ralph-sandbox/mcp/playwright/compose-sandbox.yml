@@ -1,0 +1,49 @@
+services:
+
+  # ---------------------------------------------------------------------------
+  # Playwright MCP — Sandbox Overrides
+  # ---------------------------------------------------------------------------
+  #
+  # Add to vscode settings to eliminate parser errors in the UI for !reset tags
+  # "yaml.customTags": [
+  #   "!reset",
+  #   "!reset scalar",
+  #   "!reset mapping",
+  #   "!reset sequence",
+  #   "!override",
+  #   "!override scalar",
+  #   "!override mapping",
+  #   "!override sequence"
+  # ]
+  #
+
+  playwright:
+    volumes: !reset []
+    networks: !reset []
+    ports: !reset []
+    network_mode: host
+    environment: !override
+      - http_proxy=http://host.docker.internal:3128
+      - https_proxy=http://host.docker.internal:3128
+      - no_proxy=localhost,127.0.0.1
+      - NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/proxy-ca.crt
+      # - DEBUG=pw:mcp*,pw:browser*,mcp:*
+      # - DEBUG_COLORS=0
+      # - FORCE_COLOR=0
+    command: >
+      --host 0.0.0.0
+      --port 8931
+      --headless
+      --no-sandbox
+      --isolated
+      --ignore-https-errors
+      --output-dir /tmp/playwright-output
+      --proxy-server=http://host.docker.internal:3128
+      --proxy-bypass=localhost,127.0.0.1
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /tmp/healthy"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+volumes: !reset {}

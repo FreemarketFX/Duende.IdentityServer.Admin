@@ -1,0 +1,90 @@
+name: Notify consuming repos
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.claude/rules/**'
+      - 'docs/**'
+      - 'ralph-sandbox/**'
+      - 'scripts/**'
+      - 'CLAUDE_TEMPLATE.md'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  dispatch:
+    name: Dispatch claude-shared-updated
+    runs-on:
+      group: fmfx-gha-runners-linux-static-ip
+
+    steps:
+      - name: Generate discovery token
+        id: discovery-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.FMFX_CI_APP_ID }}
+          private-key: ${{ secrets.FMFX_CI_APP_PRIVATE_KEY }}
+          owner: FreemarketFX
+
+      - name: Find consuming repos
+        id: find-repos
+        env:
+          GH_TOKEN: ${{ steps.discovery-token.outputs.token }}
+        run: |
+          all_repos=$(gh search code --owner FreemarketFX --filename update-claude-shared.yml "update-claude-shared" --json repository --jq '[.[].repository.nameWithOwner] | unique | .[]')
+          echo "Found repos:"
+          echo "$all_repos"
+
+          # Filter out self and infra repos
+          repos=$(echo "$all_repos" | grep -v -e 'FreemarketFX/gha-shared-workflows' -e 'FreemarketFX/claude-shared')
+          echo "repos<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$repos" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+          # Short names (without owner) for scoped dispatch token
+          repo_names=$(echo "$repos" | sed 's|FreemarketFX/||' | paste -sd ',' - | sed 's/,$//')
+          echo "repo_names=$repo_names" >> "$GITHUB_OUTPUT"
+
+          if [ -z "$repo_names" ]; then
+            echo "::warning::No consuming repos found"
+          fi
+
+      - name: Generate scoped dispatch token
+        if: steps.find-repos.outputs.repo_names != ''
+        id: dispatch-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.FMFX_CI_APP_ID }}
+          private-key: ${{ secrets.FMFX_CI_APP_PRIVATE_KEY }}
+          owner: FreemarketFX
+          repositories: ${{ steps.find-repos.outputs.repo_names }}
+
+      - name: Dispatch to consuming repos
+        if: steps.find-repos.outputs.repo_names != ''
+        env:
+          GH_TOKEN: ${{ steps.dispatch-token.outputs.token }}
+          REPOS: ${{ steps.find-repos.outputs.repos }}
+        run: |
+          failed=0
+          while IFS= read -r repo; do
+            [ -z "$repo" ] && continue
+            echo "Dispatching to $repo..."
+            if ! gh api "repos/$repo/dispatches" \
+              --method POST \
+              --field event_type=claude-shared-updated; then
+              echo "::warning::Failed to dispatch to $repo"
+              failed=1
+            fi
+          done <<< "$REPOS"
+
+          if [ "$failed" -ne 0 ]; then
+            echo "::error::One or more dispatches failed"
+            exit 1
+          fi

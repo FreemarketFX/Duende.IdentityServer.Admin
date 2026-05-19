@@ -1,0 +1,16 @@
+# Ralph Progress Log
+Started: 2026-03-16
+---
+
+## 2026-03-16 - US-001, US-002, US-003, US-004, US-005
+- Reverted New-NuGetConfig to pre-Telerik state: removed $TelerikPassword parameter, $telerikSource/$telerikCredentials/$telerikMapping variables, and all Telerik XML interpolations. Kept $safePat XML-escaping security fix.
+- Removed Telerik credential resolution block ($env:TELERIK_TOKEN check, Read-Host prompt, -TelerikPassword argument)
+- Removed nuget.telerik.com from network allow-list and bypass-host comments
+- Cleaned up README.md (allow-list docs, bypass-host example) and Dockerfile.sandbox comment
+- Deleted tasks/prd-telerik-nuget-credentials.md, cleaned Telerik refs from tasks/prd-sandbox-network-policies.md
+- Left tasks/archive/add-telerik-auth/ untouched as historical record
+- Files changed: ralph-sandbox/ralph-sandbox.ps1, ralph-sandbox/README.md, ralph-sandbox/docker/Dockerfile.sandbox, tasks/prd-sandbox-network-policies.md, tasks/prd-telerik-nuget-credentials.md (deleted), tasks/current/prd.json
+- **Learnings for future iterations:**
+  - All 5 stories were simple removals that could be done in a single pass
+  - No build/test step needed — this is a PowerShell infrastructure repo with no compiled code
+---

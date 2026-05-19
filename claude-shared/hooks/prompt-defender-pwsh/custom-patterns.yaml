@@ -1,0 +1,123 @@
+# Custom Prompt Injection Patterns
+# ================================
+# Organisation-specific patterns that extend the upstream patterns.yaml.
+# These are merged at runtime -- no need to duplicate upstream patterns here.
+#
+# To test a new pattern before committing:
+#   claude --plugin-dir ../claude-shared -- "read test-files/my-test.txt"
+#
+# Pattern syntax: .NET regex (same as upstream patterns.yaml)
+
+# --- Exfiltration / data theft ---
+instructionOverridePatterns:
+  - pattern: '(?i)\b(send|post|transmit|exfiltrate|upload)\s+(this|the|all|any)\s+(data|code|content|file|secret|token|key|credential|password|env)'
+    reason: "Data exfiltration instruction"
+    severity: high
+
+  - pattern: '(?i)\b(curl|wget|fetch|invoke-webrequest|invoke-restmethod)\s+.{0,60}(secret|token|password|api.?key|credential)'
+    reason: "Credential exfiltration via HTTP tool"
+    severity: high
+
+  - pattern: '(?i)\bcopy\s+(the\s+)?(\.env|secrets?|credentials?|tokens?|api.?keys?)\s+(to|into|file)'
+    reason: "Attempts to copy sensitive files"
+    severity: high
+
+  # --- DO-1317: Verbatim prompt-leakage commands ---
+  - pattern: '(?i)\b(print|output|echo|spit\s+out)\s+(your\s+)?(full\s+|entire\s+)?(system\s+)?(prompt|instructions?)\s+(verbatim|exactly|word.for.word|in\s+full)'
+    reason: "Verbatim system prompt leakage attempt"
+    severity: high
+
+# --- Tool / permission abuse + DO-1317 indirect injection (review-only, severity:low) ---
+contextManipulationPatterns:
+  - pattern: '(?i)\b(run|execute|eval)\s+(this\s+)?(shell|bash|powershell|cmd|command)\s*(:|without|and\s+ignore)'
+    reason: "Shell execution instruction in content"
+    severity: high
+
+  - pattern: '(?i)\b(write|create|overwrite)\s+(a\s+)?(file|script)\s+(to|at|in)\s+.{0,40}(\.ssh|\.gnupg|\.claude|\.config|authorized_keys)'
+    reason: "Attempts to write to sensitive dotfiles"
+    severity: high
+
+  - pattern: '(?i)\b(add|append|insert)\s+(your\s+)?(ssh|gpg)\s+key\s+(to|into)'
+    reason: "SSH/GPG key injection attempt"
+    severity: high
+
+  - pattern: '(?i)\bgit\s+(push|commit|remote\s+add)\b.{0,60}(malicious|backdoor|hack|exploit)'
+    reason: "Malicious git operation instruction"
+    severity: high
+
+  # --- DO-1317: Tool / agent-protocol smuggling ---
+  - pattern: '(?i)<\/?(antml:)?(function_calls|tool_use|tool_result|invoke|parameter)\b'
+    reason: "Anthropic tool-protocol XML tags in untrusted content"
+    severity: high
+
+  # --- DO-1317: Markdown image / link exfiltration ---
+  - pattern: '!\[[^\]]{0,200}\]\([^)]{0,300}\?[^)]*\b(token|key|secret|password|env|cookie|api[-_ ]?key|credential)\s*='
+    reason: "Markdown image URL exfiltrating secrets via query string"
+    severity: high
+
+  - pattern: '(?<!!)\[[^\]]{0,200}\]\([^)]{0,300}\?[^)]*\b(token|key|secret|password|env|cookie|api[-_ ]?key|credential)\s*='
+    reason: "Markdown link URL exfiltrating secrets via query string"
+    severity: high
+
+  # --- DO-1317: Dangerous URI scheme instructions ---
+  - pattern: '(?i)\b(open|fetch|navigate|load|render|visit|click)\s+.{0,40}(data:|javascript:)'
+    reason: "Instruction to load data:/javascript: URI"
+    severity: high
+
+  - pattern: '(?i)\bwhen\s+(you\s+)?(read|process|see|encounter|summarize|summarise|render)\s+this[, ]\s*.{0,40}\b(also|please|then|must|remember|make\s+sure)'
+    reason: "Indirect injection framing"
+    severity: low
+
+  - pattern: '(?i)\bas\s+part\s+of\s+your\s+(response|answer|output|reply)\b.{0,40}\b(include|append|add|emit|attach)'
+    reason: "'As part of your response' payload smuggling"
+    severity: low
+
+  - pattern: '(?i)\b(updated\s+)?(anthropic\s+)?(acceptable\s+use|usage)\s+policy\b.{0,60}\b(allows?|permits?|requires?|now)'
+    reason: "Policy / AUP impersonation"
+    severity: low
+
+# --- Social engineering + DO-1317 indirect injection (review-only, severity:low) ---
+rolePlayingPatterns:
+  - pattern: '(?i)\b(this\s+is\s+)?(a\s+)?security\s+(test|audit|exercise)\s*(,|\.|\s)?\s*(please\s+)?(comply|cooperate|proceed)'
+    reason: "Fake security test social engineering"
+    severity: high
+
+  - pattern: '(?i)\b(urgent|emergency|critical)\s*[:\-!]\s*(you\s+must|immediately|right\s+now)'
+    reason: "Urgency-based social engineering"
+    severity: medium
+
+  - pattern: '(?i)\bfor\s+this\s+(conversation|session|response|reply)\s+only\b.{0,40}\b(you|act|behave|respond|pretend|role)'
+    reason: "Persona pinning ('for this conversation only ...')"
+    severity: low
+
+  - pattern: '(?i)\bsafe\s+educational\s+context\b.{0,60}\b(prefix|warning|disclaimer|preface)'
+    reason: "Skeleton-key style preamble"
+    severity: low
+
+# --- Encoding evasion (supplementary) ---
+encodingPatterns:
+  - pattern: '(?i)\b(eval|exec|execute)\s*\(\s*(atob|btoa|Buffer\.from|base64)'
+    reason: "Runtime decode-and-execute pattern"
+    severity: high
+
+  - pattern: '(?i)\bString\.fromCharCode\s*\('
+    reason: "JavaScript char-code obfuscation"
+    severity: medium
+
+  - pattern: '(?i)\bchr\s*\(\s*\d+\s*\)\s*(\+|\.\s*chr|\s*\&)'
+    reason: "Character-code concatenation obfuscation"
+    severity: medium
+
+  # --- DO-1317: Unicode Tag block (U+E0000..U+E007F) ---
+  # Steganographic prompt injection ("ASCII Smuggler"): instructions encoded
+  # as invisible Unicode Tag characters. Detected via UTF-16 surrogate pair.
+  - pattern: '(\uDB40[\uDC00-\uDC7F]){2,}'
+    reason: "Invisible Unicode Tag-block characters (steganographic injection)"
+    severity: high
+
+  # --- DO-1317: ANSI escape sequences ---
+  # Three-or-more sequences in tool output - well past legitimate colourised
+  # log output and a known terminal-rewriting injection vector.
+  - pattern: '(\x1B\[[0-9;]*[A-Za-z]){3,}'
+    reason: "ANSI escape sequences in tool output"
+    severity: medium

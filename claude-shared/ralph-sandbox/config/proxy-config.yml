@@ -1,0 +1,77 @@
+# Proxy configuration for Docker sandbox network policy.
+# This file is synced to ~/.sandboxd/proxy-config.json BEFORE sandbox creation,
+# so the sandbox inherits a locked-down policy from the moment it starts.
+
+# Per-server MCP domains are merged into network.allowedDomains by Sync-ProxyConfig at runtime
+playwright:
+  allowedDomains:
+    - "*.wearefreemarket.com:443"
+
+policy:
+  # "deny" = block all traffic not explicitly allowed (secure default).
+  # Docker Desktop ships with "allow" — we override that here.
+  default: "deny"
+  logBlocked: false
+  logAllowed: false
+
+network:
+  # Domains the sandbox proxy will allow (TLS-intercepted).
+  allowedDomains:
+    # GitHub
+    - "*.github.com"
+    - "raw.githubusercontent.com"
+
+    # NuGet, NPM
+    - "*.nuget.org"
+    - "nuget.telerik.com"
+    - "nuget.pkg.github.com"
+    - "*.npmjs.org:443"
+
+    # Azure / Docker / Microsoft
+    - "*.blob.core.windows.net"
+    - "*.docker.io"
+    - "*.docker.com"
+    - "mcr.microsoft.com"
+    - "*.mcr.microsoft.com"
+
+    # Anthropic
+    - "api.anthropic.com:443"
+    - "statsig.anthropic.com:443"
+    - "platform.claude.com:443"
+
+    # Package Managers
+    - "*.debian.org"
+    - "ports.ubuntu.com:443"
+
+    # Datadog
+    - "*.datadoghq.eu:443"
+    - "*.datadoghq.com:443"
+
+    # Keeper
+    - "keepersecurity.eu:443"
+
+    # NOTE: MCP server domains (defined in per-server sections above) should not be duplicated here
+
+  # Cloud metadata endpoints — always blocked to prevent SSRF.
+  blockedDomains:
+    - "metadata.azure.internal"
+    - "metadata.google.internal"
+    - "kube-dns.kube-system.svc.cluster.local"
+
+  # Private and link-local IP ranges — always blocked.
+  blockedCIDRs:
+    - "10.0.0.0/8"
+    - "127.0.0.0/8"
+    - "169.254.0.0/16"
+    - "172.16.0.0/12"
+    - "192.168.0.0/16"
+    - "::1/128"
+    - "fc00::/7"
+    - "fe80::/10"
+
+  # Domains that bypass the proxy entirely (no TLS interception).
+  # Use for hosts that require certificate pinning.
+  bypassDomains: []
+
+  # CIDRs that bypass the proxy entirely.
+  bypassCIDRs: []

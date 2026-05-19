@@ -1,0 +1,25 @@
+Benign content that must NOT trigger the DO-1317 patterns. If any of these
+fire, tighten the regex - this is the false-positive guard rail.
+
+# Talking *about* prompt injection
+Our security team reviewed prompt-injection patterns and how to ignore previous
+warnings about deprecation. We do not actually want anyone to ignore previous
+production guidance.
+
+# DAN as a person's name
+DAN is the user's first name. Please greet DAN by name.
+
+# Talking about ANSI / data URIs without instructing to use them
+This article explains how data: URIs work and what ANSI escape codes look like.
+
+# Markdown link with a URL but no secret-name query parameter
+See the [release notes](https://example.com/release/2024-q4) for details.
+
+# Image with a non-secret query parameter
+![chart](https://example.com/img?width=800&height=600)
+
+# Documentation about tool-use protocols, no actual smuggled tags
+The Anthropic API uses XML-style markers for tool calls. Refer to the docs.
+
+# Phrase 'system prompt' in regular sentence
+The system prompt is set during initialisation; we don't change it at runtime.

@@ -1,0 +1,35 @@
+# Ralph Progress Log
+Started: 03/24/2026
+---
+
+## 2026-03-24 - US-001
+- Created `.github/workflows/scan-skills.yml` with triggers on pull_request (main), push (main), and workflow_dispatch
+- Calls reusable workflow `cisco-ai-defense/skill-scanner/.github/workflows/scan-skills.yml@v1`
+- Configured `skill_path: skills/` and required permissions (contents: read, security-events: write)
+- Files changed: `.github/workflows/scan-skills.yml` (new), `tasks/current/prd.json`, `tasks/current/progress.txt`
+- **Learnings for future iterations:**
+  - GitHub API and web access are blocked in this sandbox; PRD and web search results are the primary sources for reusable workflow interface details
+  - The reusable workflow is called with `uses:` syntax (not as a step) — the runner is specified by the reusable workflow itself
+  - Pinned to `@v1` per PRD technical considerations; update when adopting new scanner versions
+---
+
+## 2026-03-24 - US-002
+- Split single `scan` job into two parallel jobs: `scan-sarif` and `scan-summary`
+- Both jobs configured with: `policy: strict`, `fail_on_severity: medium`, `scan_mode: scan-all`, `skill_path: skills/`
+- SARIF job: `format: sarif`, `upload_sarif: true`, permissions include `security-events: write`
+- Summary job: `format: summary`, permissions only need `contents: read`
+- Files changed: `.github/workflows/scan-skills.yml`, `tasks/current/prd.json`, `tasks/current/progress.txt`
+- **Learnings for future iterations:**
+  - Reusable workflow jobs with `uses:` can run in parallel by default (no `needs:` dependency)
+  - Summary job doesn't need `security-events: write` since it only writes to workflow log
+  - No build/test step needed — this is a pure workflow YAML change; validation happens when GitHub runs it
+---
+
+## 2026-03-24 - US-003
+- Added top-level comment block to `.github/workflows/scan-skills.yml` explaining purpose, dual-job architecture, policy/threshold settings, and remediation steps for blocked PRs
+- Added "Skill Scanner Security Gate" section to `CLAUDE.md` documenting when the scan runs, the policy/threshold, and a step-by-step guide for handling scan failures
+- Files changed: `.github/workflows/scan-skills.yml`, `CLAUDE.md`, `tasks/current/prd.json`, `tasks/current/progress.txt`
+- **Learnings for future iterations:**
+  - No build/test step needed for documentation-only changes — this is YAML comments and markdown
+  - All three stories are now complete; the PRD has all `passes: true`
+---
