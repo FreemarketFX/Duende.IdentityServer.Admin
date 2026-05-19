@@ -1,0 +1,174 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/version-check/version-check.cmd\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/elevation-guard/elevation-guard.cmd\"",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/bash-command-guard/bash-command-guard.cmd\"",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/freemarket-monolith-hooks/block-pr-approve.sh\"",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/freemarket-monolith-hooks/enforce-no-tasks-current-commits.sh\"",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "AskUserQuestion",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/freemarket-monolith-hooks/enforce-askuserquestion-rules.sh\"",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/freemarket-monolith-hooks/enforce-prd-research.sh\"",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/freemarket-monolith-hooks/enforce-sql-migration-rules.sh\"",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/freemarket-monolith-hooks/enforce-bdd-when-step.sh\"",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/freemarket-monolith-hooks/enforce-no-dynamic-in-tests.sh\"",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/freemarket-monolith-hooks/enforce-no-empty-self-link.sh\"",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/freemarket-monolith-hooks/enforce-no-utcnow-in-readmodel.sh\"",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/freemarket-monolith-hooks/enforce-permission-before-notfound.sh\"",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/freemarket-monolith-hooks/enforce-no-callerUserId-property.sh\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -File \"${CLAUDE_PLUGIN_ROOT}/hooks/prompt-defender-pwsh/post-tool-defender.ps1\"",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "WebFetch",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -File \"${CLAUDE_PLUGIN_ROOT}/hooks/prompt-defender-pwsh/post-tool-defender.ps1\"",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -File \"${CLAUDE_PLUGIN_ROOT}/hooks/prompt-defender-pwsh/post-tool-defender.ps1\"",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/freemarket-monolith-hooks/enforce-pr-build-doctor.sh\"",
+            "timeout": 15
+          },
+          {
+            "type": "prompt",
+            "prompt": "Look at the Bash COMMAND (not the output). If the command is 'gh pr create' or similar PR-creation command AND the output contains a GitHub PR URL (github.com/.../pull/), respond with: {\"ok\": true, \"additionalContext\": \"A PR was just created. Run /risk now to assess the PR risk before continuing.\"}. For ALL other commands (git diff, git log, git status, git push, gh pr view, gh pr diff, gh pr checks, or anything else that is not creating a PR), ALWAYS respond with: {\"ok\": true}. Do NOT inspect large outputs. When in doubt, respond with {\"ok\": true}."
+          }
+        ]
+      },
+      {
+        "matcher": "Grep",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -File \"${CLAUDE_PLUGIN_ROOT}/hooks/prompt-defender-pwsh/post-tool-defender.ps1\"",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -File \"${CLAUDE_PLUGIN_ROOT}/hooks/prompt-defender-pwsh/post-tool-defender.ps1\"",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "mcp__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -File \"${CLAUDE_PLUGIN_ROOT}/hooks/prompt-defender-pwsh/post-tool-defender.ps1\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

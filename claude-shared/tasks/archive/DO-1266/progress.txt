@@ -1,0 +1,90 @@
+# Ralph Progress - DO-1266 PowerShell Prompt Injection Defender
+# Branch: feat_DO-1266_lasso_security
+# Started: 2026-03-23
+
+## Codebase Patterns
+- PowerShell scripts use `$PSScriptRoot` for script directory (equivalent to Python's `Path(__file__).parent`)
+- Use `[Console]::In.ReadToEnd()` for stdin reading in PowerShell hooks
+- `ConvertFrom-Json` returns PSCustomObject, not hashtable — use `$obj.PSObject.Properties[$name]` for safe property access
+- `ConvertFrom-Yaml` (powershell-yaml) returns ordered dictionaries — use `.ContainsKey()` for hashtable checks
+- Both PSCustomObject and IDictionary must be handled for property access since different input sources produce different types
+- The `trap { exit 0 }` block at script level provides fail-open behavior for any unhandled errors
+- `$MyInvocation.InvocationName -ne '.'` distinguishes direct execution from dot-sourcing (needed for test script import)
+
+---
+
+## 2026-03-24 - US-001: Create PowerShell PostToolUse defender script
+- Created `hooks/defender-pwsh/post-tool-defender.ps1` — full port of the Python defender
+- Implemented all functions: Load-Config, Read-YamlConfig, Extract-TextContent, Get-SourceInfo, Scan-ForInjections, Format-Warning, Main
+- Script parses cleanly (PowerShell AST parser: 0 errors)
+- Functional tests verified:
+  - Detection triggers correctly for injection text (instruction override, DAN, system prompt)
+  - Benign content produces no output (silent exit 0)
+  - Non-monitored tools (e.g., Edit) produce no output
+  - Short content (<10 chars) skipped
+  - Empty stdin: fail-open exit 0
+  - Invalid JSON stdin: fail-open exit 0
+  - Missing powershell-yaml module: fail-open exit 0
+  - MCP tool monitoring works (mcp__ prefix)
+  - Bash command truncation at 60 chars works
+- Files changed: hooks/defender-pwsh/post-tool-defender.ps1 (new), tasks/current/prd.json, tasks/current/progress.txt
+- **Learnings for future iterations:**
+  - pwsh can be installed via `dotnet tool install --global PowerShell` in sandbox
+  - PSGallery (powershellgallery.com) is blocked by sandbox firewall — mock powershell-yaml for testing
+  - Pattern matching with `[regex]::IsMatch()` works identically to Python `re.search()` for our patterns
+  - PowerShell's `ConvertTo-Json -Compress` is equivalent to Python's `json.dumps()`
+  - The `, @($list)` comma operator trick is needed to prevent PowerShell from unrolling single-element arrays in function returns
+---
+
+## 2026-03-24 - US-002: Implement text extraction for all tool output formats
+- Verified `Extract-TextContent` function in `hooks/defender-pwsh/post-tool-defender.ps1` (lines 88-221)
+- Ran 26 automated tests covering all 8 acceptance criteria:
+  - AC1: String results returned directly (2 tests)
+  - AC2: Object field extraction in priority order — content > output > result > text > file_content > stdout > data (8 tests, both PSCustomObject and hashtable)
+  - AC3: Content arrays with text blocks, plain strings, and mixed (3 tests)
+  - AC4: Nested file.content for Read tool, both PSCustomObject and hashtable (2 tests)
+  - AC5: JSON serialization fallback for unknown fields (1 test)
+  - AC6: Array results recursively extracted and joined (2 tests)
+  - AC7: Null/missing results return empty string (1 test)
+  - Edge cases: integers, booleans, empty strings, empty arrays, arrays with nulls, numeric content, non-dict file field (7 tests)
+- Typecheck (AST parser): 0 errors
+- Implementation matches Python reference (`hooks/defender-python/post-tool-defender.py` lines 89-148) exactly in behavior
+- Files changed: tasks/current/prd.json, tasks/current/progress.txt
+- **Learnings for future iterations:**
+  - PowerShell treats `$null` content field differently from missing field — `$null -ne $dict.PSObject.Properties['content']` checks existence, not value
+  - Empty arrays `@()` joined with `-join` produce empty string correctly
+  - `ConvertTo-Json -Depth 10 -Compress` handles JSON fallback reliably for unknown object shapes
+---
+
+## 2026-03-24 - US-003: Implement source info extraction and warning formatting
+- Verified `Get-SourceInfo` function (lines 223-291) and `Format-Warning` function (lines 374-436) in `hooks/defender-pwsh/post-tool-defender.ps1`
+- Ran 40 automated tests covering all 4 acceptance criteria:
+  - AC1: Source info extraction for all tool types — Read (file_path), WebFetch (url), Bash (command truncated at 60), Grep (pattern + path), Glob (pattern), Task (description first 40 chars), MCP tools (tool name), null input, unknown tools (13 tests)
+  - AC2: Severity grouping — HIGH, MEDIUM, LOW sections with correct detection listing (6 tests)
+  - AC3: Warning format matches Python exactly — separator lines, header, severity sections, recommended actions footer, line-by-line verification (17 tests)
+  - AC4: Conditional severity sections — only present when detections of that severity exist (4 tests)
+- Typecheck (AST parser): 0 errors
+- Implementation matches Python reference (`hooks/defender-python/post-tool-defender.py` lines 201-284) exactly in output format
+- Files changed: tasks/current/prd.json, tasks/current/progress.txt
+- **Learnings for future iterations:**
+  - PowerShell `switch` statement matches exact tool names; `default` handles MCP prefix check
+  - `Get-Prop` nested helper function pattern works well for property access across PSCustomObject/hashtable
+  - `-split "`n"` correctly splits PowerShell multiline strings for line-by-line comparison
+---
+
+## 2026-03-24 - US-004: Port the interactive test suite to PowerShell
+- Created `hooks/defender-pwsh/test-defender.ps1` — full port of the Python test-defender.py
+- Implemented all 5 modes: -Interactive, -File, -Text, -Samples, -ShowVerbose
+- Dot-sources `post-tool-defender.ps1` to import functions (Load-Config, Scan-ForInjections, etc.)
+- Same 5 sample injection categories as Python: instruction_override (5), role_playing_dan (5), encoding_obfuscation (4), context_manipulation (5), benign (4) = 23 total
+- Sample test results: 21/23 correct (91.3%) — same 2 false negatives as Python version (pattern gaps, not script bugs)
+- Reports pass/fail per sample, percentage summary, false negatives, and false positives
+- -Text mode outputs JSON, -File mode shows file size + detection details, -ShowVerbose includes pattern regex
+- Typecheck (AST parser): 0 errors
+- Files changed: hooks/defender-pwsh/test-defender.ps1 (new), tasks/current/prd.json, tasks/current/progress.txt
+- **Learnings for future iterations:**
+  - PowerShell `[CmdletBinding()]` with param block is the idiomatic equivalent of Python argparse
+  - Cannot use `-Verbose` as a custom switch name (reserved by CmdletBinding) — use `-ShowVerbose` instead
+  - `[ordered]@{}` preserves key order for sample categories, ensuring consistent test output
+  - Dot-sourcing (`. script.ps1`) imports all functions into the caller's scope — the defender's `if ($MyInvocation.InvocationName -ne '.')` guard prevents Main from running
+---

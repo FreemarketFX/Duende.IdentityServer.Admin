@@ -1,0 +1,34 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__plugin_freemarket-claude-skills_datadog__*"
+    ],
+    "deny": [
+      "mcp__plugin_freemarket-claude-skills_datadog__add_comment_to_datadog_case",
+      "mcp__plugin_freemarket-claude-skills_datadog__append_reference_table_rows",
+      "mcp__plugin_freemarket-claude-skills_datadog__browser_onboarding",
+      "mcp__plugin_freemarket-claude-skills_datadog__create_datadog_case",
+      "mcp__plugin_freemarket-claude-skills_datadog__create_datadog_feature_flag",
+      "mcp__plugin_freemarket-claude-skills_datadog__create_datadog_monitor",
+      "mcp__plugin_freemarket-claude-skills_datadog__create_datadog_notebook",
+      "mcp__plugin_freemarket-claude-skills_datadog__create_reference_table",
+      "mcp__plugin_freemarket-claude-skills_datadog__delete_datadog_dashboard",
+      "mcp__plugin_freemarket-claude-skills_datadog__devices_onboarding",
+      "mcp__plugin_freemarket-claude-skills_datadog__edit_datadog_notebook",
+      "mcp__plugin_freemarket-claude-skills_datadog__edit_synthetics_tests",
+      "mcp__plugin_freemarket-claude-skills_datadog__execute_datadog_workflow",
+      "mcp__plugin_freemarket-claude-skills_datadog__kubernetes_onboarding",
+      "mcp__plugin_freemarket-claude-skills_datadog__link_jira_issue_to_datadog_case",
+      "mcp__plugin_freemarket-claude-skills_datadog__llm_observability_onboarding",
+      "mcp__plugin_freemarket-claude-skills_datadog__serverless_onboarding",
+      "mcp__plugin_freemarket-claude-skills_datadog__source_map_uploads",
+      "mcp__plugin_freemarket-claude-skills_datadog__sync_datadog_feature_flag_allocations",
+      "mcp__plugin_freemarket-claude-skills_datadog__synthetics_test_wizard",
+      "mcp__plugin_freemarket-claude-skills_datadog__test_optimization_onboarding",
+      "mcp__plugin_freemarket-claude-skills_datadog__update_datadog_case",
+      "mcp__plugin_freemarket-claude-skills_datadog__update_datadog_feature_flag_environment",
+      "mcp__plugin_freemarket-claude-skills_datadog__update_datadog_workflow_with_agent_trigger",
+      "mcp__plugin_freemarket-claude-skills_datadog__upsert_datadog_dashboard"
+    ]
+  }
+}

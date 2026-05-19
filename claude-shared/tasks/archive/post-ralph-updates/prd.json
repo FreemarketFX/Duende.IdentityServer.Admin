@@ -1,0 +1,77 @@
+{
+  "project": "claude-shared",
+  "jiraTicket": "",
+  "branchName": "post-ralph-updates",
+  "description": "Post-Ralph Skill & Archive Restore - Automate post-completion cleanup, sandbox auto-archive, and archive-aware restore in prd/ralph skills",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Create post-ralph skill",
+      "description": "As a developer, I want a /post-ralph skill that archives the current prd.json and progress.txt to tasks/archive/{jiraTicket}/, removes them from tasks/current/, and commits all outstanding ralph-related files.",
+      "acceptanceCriteria": [
+        "New skill at skills/post-ralph/SKILL.md",
+        "Reads tasks/current/prd.json to extract jiraTicket",
+        "Moves prd.json and progress.txt to tasks/archive/{jiraTicket}/ (using unique-suffix if files already exist)",
+        "Cleans up all remaining artifacts from tasks/current/ (.last-branch, ralph-sandbox.log, .iteration-output, nuget.config)",
+        "tasks/current/ is empty after completion",
+        "Stages and commits all ralph-related file changes (archive moves, cleanup)",
+        "Commit message format: chore(FMFX-XXXXX): archive completed ralph run",
+        "Gracefully handles missing files (no prd.json = nothing to archive)",
+        "Build passes"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "Skill created at skills/post-ralph/SKILL.md"
+    },
+    {
+      "id": "US-002",
+      "title": "Run post-ralph as final sandbox iteration on completion",
+      "description": "As a developer, I want ralph-sandbox.ps1 to automatically run the post-ralph skill inside the sandbox after Ralph signals COMPLETE, so archiving and committing happens without manual intervention.",
+      "acceptanceCriteria": [
+        "After detecting <promise>COMPLETE</promise>, run one more docker sandbox run with a prompt that triggers the post-ralph skill",
+        "Remove the existing Archive-CompletedRun PowerShell function call (archiving now handled by skill inside sandbox)",
+        "Log that post-ralph is running",
+        "Toast notification after post-ralph completes",
+        "Script still exits 0 on success",
+        "Build passes"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": "Replaced Archive-CompletedRun with docker sandbox run of /post-ralph skill"
+    },
+    {
+      "id": "US-003",
+      "title": "Add archive restore logic to ralph skill",
+      "description": "As a developer, I want the /ralph skill to check the archive for existing work matching the current branch before creating a new prd.json, and restore it to tasks/current/ if found.",
+      "acceptanceCriteria": [
+        "Before archiving or creating new prd.json, check tasks/archive/ for a match",
+        "Match by Jira ticket first: extract ticket from branch name, check if tasks/archive/{ticket}/ exists",
+        "Fall back to scanning prd.json files in archive subfolders for matching branchName",
+        "If found, move (not copy) the archived prd.json and progress.txt back to tasks/current/ (pick highest-suffix file if multiples exist)",
+        "Inform the user that archived work was restored and show story status summary",
+        "If no archive found, proceed with normal conversion flow",
+        "Build passes"
+      ],
+      "priority": 3,
+      "passes": true,
+      "notes": "Added Archive Restore section to ralph SKILL.md with ticket match + branchName fallback + suffix logic"
+    },
+    {
+      "id": "US-004",
+      "title": "Add archive restore logic to prd skill",
+      "description": "As a developer, I want the /prd skill to check the archive for an existing PRD matching the current branch and restore it before editing.",
+      "acceptanceCriteria": [
+        "Before creating a new PRD, check tasks/archive/ for a match",
+        "Match by Jira ticket first: extract ticket from branch name, check if tasks/archive/{ticket}/ exists",
+        "Fall back to scanning prd.json files in archive subfolders for matching branchName",
+        "If found, move (not copy) the archived prd.json and progress.txt back to tasks/current/ (pick highest-suffix file if multiples exist)",
+        "Inform the user that archived work was restored",
+        "Proceed with normal PRD editing flow (user can update the restored PRD)",
+        "Build passes"
+      ],
+      "priority": 4,
+      "passes": true,
+      "notes": "Added Archive Restore section to prd SKILL.md with ticket match + branchName fallback + suffix logic, proceeds with editing after restore"
+    }
+  ]
+}

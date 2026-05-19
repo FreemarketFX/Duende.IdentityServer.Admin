@@ -1,0 +1,67 @@
+# syntax=docker/dockerfile:1
+FROM docker/sandbox-templates:claude-code
+
+USER root
+
+# Install dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        ca-certificates \
+        wget \
+        findutils \
+        dos2unix \
+        gettext-base \
+    && update-ca-certificates \
+    && wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 \
+    && chmod +x /usr/local/bin/yq \
+    && wget -O /usr/local/bin/bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64 && chmod +x /usr/local/bin/bicep \
+    && wget https://dot.net/v1/dotnet-install.sh -O /tmp/dotnet-install.sh \
+    && chmod +x /tmp/dotnet-install.sh \
+    && /tmp/dotnet-install.sh --channel 10.0 --install-dir /usr/share/dotnet \
+    && ln -s /usr/share/dotnet/dotnet /usr/local/bin/dotnet \
+    && rm -f /tmp/dotnet-install.sh \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+ENV DOTNET_ROOT=/usr/share/dotnet
+ENV PATH="${PATH}:/usr/share/dotnet"
+# Pin NuGet cache so rsync builds in /tmp/build reuse pre-warmed packages
+ENV NUGET_PACKAGES=/home/agent/.nuget/packages
+
+# Verify installation
+RUN dotnet --version
+
+# NuGet feeds (GitHub Packages)
+ARG SCRIPT_DIR=.
+COPY ${SCRIPT_DIR}/config/nuget.config /home/agent/.nuget/NuGet/NuGet.Config
+
+# Pre-warm NuGet package cache — copy source tree, restore all solutions, discard sources.
+# Uses COPY --exclude (requires BuildKit, default in Docker Desktop 23.0+).
+COPY --exclude=.git --exclude=bin --exclude=obj --exclude=artifacts . /tmp/restore/
+RUN find /tmp/restore -name '*.slnx' -o -name '*.sln' | while read sln; do \
+        dotnet restore "$sln" --verbosity quiet || true; \
+    done \
+    && rm -rf /tmp/restore
+RUN chown -R agent:agent /home/agent/.nuget
+
+# Install Keeper Secrets Manager CLI
+ENV KSM_INI_DIR=/etc/ksm
+RUN mkdir -p /etc/ksm && chmod 777 /etc/ksm
+RUN wget -qO /tmp/ksm.tar.gz https://github.com/Keeper-Security/secrets-manager/releases/download/ksm-cli-1.3.0/keeper-secrets-manager-cli-linux-1.3.0.tar.gz \
+    && tar -xzf /tmp/ksm.tar.gz -C /usr/local/bin/ \
+    && chmod +x /usr/local/bin/ksm \
+    && rm -f /tmp/ksm.tar.gz
+
+# Pre-seed Claude settings to skip first-run prompts
+RUN echo '{"env":{"DISABLE_TELEMETRY":"1","DISABLE_ERROR_REPORTING":"1","DISABLE_AUTOUPDATER":"1","DISABLE_BUG_COMMAND":"1","CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY":"1"}}' \
+    > /home/agent/.claude/settings.json \
+    && chown agent:agent /home/agent/.claude/settings.json
+
+# Install scripts
+COPY --chown=agent:agent ${SCRIPT_DIR}/config/sandbox-persistent.template /home/agent/sandbox-persistent.template
+RUN chmod 666 /etc/sandbox-persistent.sh
+COPY ${SCRIPT_DIR}/docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh \
+    && chmod 777 /var/log
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+
+USER agent

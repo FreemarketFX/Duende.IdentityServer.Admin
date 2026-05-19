@@ -1,0 +1,58 @@
+{
+  "project": "claude-shared",
+  "jiraTicket": "DO-1215",
+  "branchName": "feat_DO-1215_skill_scanner",
+  "description": "Skill Scanner GitHub Workflow - Security gate that scans all skill files for prompt injection, data exfiltration, and malicious patterns using cisco-ai-defense/skill-scanner",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Create the skill-scanner workflow file",
+      "description": "As a repository maintainer, I want a GitHub Actions workflow that calls the cisco-ai-defense/skill-scanner reusable workflow so that all skills are scanned automatically.",
+      "acceptanceCriteria": [
+        "Workflow file exists at .github/workflows/scan-skills.yml",
+        "Workflow triggers on pull_request events targeting main",
+        "Workflow triggers on push events to main",
+        "Workflow supports workflow_dispatch for manual runs",
+        "Workflow calls the reusable workflow at cisco-ai-defense/skill-scanner/.github/workflows/scan-skills.yml",
+        "Runs on ubuntu-latest",
+        "Build passes"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Configure scan policy, severity threshold, and dual output",
+      "description": "As a security-conscious maintainer, I want the scanner configured with strict policy, medium+ severity threshold, and both SARIF and summary output so that we catch the widest range of issues and can triage from PR annotations or workflow logs.",
+      "acceptanceCriteria": [
+        "policy input set to strict",
+        "fail_on_severity input set to medium",
+        "scan_mode set to scan-all scanning the skills/ directory",
+        "SARIF scan job: format set to sarif, upload_sarif set to true",
+        "Summary scan job: format set to summary (outputs to workflow log)",
+        "Both jobs use the same strict policy and medium severity threshold",
+        "Workflow has security-events: write and contents: read permissions",
+        "Build fails when findings at medium severity or above are detected",
+        "Build passes"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Document the skill-scanner security gate",
+      "description": "As a contributor, I want documentation explaining the security gate so that I understand why my PR might be blocked and what to do about it.",
+      "acceptanceCriteria": [
+        "Workflow file contains a top-level comment explaining its purpose",
+        "CLAUDE.md updated with a section noting the skill-scanner security gate",
+        "CLAUDE.md documents what to do if a scan fails",
+        "Build passes"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}

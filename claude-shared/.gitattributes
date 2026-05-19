@@ -1,0 +1,18 @@
+# Normalize all text files to LF in repo
+* text=auto
+
+# Shell scripts and PowerShell must be LF everywhere
+*.ps1 text eol=lf
+*.sh text eol=lf
+
+# elevation-guard.cmd / bash-command-guard.cmd are sh+cmd polyglots; the
+# *nix side relies on shebang dispatch, which only works with LF line endings.
+hooks/elevation-guard/elevation-guard.cmd text eol=lf
+hooks/bash-command-guard/bash-command-guard.cmd text eol=lf
+
+# version-check.cmd is the same polyglot pattern as elevation-guard.cmd.
+hooks/version-check/version-check.cmd text eol=lf
+
+# YAML must be LF everywhere (CI workflows)
+*.yml text eol=lf
+*.yaml text eol=lf
