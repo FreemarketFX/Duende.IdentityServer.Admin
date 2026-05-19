@@ -1,0 +1,48 @@
+name: Update Duende.IdentityServer.Admin Packages
+
+permissions:
+  contents: read
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "15 0 * * *"
+
+jobs:
+  update_packages:
+    permissions:
+      contents: write
+      packages: write
+      actions: read
+    uses: FreemarketFX/gha-shared-workflows/.github/workflows/dotnet-outdated.yml@main
+    secrets: inherit
+
+  build:
+    needs: update_packages
+    permissions:
+      contents: write
+      packages: write
+      actions: read
+    uses: ./.github/workflows/ci.yml
+    secrets: inherit
+    with:
+      download-package-updates: true
+
+  commit_package_updates:
+    needs: build
+    permissions:
+      contents: write
+      packages: write
+      actions: read
+    uses: FreemarketFX/gha-shared-workflows/.github/workflows/commit-package-updates.yml@main
+    secrets: inherit
+
+  notify_slack:
+    if: always() && github.ref == 'refs/heads/main'
+    needs: [update_packages, build, commit_package_updates]
+    permissions:
+      actions: read
+    uses: FreemarketFX/gha-shared-workflows/.github/workflows/notify-slack.yml@main
+    secrets:
+      slackWebhookUrl: ${{ secrets.SLACK_WEBHOOK_URL_PLATFORM_RELEASES }}
+    with:
+      jobResults: ${{ toJSON(needs.*.result) }}

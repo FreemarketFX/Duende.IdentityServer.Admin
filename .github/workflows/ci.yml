@@ -1,0 +1,74 @@
+name: CI
+
+permissions:
+  contents: read
+on:
+  workflow_call:
+    inputs:
+      download-package-updates:
+        description: 'Download updated-csproj-files artifact before building'
+        type: boolean
+        required: false
+        default: false
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+
+  build:
+    runs-on:
+      group: fmfx-gha-runners-linux-static-ip
+
+    permissions:
+      contents: write
+      packages: write
+      actions: read
+
+    steps:
+      - name: Generate GitHub App Token
+        id: generate-gha-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.FMFX_CI_APP_ID }}
+          private-key: ${{ secrets.FMFX_CI_APP_PRIVATE_KEY }}
+
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+          token: ${{ steps.generate-gha-token.outputs.token }}
+          ref: ${{ github.head_ref }}
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+          source-url: https://nuget.pkg.github.com/FreemarketFX/index.json
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.ADMIN_READ_NUGET_TOKEN }}
+
+      - name: Restore NuGet cache
+        uses: actions/cache/restore@v5
+        id: cache-restore
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-${{ hashFiles('**/*.csproj') }}
+          restore-keys: ${{ runner.os }}-
+
+      - name: Download updated csproj files
+        if: inputs.download-package-updates
+        uses: actions/download-artifact@v8
+        with:
+          name: updated-csproj-files
+
+      - name: Build solution
+        working-directory: src
+        run: dotnet build Skoruba.Duende.IdentityServer.Admin.sln --configuration Release --verbosity quiet
+
+      - name: Save NuGet cache (main only)
+        if: github.ref == 'refs/heads/main' && steps.cache-restore.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v5
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-${{ hashFiles('**/*.csproj') }}

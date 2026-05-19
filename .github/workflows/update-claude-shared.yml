@@ -1,0 +1,34 @@
+name: Update claude-shared
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+  repository_dispatch:
+    types: [claude-shared-updated]
+  schedule:
+    - cron: "0 7 * * 1-5"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  update-claude-shared:
+    permissions:
+      contents: write
+      actions: read
+    uses: FreemarketFX/gha-shared-workflows/.github/workflows/update-claude-shared.yml@main
+    secrets: inherit
+
+  notify_slack:
+    if: always() && github.ref == 'refs/heads/main'
+    needs: [update-claude-shared]
+    permissions:
+      actions: read
+    uses: FreemarketFX/gha-shared-workflows/.github/workflows/notify-slack.yml@main
+    secrets:
+      slackWebhookUrl: ${{ secrets.SLACK_WEBHOOK_URL_PLATFORM_RELEASES }}
+    with:
+      jobResults: ${{ toJSON(needs.*.result) }}
