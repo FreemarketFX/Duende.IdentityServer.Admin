@@ -1,0 +1,439 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/FreemarketFX/claude-shared/skills/tool-security-analysis/snapshot.schema.json",
+  "title": "Tool Adoption Snapshot",
+  "description": "Structured record of a third-party Claude Code tool's surface at a point in time. Diffed across runs to surface changes without manual comparison. Never store credential values in this file — only auth types and scopes.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "slug",
+    "name",
+    "type",
+    "source",
+    "version_or_path",
+    "vendor",
+    "official_vendor",
+    "transport",
+    "auth",
+    "tools",
+    "network_egress",
+    "dependencies",
+    "license",
+    "maintainer",
+    "cves",
+    "retention",
+    "zdr_eligible",
+    "data_classes",
+    "is_section_3_2_source",
+    "risk_level",
+    "tier",
+    "compensating_controls",
+    "reviewed_by",
+    "reviewed_on",
+    "review_due",
+    "research_gaps",
+    "mcp_specific",
+    "supply_chain",
+    "credentials",
+    "local_execution",
+    "observability",
+    "compliance",
+    "stride"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1"
+    },
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "Lowercase kebab-case identifier. Includes region/scope qualifier when relevant (e.g. datadog-mcp-eu)."
+    },
+    "name": { "type": "string" },
+    "type": {
+      "type": "string",
+      "enum": ["mcp-server", "skill", "plugin", "command", "hook"]
+    },
+    "source": {
+      "type": "string",
+      "format": "uri"
+    },
+    "version_or_path": {
+      "type": "string",
+      "description": "Pinned package version OR full remote endpoint path. Used for identity."
+    },
+    "vendor": { "type": "string" },
+    "official_vendor": { "type": "boolean" },
+    "transport": {
+      "type": "string",
+      "enum": ["stdio", "http", "https", "other"]
+    },
+    "auth": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "scopes"],
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": ["none", "api-key", "oauth2", "bearer", "mtls", "other"]
+        },
+        "scopes": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "OAuth scopes or RBAC permissions required. NEVER credential values."
+        },
+        "notes": { "type": "string" }
+      }
+    },
+    "tools": {
+      "type": "array",
+      "description": "Sorted by name (case-insensitive ASCII). Diff-meaningful — full list, not summarised.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "description", "mutates"],
+        "properties": {
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "mutates": {
+            "type": "boolean",
+            "description": "True if the tool can create/update/delete/execute state at the provider."
+          },
+          "toolset": { "type": "string" }
+        }
+      }
+    },
+    "network_egress": {
+      "type": "array",
+      "description": "Sorted lexicographically. Domain names only.",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "dependencies": {
+      "type": "array",
+      "description": "Sorted by name. Top-level + notable transitives. Empty for vendor-hosted remote services.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string" },
+          "version": { "type": "string" },
+          "ecosystem": {
+            "type": "string",
+            "enum": ["npm", "pypi", "cargo", "go", "nuget", "other"]
+          }
+        }
+      }
+    },
+    "license": {
+      "type": "string",
+      "description": "SPDX identifier when known, free text otherwise."
+    },
+    "maintainer": { "type": "string" },
+    "cves": {
+      "type": "array",
+      "description": "Sorted by ID.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "severity", "fixed"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^CVE-[0-9]{4}-[0-9]+$" },
+          "severity": { "type": "string", "enum": ["critical", "high", "medium", "low", "unknown"] },
+          "fixed": { "type": "boolean" },
+          "notes": { "type": "string" }
+        }
+      }
+    },
+    "retention": {
+      "type": "string",
+      "description": "What the provider retains, and for how long."
+    },
+    "zdr_eligible": { "type": "boolean" },
+    "data_classes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["public", "internal", "confidential", "restricted"]
+      },
+      "uniqueItems": true,
+      "minItems": 1
+    },
+    "is_section_3_2_source": {
+      "type": "boolean",
+      "description": "Per FMFX AI policy §3.2 — corporate data source (SharePoint/Outlook/Slack/Jira/Confluence/private GitHub/Teams)."
+    },
+    "risk_level": {
+      "type": "string",
+      "enum": ["low", "medium", "high"]
+    },
+    "tier": {
+      "type": "string",
+      "enum": ["standard", "elevated", "emergency"]
+    },
+    "compensating_controls": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "reviewed_by": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" }
+      }
+    },
+    "reviewed_on": {
+      "type": "string",
+      "format": "date",
+      "description": "ISO 8601 date the research was performed."
+    },
+    "review_due": {
+      "type": "string",
+      "format": "date",
+      "description": "Date by which the adoption record must be re-reviewed."
+    },
+    "research_gaps": {
+      "type": "array",
+      "description": "Explicit unknowns. Never silently absent.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["field", "reason"],
+        "properties": {
+          "field": { "type": "string" },
+          "reason": { "type": "string" }
+        }
+      }
+    },
+    "mcp_specific": {
+      "type": "object",
+      "description": "MCP-specific risks: tool-description injection, cross-tool shadowing, bundled executors.",
+      "additionalProperties": false,
+      "required": [
+        "description_scan_clean",
+        "suspicious_descriptions",
+        "bundled_executor_tools",
+        "name_collision_notes"
+      ],
+      "properties": {
+        "description_scan_clean": {
+          "type": "boolean",
+          "description": "True when no tool description contains imperative directives, role-shifting language, embedded URLs, or model instructions."
+        },
+        "suspicious_descriptions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["tool", "reason"],
+            "properties": {
+              "tool": { "type": "string" },
+              "reason": { "type": "string" }
+            }
+          }
+        },
+        "bundled_executor_tools": {
+          "type": "array",
+          "description": "Sorted. Tool names that wrap arbitrary local execution (bash, python, shell, eval, run_code).",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        },
+        "name_collision_notes": {
+          "type": "string",
+          "description": "Risk of cross-tool shadowing when this tool runs alongside other MCP servers (e.g. clashing tool names that the model could confuse)."
+        }
+      }
+    },
+    "supply_chain": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "install_method",
+        "postinstall_scripts",
+        "pinned_by_hash",
+        "signed_release",
+        "npm_provenance",
+        "sigstore",
+        "typosquat_check_performed",
+        "similar_packages",
+        "maintainer_2fa"
+      ],
+      "properties": {
+        "install_method": {
+          "type": "string",
+          "enum": ["remote-http", "npm", "pypi", "cargo", "go-install", "binary", "container", "git-clone", "other"]
+        },
+        "postinstall_scripts": {
+          "type": "boolean",
+          "description": "True if install runs scripts on the dev machine (npm postinstall, setup.py, etc.)."
+        },
+        "pinned_by_hash": { "type": "boolean" },
+        "signed_release": { "type": "boolean" },
+        "npm_provenance": { "type": "boolean" },
+        "sigstore": { "type": "boolean" },
+        "typosquat_check_performed": { "type": "boolean" },
+        "similar_packages": {
+          "type": "array",
+          "description": "Sorted. Other package names that look similar enough to be confused with this one.",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        },
+        "maintainer_2fa": {
+          "type": "string",
+          "enum": ["yes", "no", "unknown", "n/a-vendor-hosted"]
+        }
+      }
+    },
+    "credentials": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "storage_location",
+        "oauth_scopes_requested",
+        "oauth_scopes_minimum_necessary",
+        "revocation_mechanism",
+        "time_to_revoke_minutes",
+        "identity_binding"
+      ],
+      "properties": {
+        "storage_location": {
+          "type": "string",
+          "description": "Where the tool persists OAuth tokens / API keys (e.g. 'OS keychain', '~/.config/foo/token', 'in-memory only')."
+        },
+        "oauth_scopes_requested": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        },
+        "oauth_scopes_minimum_necessary": {
+          "type": "boolean",
+          "description": "True when requested scopes match the strict minimum needed by the allowlisted tools."
+        },
+        "revocation_mechanism": {
+          "type": "string",
+          "description": "How access is revoked on compromise (per-user OAuth, vendor admin console, rotate API key, etc.)."
+        },
+        "time_to_revoke_minutes": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Realistic time-to-cut-access in minutes. Higher = larger blast radius."
+        },
+        "identity_binding": {
+          "type": "string",
+          "enum": ["personal", "service-principal", "shared-secret", "other"]
+        }
+      }
+    },
+    "local_execution": {
+      "type": "object",
+      "description": "Local-process surface. For remote-only tools set runs_subprocess and eval_or_codegen to false and note 'remote vendor service' in filesystem_access_notes.",
+      "additionalProperties": false,
+      "required": [
+        "runs_subprocess",
+        "eval_or_codegen",
+        "filesystem_access_notes"
+      ],
+      "properties": {
+        "runs_subprocess": { "type": "boolean" },
+        "eval_or_codegen": { "type": "boolean" },
+        "filesystem_access_notes": { "type": "string" }
+      }
+    },
+    "observability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "vendor_audit_log_available",
+        "vendor_audit_log_retention",
+        "tool_ships_telemetry",
+        "telemetry_destinations",
+        "indirect_injection_vectors"
+      ],
+      "properties": {
+        "vendor_audit_log_available": { "type": "boolean" },
+        "vendor_audit_log_retention": { "type": "string" },
+        "tool_ships_telemetry": {
+          "type": "boolean",
+          "description": "True if the tool itself sends analytics/telemetry to a third party in addition to the API server."
+        },
+        "telemetry_destinations": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        },
+        "indirect_injection_vectors": {
+          "type": "array",
+          "description": "Tool outputs that could contain injection content (URLs the model may WebFetch, log lines, ticket descriptions).",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "compliance": {
+      "type": "object",
+      "description": "FCA-authorised firm context: data residency, sub-processors, license compatibility, vendor incident history.",
+      "additionalProperties": false,
+      "required": [
+        "sub_processors",
+        "data_residency",
+        "license_compatibility",
+        "vendor_incidents"
+      ],
+      "properties": {
+        "sub_processors": {
+          "type": "array",
+          "description": "Sorted. Vendor's sub-processors that may receive FMFX data via this tool.",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        },
+        "data_residency": {
+          "type": "string",
+          "description": "Region routing: where data is stored / processed (e.g. 'EU only', 'US + EU', 'global')."
+        },
+        "license_compatibility": {
+          "type": "string",
+          "enum": ["permissive", "weak-copyleft", "strong-copyleft", "commercial-restricted", "proprietary-saas", "unknown"]
+        },
+        "vendor_incidents": {
+          "type": "array",
+          "description": "Recent breaches / public advisories at the provider. Sorted by date descending.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["date", "summary"],
+            "properties": {
+              "date": { "type": "string", "format": "date" },
+              "summary": { "type": "string" },
+              "url": { "type": "string", "format": "uri" }
+            }
+          }
+        }
+      }
+    },
+    "stride": {
+      "type": "object",
+      "description": "STRIDE one-line summary. Each value should be a single sentence stating the worst-case for this category.",
+      "additionalProperties": false,
+      "required": [
+        "spoofing",
+        "tampering",
+        "repudiation",
+        "info_disclosure",
+        "denial",
+        "elevation"
+      ],
+      "properties": {
+        "spoofing": { "type": "string" },
+        "tampering": { "type": "string" },
+        "repudiation": { "type": "string" },
+        "info_disclosure": { "type": "string" },
+        "denial": { "type": "string" },
+        "elevation": { "type": "string" }
+      }
+    }
+  }
+}

@@ -1,0 +1,144 @@
+{
+  "schema_version": "1",
+  "slug": "playwright-mcp",
+  "name": "Playwright MCP",
+  "type": "mcp-server",
+  "source": "https://github.com/microsoft/playwright-mcp",
+  "version_or_path": "mcr.microsoft.com/playwright/mcp:v0.0.75@sha256:d238ec7bc98cc4e22df0696d6031dad5b8a4b46781f4f0abaa3bfadeedb43b9a",
+  "vendor": "Microsoft",
+  "official_vendor": true,
+  "transport": "http",
+  "auth": {
+    "method": "none",
+    "scopes": [],
+    "notes": "MCP server is exposed on loopback (127.0.0.1:8931) with --allowed-hosts restricted to localhost:8931,127.0.0.1:8931. No auth on the MCP endpoint itself; authentication to navigated sites is handled by the browser context (cookies, storage state)."
+  },
+  "tools": [
+    { "name": "browser_click", "description": "Click an element on the current page (with optional modifier keys / mouse button).", "mutates": true, "toolset": "core" },
+    { "name": "browser_close", "description": "Close the active page / tab.", "mutates": true, "toolset": "core" },
+    { "name": "browser_console_messages", "description": "Return console log entries captured for the current page.", "mutates": false, "toolset": "core" },
+    { "name": "browser_drag", "description": "Drag-and-drop between two elements.", "mutates": true, "toolset": "core" },
+    { "name": "browser_drop", "description": "Drop files or MIME data onto a target element.", "mutates": true, "toolset": "core" },
+    { "name": "browser_evaluate", "description": "Execute a JavaScript expression in the page context. Effectively in-page code execution.", "mutates": true, "toolset": "core" },
+    { "name": "browser_file_upload", "description": "Upload files into a page file input.", "mutates": true, "toolset": "core" },
+    { "name": "browser_fill_form", "description": "Fill multiple form fields in a single call.", "mutates": true, "toolset": "core" },
+    { "name": "browser_handle_dialog", "description": "Accept or dismiss browser dialogs (alert / confirm / prompt).", "mutates": true, "toolset": "core" },
+    { "name": "browser_hover", "description": "Hover the pointer over an element.", "mutates": true, "toolset": "core" },
+    { "name": "browser_navigate", "description": "Navigate the current tab to a URL.", "mutates": true, "toolset": "core" },
+    { "name": "browser_navigate_back", "description": "Navigate the current tab one step back in history.", "mutates": true, "toolset": "core" },
+    { "name": "browser_network_request", "description": "Return the full details of an individual captured network request.", "mutates": false, "toolset": "core" },
+    { "name": "browser_network_requests", "description": "List captured network requests for the current page (with filters).", "mutates": false, "toolset": "core" },
+    { "name": "browser_press_key", "description": "Press a keyboard key.", "mutates": true, "toolset": "core" },
+    { "name": "browser_resize", "description": "Resize the browser viewport.", "mutates": true, "toolset": "core" },
+    { "name": "browser_run_code_unsafe", "description": "Execute arbitrary Playwright code against the running browser. Vendor explicitly labels this 'unsafe'; effectively RCE-equivalent within the container's browser context.", "mutates": true, "toolset": "core" },
+    { "name": "browser_select_option", "description": "Select one or more options in a <select> element.", "mutates": true, "toolset": "core" },
+    { "name": "browser_snapshot", "description": "Return an accessibility-tree snapshot of the current page (preferred over screenshots for LLM consumption).", "mutates": false, "toolset": "core" },
+    { "name": "browser_tabs", "description": "Manage browser tabs (list / create / close / select).", "mutates": true, "toolset": "core" },
+    { "name": "browser_take_screenshot", "description": "Capture a PNG/JPEG screenshot of the current page.", "mutates": false, "toolset": "core" },
+    { "name": "browser_type", "description": "Type text into an editable element.", "mutates": true, "toolset": "core" },
+    { "name": "browser_wait_for", "description": "Wait for text to appear / disappear or for a fixed duration.", "mutates": false, "toolset": "core" }
+  ],
+  "network_egress": [
+    "*.wearefreemarket.com",
+    "host.docker.internal:3128",
+    "mcr.microsoft.com"
+  ],
+  "dependencies": [
+    { "name": "@modelcontextprotocol/sdk", "ecosystem": "npm" },
+    { "name": "@playwright/mcp", "version": "0.0.75", "ecosystem": "npm" },
+    { "name": "playwright", "ecosystem": "npm" }
+  ],
+  "license": "Apache-2.0",
+  "maintainer": "Microsoft (github.com/microsoft)",
+  "cves": [],
+  "retention": "None vendor-side: the tool is an OCI image we run locally. Browser state is ephemeral per-session because --isolated is set; no persistent profile, cookies, or storage state is written to disk. Container-side artifacts (screenshots, traces) live in /tmp/playwright-output and are removed with the container.",
+  "zdr_eligible": true,
+  "data_classes": ["internal", "confidential"],
+  "is_section_3_2_source": false,
+  "risk_level": "medium",
+  "tier": "elevated",
+  "compensating_controls": [
+    "Run with --isolated so no persistent browser profile, cookies, or storage state is retained across sessions.",
+    "Restrict navigable origins via PLAYWRIGHT_MCP_ALLOWED_ORIGINS, derived from playwright.allowedDomains in proxy-config.yml.",
+    "Bind the HTTP MCP server to loopback only (127.0.0.1:8931) and gate it with --allowed-hosts localhost:8931,127.0.0.1:8931.",
+    "In-sandbox mode forces all browser egress through the sandbox HTTP proxy (host.docker.internal:3128) with the proxy CA cert injected into Chromium's NSS DB, giving an inspectable choke point.",
+    "Pin the upstream image by digest (mcr.microsoft.com/playwright/mcp:v0.0.75@sha256:d238ec7bc98cc4e22df0696d6031dad5b8a4b46781f4f0abaa3bfadeedb43b9a) so an upstream tag-overwrite cannot silently alter the surface; the digest is the multi-arch OCI index, so amd64 and arm64 are both bound.",
+    "Deny browser_evaluate and browser_run_code_unsafe via managed settings.json so the model cannot drive in-page or arbitrary Playwright code execution without an explicit approval-gated un-deny.",
+    "Container runs --headless --no-sandbox in an ephemeral container; no persistent volumes are mounted in sandbox mode."
+  ],
+  "reviewed_by": {
+    "name": "Rob Taylor",
+    "email": "rob.taylor@wearefreemarket.com"
+  },
+  "reviewed_on": "2026-05-08",
+  "review_due": "2026-08-06",
+  "research_gaps": [
+    { "field": "supply_chain.signed_release (caveat)", "reason": "Recorded as true because `docker buildx imagetools inspect mcr.microsoft.com/playwright/mcp:v0.0.75` returns OCI image-index manifests carrying Docker BuildKit attestation manifests (vnd.docker.reference.type: attestation-manifest) for both linux/amd64 and linux/arm64 — i.e. SLSA provenance and SBOM are attached at build time. We did NOT verify a Sigstore / cosign signature against a Microsoft identity; sigstore therefore stays false." },
+    { "field": "supply_chain.maintainer_2fa", "reason": "Microsoft GitHub org membership 2FA enforcement is not externally verifiable; treated as n/a-vendor-hosted because the artefact is published through Microsoft's enterprise registry rather than an individual account." },
+    { "field": "tools (capability gating)", "reason": "The image accepts opt-in capability flags (--caps=vision|pdf|devtools|network|storage|testing) that expose additional tools (e.g. browser_pdf_save, browser_*_storage_*, browser_route, browser_mouse_*_xy, browser_start_tracing). The current compose command does not pass --caps, so only the default 'core' set is exposed; these additional tools are out of scope for this snapshot and would surface as security-relevant deltas if the deployment opts in." },
+    { "field": "observability.vendor_audit_log_available", "reason": "Self-hosted container; there is no vendor-side audit log. Recorded as false. FMFX must rely on container stdout, sandbox proxy access logs, and Claude Code's own tool-use transcripts for after-the-fact investigation." }
+  ],
+  "mcp_specific": {
+    "description_scan_clean": true,
+    "suspicious_descriptions": [],
+    "bundled_executor_tools": [
+      "browser_evaluate",
+      "browser_run_code_unsafe"
+    ],
+    "name_collision_notes": "Tool names are uniformly browser_*-prefixed. No collision risk identified against currently-adopted MCPs (datadog-mcp's tools are search_*/get_*/aggregate_*-prefixed). If a future MCP exposes browser_* tools (e.g. a competing browser-automation server), the model could be confused into routing calls to the wrong server; revisit at that point."
+  },
+  "supply_chain": {
+    "install_method": "container",
+    "postinstall_scripts": false,
+    "pinned_by_hash": true,
+    "signed_release": true,
+    "npm_provenance": false,
+    "sigstore": false,
+    "typosquat_check_performed": true,
+    "similar_packages": [
+      "@executeautomation/playwright-mcp-server",
+      "@playwright/test"
+    ],
+    "maintainer_2fa": "n/a-vendor-hosted"
+  },
+  "credentials": {
+    "storage_location": "in-memory only (no persistent profile because --isolated is set)",
+    "oauth_scopes_requested": [],
+    "oauth_scopes_minimum_necessary": true,
+    "revocation_mechanism": "Stop / remove the container (docker compose down). There is no shared API key or OAuth grant to rotate.",
+    "time_to_revoke_minutes": 1,
+    "identity_binding": "service-principal"
+  },
+  "local_execution": {
+    "runs_subprocess": true,
+    "eval_or_codegen": true,
+    "filesystem_access_notes": "The container process spawns headless Chromium and writes per-session outputs to /tmp/playwright-output (sandbox mode) or the playwright-data named volume (local mode). No host filesystem is bind-mounted. The model can drive in-page JavaScript via browser_evaluate and arbitrary Playwright code via browser_run_code_unsafe; both are denied at the managed settings.json layer in the approved configuration."
+  },
+  "observability": {
+    "vendor_audit_log_available": false,
+    "vendor_audit_log_retention": "n/a — self-hosted container.",
+    "tool_ships_telemetry": false,
+    "telemetry_destinations": [],
+    "indirect_injection_vectors": [
+      "browser_snapshot — accessibility tree text from arbitrary navigated pages can carry model-targeted instructions.",
+      "browser_take_screenshot — image content from navigated pages may contain instructions intended for a vision-capable model.",
+      "browser_console_messages — page console output is attacker-controllable on any visited site.",
+      "browser_network_requests / browser_network_request — captured response bodies are attacker-controllable.",
+      "browser_navigate — once navigation succeeds, every downstream read tool's output is influenced by the (potentially attacker-controlled) page content."
+    ]
+  },
+  "compliance": {
+    "sub_processors": [],
+    "data_residency": "Local to the developer machine / sandbox container; egress destinations are governed by playwright.allowedDomains and the sandbox proxy.",
+    "license_compatibility": "permissive",
+    "vendor_incidents": []
+  },
+  "stride": {
+    "spoofing": "A malicious page reached via browser_navigate could impersonate a trusted FMFX internal site if DNS or the allowed-origins list is compromised, tricking the model into submitting credentials via browser_fill_form.",
+    "tampering": "browser_evaluate / browser_run_code_unsafe let the model mutate the DOM and Playwright runtime arbitrarily; a prompt-injected instruction could rewrite a page mid-flow before the model takes a screenshot, falsifying evidence.",
+    "repudiation": "There is no vendor audit log; if the container is destroyed, the only record of which URLs were visited and which actions were taken lives in the Claude Code transcript and the sandbox proxy access log — both must be retained to investigate misuse.",
+    "info_disclosure": "browser_navigate followed by browser_snapshot / browser_take_screenshot can ex-filtrate the contents of any reachable internal site to the model (and from there to the chat transcript / API provider) — this is the dominant risk.",
+    "denial": "A long-running browser_evaluate or runaway navigation can pin the container CPU and starve other MCP traffic on the same host, but blast radius is limited to the developer's own machine.",
+    "elevation": "browser_run_code_unsafe gives full Playwright API access inside the container; combined with --no-sandbox (Chromium's setuid sandbox disabled) a Chromium 0-day could yield container-root code execution, but containment is bounded by the container and the sandbox proxy."
+  }
+}

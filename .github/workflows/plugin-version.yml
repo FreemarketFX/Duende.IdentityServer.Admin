@@ -1,0 +1,167 @@
+name: Plugin version
+
+# Path triggers include `tool-adoption-records/**` so adoption-record / snapshot
+# changes run snapshot schema validation in CI. They are intentionally NOT in
+# the `bumpRequired` filter below — adoption records are data, not plugin code,
+# and must not force a `plugin.json` / `marketplace.json` version bump.
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.claude-plugin/**'
+      - 'hooks/**'
+      - 'skills/**'
+      - '.mcp.json'
+      - 'tool-adoption-records/**'
+  pull_request:
+    paths:
+      - '.claude-plugin/**'
+      - 'hooks/**'
+      - 'skills/**'
+      - '.mcp.json'
+      - 'tool-adoption-records/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  validate:
+    name: Validate plugin version
+    runs-on:
+      group: fmfx-gha-runners-linux-static-ip
+    outputs:
+      version: ${{ steps.read.outputs.version }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Detect changed path groups
+        id: filter
+        uses: dorny/paths-filter@v4
+        with:
+          # `bumpRequired` deliberately excludes `tool-adoption-records/**` —
+          # those are data, not plugin code.
+          filters: |
+            bumpRequired:
+              - 'hooks/**'
+              - 'skills/**'
+              - '.mcp.json'
+            version:
+              - '.claude-plugin/plugin.json'
+              - '.claude-plugin/marketplace.json'
+            adoptionRecords:
+              - 'tool-adoption-records/**'
+
+      - name: Read & cross-check versions
+        id: read
+        run: |
+          set -euo pipefail
+          plugin_v=$(jq -r '.version' .claude-plugin/plugin.json)
+          market_v=$(jq -r '.metadata.version' .claude-plugin/marketplace.json)
+          market_plugin_v=$(jq -r '.plugins[0].version' .claude-plugin/marketplace.json)
+
+          if [ "$plugin_v" != "$market_v" ] || [ "$plugin_v" != "$market_plugin_v" ]; then
+            echo "::error::Version mismatch — plugin.json=$plugin_v marketplace.metadata=$market_v marketplace.plugins[0]=$market_plugin_v"
+            exit 1
+          fi
+          echo "version=$plugin_v" >> "$GITHUB_OUTPUT"
+
+      - name: Require version bump when hooks / skills / .mcp.json changed
+        if: steps.filter.outputs.bumpRequired == 'true' && steps.filter.outputs.version != 'true'
+        run: |
+          echo "::error::Changes under hooks/ skills/ or .mcp.json require a version bump in .claude-plugin/plugin.json AND .claude-plugin/marketplace.json"
+          echo "Changed (bump-triggering) files:"
+          echo '${{ steps.filter.outputs.bumpRequired_files }}'
+          exit 1
+
+  validate-adoption-snapshots:
+    name: Validate adoption-record snapshots
+    runs-on:
+      group: fmfx-gha-runners-linux-static-ip
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Detect adoption-records changes
+        id: filter
+        uses: dorny/paths-filter@v4
+        with:
+          filters: |
+            adoptionRecords:
+              - 'tool-adoption-records/**'
+              - 'skills/tool-security-analysis/snapshot.schema.json'
+
+      - name: Set up Node
+        if: steps.filter.outputs.adoptionRecords == 'true'
+        uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+
+      - name: Install ajv-cli
+        if: steps.filter.outputs.adoptionRecords == 'true'
+        run: npm install --no-save ajv-cli@^5 ajv-formats@^3
+
+      - name: Validate every current snapshot.json against schema
+        if: steps.filter.outputs.adoptionRecords == 'true'
+        # Only validate the live snapshot per slug. Archived snapshots under
+        # `history/` are point-in-time records and may legitimately diverge
+        # from the current schema after a schema-breaking change.
+        run: |
+          set -euo pipefail
+          schema=skills/tool-security-analysis/snapshot.schema.json
+          shopt -s nullglob
+          snapshots=( tool-adoption-records/*/snapshot.json )
+          if [ ${#snapshots[@]} -eq 0 ]; then
+            echo "No current snapshots found — nothing to validate."
+            exit 0
+          fi
+          for f in "${snapshots[@]}"; do
+            echo "Validating $f"
+            npx --yes ajv-cli validate --spec=draft2020 -c ajv-formats -s "$schema" -d "$f"
+          done
+
+  check-tag:
+    name: Check tag state
+    needs: validate
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on:
+      group: fmfx-gha-runners-linux-static-ip
+    outputs:
+      should_tag: ${{ steps.check.outputs.should_tag }}
+    steps:
+      - name: Check whether tag already exists
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ needs.validate.outputs.version }}+freemarket-tools
+          SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          encoded_tag=$(jq -rn --arg t "$TAG" '$t|@uri')
+          existing_sha=""
+          if response=$(gh api -H "Accept: application/vnd.github+json" \
+            "repos/${{ github.repository }}/git/ref/tags/$encoded_tag" 2>/dev/null); then
+            existing_sha=$(echo "$response" | jq -r '.object.sha')
+          fi
+
+          if [ -z "$existing_sha" ]; then
+            echo "Tag $TAG does not exist — will create."
+            echo "should_tag=true" >> "$GITHUB_OUTPUT"
+          elif [ "$existing_sha" = "$SHA" ]; then
+            echo "Tag $TAG already at $SHA — no-op."
+            echo "should_tag=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "::error::Tag $TAG exists at $existing_sha but current ref is $SHA. Bump the version."
+            exit 1
+          fi
+
+  tag-release:
+    name: Tag release
+    needs: [validate, check-tag]
+    if: needs.check-tag.outputs.should_tag == 'true'
+    permissions:
+      contents: write
+      id-token: write
+    uses: FreemarketFX/gha-shared-workflows/.github/workflows/tag-release.yml@main
+    with:
+      packageVersion: ${{ needs.validate.outputs.version }}+freemarket-tools

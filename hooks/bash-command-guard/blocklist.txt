@@ -1,0 +1,76 @@
+# bash-command-guard block list
+#
+# One regex per line. Lines starting with `#` and blank lines are ignored.
+# Matching is case-insensitive. Add new patterns here and update README.md.
+#
+# To express a substring, just write it. Escape regex metacharacters (`.`, `(`, `[`, etc.)
+# in literal hostnames/paths.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Azure
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Azure CLI — match the `az` token but not `azcopy`, `azure`, `tar -azxvf`, etc.
+\baz\b
+
+# Azure PowerShell module cmdlets (Verb-Az<Noun>): Get-AzVM, Connect-AzAccount, Import-AzAksCredential, etc.
+[A-Za-z]+-Az[A-Za-z]+
+
+# Other Azure-adjacent CLIs / verbs.
+# `swa` and `ksm` are 3-letter tokens — we use `(^|[^[:alnum:]_-])X\b` so
+# `linux-ksm-tools`, `redhat-ksm-tuned`, `static-swa-bin`, etc. do NOT match.
+# Longer tokens (azcopy, kubectl, azureauth) don't need this and use plain \b.
+\bazcopy\b
+\bazureauth\b
+(^|[^[:alnum:]_-])swa\b
+\bkubectl\b
+(^|[^[:alnum:]_-])ksm\b
+get-credentials
+(get|print)-access-token
+
+# Azure REST + identity endpoints (literal hostnames)
+management\.azure\.com
+login\.microsoftonline\.com
+graph\.microsoft\.com
+vault\.azure\.net
+\.blob\.core\.windows\.net
+\.queue\.core\.windows\.net
+\.table\.core\.windows\.net
+\.file\.core\.windows\.net
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Credential harvesting — direct reads of well-known secret stores
+# ─────────────────────────────────────────────────────────────────────────────
+
+\.ssh/id_[a-z0-9_]+
+\.aws/credentials
+\.azure/(accessTokens|msal_token_cache|service_principal_entries)
+\.kube/config
+\.netrc\b
+\.docker/config\.json
+\.git-credentials
+Login Data
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Project-scoped overrides — Atlassian CLI hitting tickets in the AILV
+# project is treated as exfil, regardless of subcommand. Either order
+# (CLI before key, or vice versa) matches.
+# ─────────────────────────────────────────────────────────────────────────────
+
+(^|[^[:alnum:]_-])acli\b.*AILV-[0-9]+|AILV-[0-9]+.*(^|[^[:alnum:]_-])acli\b
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Credential-management CLIs commonly abused for exfil
+# ─────────────────────────────────────────────────────────────────────────────
+
+\bssh-keyscan\b
+\bcmdkey\b
+\bvaultcmd\b
+\bsecret-tool\b
+find-(\w+)-password
+\bgh\s+auth\s+token\b
+\baws\s+configure\s+get\b
+get-session-token
+\bop\s+(read|item|document)\b
+\bpass\s+show\b
+\bkeyring\s+get\b

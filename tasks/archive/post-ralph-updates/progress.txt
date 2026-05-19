@@ -1,0 +1,56 @@
+# Progress: Post-Ralph Skill & Archive Restore
+
+## Codebase Patterns
+- Skills are SKILL.md files with YAML frontmatter (name, description) + markdown body
+- Each skill lives in its own directory under skills/
+- No build system in claude-shared — it's a pure config/skills repo
+- Existing skills: ralph, prd, bdd-test, feature, query, etc.
+
+---
+
+## 2026-03-04 - US-001
+- Created `skills/post-ralph/SKILL.md` — post-ralph archive & commit skill
+- Follows same YAML frontmatter + markdown pattern as existing skills
+- Covers: read prd.json, archive to tasks/archive/{identifier}/, cleanup tasks/current/, commit
+- Handles edge cases: no prd.json, no progress.txt, empty jiraTicket, duplicate archives (suffix numbering)
+- Files changed: skills/post-ralph/SKILL.md (new), tasks/current/prd.json, tasks/current/progress.txt
+- **Learnings for future iterations:**
+  - No build/test to run in claude-shared — it's all markdown/JSON/PS1
+  - Skills are prompt-based instructions, not executable code
+  - Archive folder naming: prefer jiraTicket, fall back to branchName
+---
+
+## 2026-03-04 - US-002
+- Modified `ralph-sandbox/ralph-sandbox.ps1` to run post-ralph skill inside sandbox after COMPLETE
+- Removed `Archive-CompletedRun` and `Copy-WithUniqueSuffix` functions (archiving now handled by skill)
+- After detecting `<promise>COMPLETE</promise>`, runs `docker sandbox run` with prompt to trigger `/post-ralph`
+- Toast notification fires after post-ralph completes, script exits 0
+- Files changed: ralph-sandbox/ralph-sandbox.ps1, tasks/current/prd.json, tasks/current/progress.txt
+- **Learnings for future iterations:**
+  - `docker sandbox run` accepts `-p` for prompt — can trigger skills this way
+  - Kept same streaming/logging pattern for post-ralph run as regular iterations
+---
+
+## 2026-03-04 - US-003
+- Added "Archive Restore" section to `skills/ralph/SKILL.md`
+- New step 1 in "The Job": check archive before archiving/converting
+- Restore logic: match by Jira ticket folder first, fall back to branchName scan across archive prd.json files
+- Handles multiple suffixed files (picks highest suffix)
+- Shows story status summary table on restore
+- Stops after restore — does not proceed with conversion
+- Files changed: skills/ralph/SKILL.md, tasks/current/prd.json, tasks/current/progress.txt
+- **Learnings for future iterations:**
+  - Archive restore is a prompt-level instruction, not executable code
+  - Suffix logic: base file wins if no suffixed versions, otherwise highest number
+---
+
+## 2026-03-04 - US-004
+- Added "Archive Restore" section to `skills/prd/SKILL.md`
+- New step 1 in "The Job": check archive before creating new PRD
+- Same restore logic as ralph skill: ticket match → branchName fallback → suffix handling
+- Key difference from ralph: after restore, proceeds with normal PRD editing flow (doesn't stop)
+- Files changed: skills/prd/SKILL.md, tasks/current/prd.json, tasks/current/progress.txt
+- **Learnings for future iterations:**
+  - Archive restore pattern is now consistent across both prd and ralph skills
+  - Only behavioral difference: prd continues editing after restore, ralph stops
+---
